@@ -1,0 +1,150 @@
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="row g-4">
+
+    <div class="col-md-3">
+        <div class="dashboard-card">
+
+            <div class="d-flex justify-content-between">
+
+                <div>
+                    <div class="dashboard-card-title">
+                        ห้องพักทั้งหมด
+                    </div>
+
+                    <div class="dashboard-card-number">
+                        25
+                    </div>
+                </div>
+
+                <div class="dashboard-icon">
+                    🏨
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+
+    <div class="col-md-3">
+        <div class="dashboard-card">
+
+            <div class="d-flex justify-content-between">
+
+                <div>
+                    <div class="dashboard-card-title">
+                        ห้องที่ถูกจอง
+                    </div>
+
+                    <div class="dashboard-card-number">
+                        12
+                    </div>
+                </div>
+
+                <div class="dashboard-icon">
+                    📅
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+
+    <div class="col-md-3">
+        <div class="dashboard-card">
+
+            <div class="d-flex justify-content-between">
+
+                <div>
+                    <div class="dashboard-card-title">
+                        ผู้ใช้งาน
+                    </div>
+
+                    <div class="dashboard-card-number">
+                        120
+                    </div>
+                </div>
+
+                <div class="dashboard-icon">
+                    👤
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+
+    <div class="col-md-3">
+        <div class="dashboard-card">
+
+            <div class="d-flex justify-content-between">
+
+                <div>
+                    <div class="dashboard-card-title">
+                        จำนวนการจอง
+                    </div>
+
+                    <div class="dashboard-card-number">
+                        86
+                    </div>
+                </div>
+
+                <div class="dashboard-icon">
+                    📈
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+
+<div class="admin-table mt-5">
+
+    <div class="p-4">
+
+        <h5 class="mb-3">
+            การจองล่าสุด
+        </h5>
+
+        <table class="table">
+
+            <thead>
+                <tr>
+                    <th>Booking ID</th>
+                    <th>ผู้จอง</th>
+                    <th>ห้อง</th>
+                    <th>วันที่</th>
+                    <th>สถานะ</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                <tr>
+                    <td>#BK001</td>
+                    <td>สมชาย</td>
+                    <td>Deluxe Room</td>
+                    <td>12/09/2026</td>
+                    <td>
+                        <span class="badge bg-success">
+                            ยืนยันแล้ว
+                        </span>
+                    </td>
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>

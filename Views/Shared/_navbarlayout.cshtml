@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - Nawarut_8250_L005</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #ffffff;
+            color: #333;
+        }
+
+        /* =========================
+           NAVBAR
+        ========================= */
+        .custom-navbar {
+            width: 100%;
+            height: 72px;
+            background-color: #ffffff;
+            border-bottom: 1px solid #eeeeee;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 35px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* =========================
+           LOGO
+        ========================= */
+        .logo {
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            line-height: 1;
+            margin-right: 40px;
+        }
+
+        .logo-main {
+            font-size: 27px;
+            font-weight: 700;
+            color: #f2b400;
+            letter-spacing: 1px;
+        }
+
+        .logo-sub {
+            font-size: 9px;
+            font-weight: 600;
+            color: #999;
+            letter-spacing: 2px;
+            margin-top: 4px;
+        }
+
+        /* =========================
+           MENU
+        ========================= */
+        .navbar-menu {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex: 1;
+        }
+
+        .navbar-menu a {
+            text-decoration: none;
+            color: #333;
+            font-size: 15px;
+            font-weight: 500;
+
+            padding: 25px 15px;
+
+            transition: all 0.2s ease;
+        }
+
+        .navbar-menu a:hover {
+            color: #f2b400;
+        }
+
+        /* =========================
+           RIGHT MENU
+        ========================= */
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .login-btn {
+            text-decoration: none;
+            color: #333;
+            font-size: 15px;
+            font-weight: 500;
+            padding: 10px 15px;
+
+            transition: 0.2s;
+        }
+
+        .login-btn:hover {
+            color: #f2b400;
+        }
+
+        .register-btn {
+            text-decoration: none;
+            color: #333;
+            border: 1px solid #dcdcdc;
+            border-radius: 25px;
+            padding: 10px 22px;
+            font-size: 15px;
+            font-weight: 500;
+
+            transition: all 0.2s ease;
+        }
+
+        .register-btn:hover {
+            border-color: #f2b400;
+            color: #f2b400;
+            background-color: #fffdf3;
+        }
+
+        /* =========================
+           MENU BUTTON
+        ========================= */
+        .menu-btn {
+            border: none;
+            background: transparent;
+            color: #f2b400;
+            font-size: 25px;
+            cursor: pointer;
+            padding: 5px 10px;
+        }
+
+        .menu-btn:hover {
+            color: #d89f00;
+        }
+
+        /* =========================
+           MAIN CONTENT
+        ========================= */
+        main {
+            min-height: calc(100vh - 72px);
+        }
+
+        /* =========================
+           MOBILE
+        ========================= */
+        @@media (max-width: 900px) {
+
+            .custom-navbar {
+                height: auto;
+                padding: 12px 0;
+            }
+
+            .navbar-container {
+                flex-wrap: wrap;
+                padding: 0 20px;
+            }
+
+            .logo {
+                margin-right: auto;
+            }
+
+            .navbar-menu {
+                width: 100%;
+                order: 3;
+                margin-top: 10px;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .navbar-menu a {
+                width: 100%;
+                padding: 10px 0;
+            }
+
+            .navbar-right {
+                margin-left: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- =========================
+         NAVBAR
+    ========================= -->
+    <nav class="custom-navbar">
+
+        <div class="navbar-container">
+
+            <!-- Logo -->
+            <a class="logo"
+               asp-area=""
+               asp-controller="Home"
+               asp-action="Index">
+
+                <span class="logo-main">JoJo</span>
+                <span class="logo-sub">TRAVEL & HOTEL</span>
+
+            </a>
+
+
+            <!-- Menu -->
+            <div class="navbar-menu">
+
+                <a asp-controller="Home"
+                   asp-action="Index">
+                    หน้าหลัก
+                </a>
+
+                <a href="#">
+                    โรงแรม
+                </a>
+
+                <a href="#">
+                    ห้องพัก
+                </a>
+
+                <a href="#">
+                    การจอง
+                </a>
+
+                <a href="#">
+                    ติดต่อเรา
+                </a>
+
+            </div>
+
+
+            <!-- Right -->
+            <div class="navbar-right">
+
+                <a href="#" class="login-btn">
+                    เข้าสู่ระบบ
+                </a>
+
+                <a href="#" class="register-btn">
+                    สมัครสมาชิก
+                </a>
+
+                <button class="menu-btn">
+                    ☰
+                </button>
+
+            </div>
+
+        </div>
+
+    </nav>
+
+
+    <!-- =========================
+         PAGE CONTENT
+    ========================= -->
+    <main role="main">
+        @RenderBody()
+    </main>
+
+
+    <!-- =========================
+         SCRIPT
+    ========================= -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>
