@@ -1,0 +1,268 @@
+@model List<Nawarut_8250_L005.Models.User>
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "รายชื่อผู้ใช้งาน (User List)";
+}
+
+<!-- Alert Notification -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show rounded-3 shadow-sm mb-4" role="alert">
+        <div class="d-flex align-items-center">
+            <span class="fs-4 me-2">✅</span>
+            <div><strong>สำเร็จ!</strong> @TempData["SuccessMessage"]</div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show rounded-3 shadow-sm mb-4" role="alert">
+        <div class="d-flex align-items-center">
+            <span class="fs-4 me-2">⚠️</span>
+            <div>@TempData["ErrorMessage"]</div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<!-- Summary Statistics Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="dashboard-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="dashboard-card-title">ผู้ใช้งานทั้งหมด</div>
+                    <div class="dashboard-card-number">@Model.Count</div>
+                </div>
+                <div class="dashboard-icon">👥</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="dashboard-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="dashboard-card-title">ผู้ดูแลระบบ (Admin)</div>
+                    <div class="dashboard-card-number">@Model.Count(u => u.Role == "Admin")</div>
+                </div>
+                <div class="dashboard-icon">👑</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="dashboard-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="dashboard-card-title">ลูกค้าทั่วไป (Users)</div>
+                    <div class="dashboard-card-number">@Model.Count(u => u.Role == "User")</div>
+                </div>
+                <div class="dashboard-icon">🏨</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="dashboard-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="dashboard-card-title">เปิดใช้งานอยู่ (Active)</div>
+                    <div class="dashboard-card-number text-success">@Model.Count(u => u.Status == "Active")</div>
+                </div>
+                <div class="dashboard-icon">🟢</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Header Controls & Actions -->
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-body p-3 p-md-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+            <div>
+                <h4 class="fw-bold mb-1">ตารางข้อมูลผู้ใช้งานในระบบ (User List)</h4>
+                <p class="text-muted mb-0 small">จัดการข้อมูลบัญชีผู้ใช้งาน สิทธิ์การเข้าถึง และสถานะการใช้งาน</p>
+            </div>
+            <div>
+                <a asp-action="AddUser" asp-controller="Admin" class="btn btn-yellow fw-semibold shadow-sm d-inline-flex align-items-center gap-2">
+                    <span>➕</span>
+                    <span>เพิ่มผู้ใช้งาน (Add User)</span>
+                </a>
+            </div>
+        </div>
+
+        <hr class="my-3 text-muted opacity-25">
+
+        <!-- Search & Filter Form -->
+        <form method="get" asp-action="Users" asp-controller="Admin" class="row g-2 align-items-center">
+            <div class="col-12 col-md-5 col-lg-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0">🔍</span>
+                    <input type="text" name="search" value="@ViewBag.Search" class="form-control border-start-0 ps-0" placeholder="ค้นหาด้วยชื่อ, อีเมล หรือเบอร์โทรศัพท์..." />
+                </div>
+            </div>
+            <div class="col-6 col-md-3 col-lg-3">
+                <select name="roleFilter" class="form-select" onchange="this.form.submit()">
+                    <option value="All" selected="@(ViewBag.RoleFilter == "All" || string.IsNullOrEmpty(ViewBag.RoleFilter))">-- สิทธิ์ทั้งหมด (All Roles) --</option>
+                    <option value="Admin" selected="@(ViewBag.RoleFilter == "Admin")">Admin (ผู้ดูแลระบบ)</option>
+                    <option value="Staff" selected="@(ViewBag.RoleFilter == "Staff")">Staff (เจ้าหน้าที่)</option>
+                    <option value="User" selected="@(ViewBag.RoleFilter == "User")">User (ลูกค้าทั่วไป)</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-4 col-lg-3 d-flex gap-2">
+                <button type="submit" class="btn btn-outline-secondary w-50">ค้นหา</button>
+                <a asp-action="Users" asp-controller="Admin" class="btn btn-light border w-50 text-center">รีเซ็ต</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- User Table Card -->
+<div class="admin-table shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="ps-4" style="width: 70px;">#ID</th>
+                    <th>ผู้ใช้งาน</th>
+                    <th>อีเมล</th>
+                    <th>เบอร์โทรศัพท์</th>
+                    <th>สิทธิ์ (Role)</th>
+                    <th>สถานะ</th>
+                    <th>วันที่สร้าง</th>
+                    <th class="text-end pe-4" style="width: 120px;">จัดการ</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Any())
+                {
+                    @foreach (var user in Model)
+                    {
+                        <tr>
+                            <td class="ps-4 text-muted fw-bold">#@user.Id</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="user-avatar-circle @(user.Role == "Admin" ? "avatar-admin" : "avatar-user")">
+                                        @(string.IsNullOrEmpty(user.FullName) ? "U" : user.FullName.Substring(0, 1).ToUpper())
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark">@user.FullName</div>
+                                        @if (user.Role == "Admin")
+                                        {
+                                            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle" style="font-size: 10px;">System Admin</span>
+                                        }
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="text-secondary font-monospace small">@user.Email</span>
+                            </td>
+                            <td>
+                                <span class="text-secondary small">@(string.IsNullOrEmpty(user.PhoneNumber) ? "-" : user.PhoneNumber)</span>
+                            </td>
+                            <td>
+                                @if (user.Role == "Admin")
+                                {
+                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 rounded-pill">
+                                        👑 Admin
+                                    </span>
+                                }
+                                else if (user.Role == "Staff")
+                                {
+                                    <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle px-2 py-1 rounded-pill">
+                                        💼 Staff
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 rounded-pill">
+                                        👤 User
+                                    </span>
+                                }
+                            </td>
+                            <td>
+                                @if (user.Status == "Active")
+                                {
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 rounded-pill">
+                                        ● ใช้งานอยู่
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-1 rounded-pill">
+                                        ○ ระงับใช้งาน
+                                    </span>
+                                }
+                            </td>
+                            <td>
+                                <span class="text-muted small">@user.CreatedAt.ToString("dd/MM/yyyy HH:mm")</span>
+                            </td>
+                            <td class="text-end pe-4">
+                                @if (user.Email.Equals("admin@jojo.com", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    <span class="badge bg-light text-muted border" title="บัญชีผู้ดูแลหลัก ไม่สามารถลบได้">🔒 ล็อก</span>
+                                }
+                                else
+                                {
+                                    <form asp-action="DeleteUser" asp-controller="Admin" method="post" class="d-inline" onsubmit="return confirm('คุณแน่ใจหรือไม่ว่าต้องการลบผู้ใช้ &quot;@user.FullName&quot;?');">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@user.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-2 px-2 py-1" title="ลบผู้ใช้">
+                                            🗑️ ลบ
+                                        </button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            <div class="fs-1 mb-2">🔍</div>
+                            <h5>ไม่พบข้อมูลผู้ใช้งานที่ตรงกับเงื่อนไข</h5>
+                            <p class="small mb-3">ลองเปลี่ยนคำค้นหาหรือตัวกรองสถานะ</p>
+                            <a asp-action="Users" asp-controller="Admin" class="btn btn-sm btn-outline-secondary">ล้างการค้นหา</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .user-avatar-circle {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 15px;
+    }
+
+    .avatar-admin {
+        background: #fff3c4;
+        color: #b88600;
+        border: 2px solid #ffd866;
+    }
+
+    .avatar-user {
+        background: #eef2ff;
+        color: #4f46e5;
+        border: 2px solid #c7d2fe;
+    }
+
+    .admin-table table th {
+        font-size: 13px;
+        color: #555;
+        padding: 14px 16px;
+    }
+
+    .admin-table table td {
+        padding: 14px 16px;
+    }
+</style>

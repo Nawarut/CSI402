@@ -1,10 +1,11 @@
+@using Microsoft.AspNetCore.Http
 <!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>@ViewData["Title"] - Nawarut_8250_L005</title>
+    <title>@ViewData["Title"] - JoJo Hotel</title>
 
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
 
@@ -230,19 +231,19 @@
                     หน้าหลัก
                 </a>
 
-                <a href="#">
+                <a href="#" onclick="alert('ระบบห้องพักโรงแรม'); return false;">
                     โรงแรม
                 </a>
 
-                <a href="#">
+                <a href="#" onclick="alert('ระบบห้องพัก'); return false;">
                     ห้องพัก
                 </a>
 
-                <a href="#">
+                <a href="#" onclick="alert('ระบบการจอง'); return false;">
                     การจอง
                 </a>
 
-                <a href="#">
+                <a href="#" onclick="alert('ติดต่อ: 02-123-4567'); return false;">
                     ติดต่อเรา
                 </a>
 
@@ -252,15 +253,33 @@
             <!-- Right -->
             <div class="navbar-right">
 
-                <a href="#" class="login-btn">
-                    เข้าสู่ระบบ
-                </a>
+                @if (!string.IsNullOrEmpty(Context.Session.GetString("UserName")))
+                {
+                    <div class="d-flex align-items-center gap-2">
+                        @if (Context.Session.GetString("UserRole") == "Admin")
+                        {
+                            <a asp-controller="Admin" asp-action="Users" class="btn btn-sm btn-warning text-dark fw-bold rounded-pill px-3">
+                                👑 แผงควบคุม Admin
+                            </a>
+                        }
+                        <span class="small fw-semibold text-secondary">👤 @Context.Session.GetString("UserName")</span>
+                        <a asp-controller="Account" asp-action="Logout" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                            ออกจากระบบ
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <a asp-controller="Account" asp-action="Login" class="login-btn">
+                        เข้าสู่ระบบ
+                    </a>
 
-                <a href="#" class="register-btn">
-                    สมัครสมาชิก
-                </a>
+                    <a asp-controller="Account" asp-action="Register" class="register-btn">
+                        สมัครสมาชิก
+                    </a>
+                }
 
-                <button class="menu-btn">
+                <button class="menu-btn d-md-none">
                     ☰
                 </button>
 

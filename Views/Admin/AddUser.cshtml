@@ -1,0 +1,157 @@
+@model Nawarut_8250_L005.Models.AddUserViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "เพิ่มผู้ใช้งาน (Add User)";
+}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-8 col-xl-7">
+
+        <!-- Breadcrumb & Back -->
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div class="d-flex align-items-center gap-2">
+                <a asp-action="Users" asp-controller="Admin" class="btn btn-sm btn-light border rounded-pill px-3 py-1 text-muted">
+                    ← กลับหน้ารายชื่อ
+                </a>
+                <span class="text-muted small">/ การจัดการผู้ใช้งาน / เพิ่มข้อมูล</span>
+            </div>
+        </div>
+
+        <!-- Add User Card -->
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="card-header bg-white p-4 border-bottom">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="add-user-icon">
+                        ➕
+                    </div>
+                    <div>
+                        <h4 class="fw-bold mb-1">ฟอร์มเพิ่มผู้ใช้งานใหม่ (Add User)</h4>
+                        <p class="text-muted small mb-0">กรอกข้อมูลผู้ใช้งานเพื่อเพิ่มเข้าสู่ระบบ JoJo Hotel</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-4">
+                @if (!ViewData.ModelState.IsValid && ViewData.ModelState[string.Empty]?.Errors.Count > 0)
+                {
+                    <div class="alert alert-danger rounded-3 py-2 px-3 mb-4 small">
+                        @foreach (var error in ViewData.ModelState[string.Empty]!.Errors)
+                        {
+                            <div>⚠️ @error.ErrorMessage</div>
+                        }
+                    </div>
+                }
+
+                <form asp-action="AddUser" asp-controller="Admin" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <!-- Section: Personal Information -->
+                    <h6 class="fw-bold text-secondary mb-3">📋 ข้อมูลส่วนตัว (Personal Info)</h6>
+
+                    <!-- Full Name -->
+                    <div class="mb-3">
+                        <label asp-for="FullName" class="form-label fw-semibold small">ชื่อ - นามสกุล <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light">👤</span>
+                            <input asp-for="FullName" class="form-control" placeholder="เช่น นายณวรัตน์ อินมีศรี" />
+                        </div>
+                        <span asp-validation-for="FullName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row g-3">
+                        <!-- Email -->
+                        <div class="col-12 col-md-6 mb-3">
+                            <label asp-for="Email" class="form-label fw-semibold small">อีเมล <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">✉️</span>
+                                <input asp-for="Email" class="form-control" placeholder="user@hotel.com" />
+                            </div>
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Phone Number -->
+                        <div class="col-12 col-md-6 mb-3">
+                            <label asp-for="PhoneNumber" class="form-label fw-semibold small">เบอร์โทรศัพท์ <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">📞</span>
+                                <input asp-for="PhoneNumber" class="form-control" placeholder="08x-xxx-xxxx" />
+                            </div>
+                            <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <hr class="my-4 text-muted opacity-25">
+
+                    <!-- Section: Role & Account Settings -->
+                    <h6 class="fw-bold text-secondary mb-3">⚙️ การตั้งค่าสิทธิ์และการเข้าสู่ระบบ (Permissions & Access)</h6>
+
+                    <div class="row g-3">
+                        <!-- Role -->
+                        <div class="col-12 col-md-6 mb-3">
+                            <label asp-for="Role" class="form-label fw-semibold small">สิทธิ์ผู้ใช้งาน (Role) <span class="text-danger">*</span></label>
+                            <select asp-for="Role" class="form-select">
+                                <option value="User">👤 User (ลูกค้าทั่วไป)</option>
+                                <option value="Staff">💼 Staff (เจ้าหน้าที่)</option>
+                                <option value="Admin">👑 Admin (ผู้ดูแลระบบ)</option>
+                            </select>
+                            <span asp-validation-for="Role" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="col-12 col-md-6 mb-3">
+                            <label asp-for="Status" class="form-label fw-semibold small">สถานะการใช้งาน <span class="text-danger">*</span></label>
+                            <select asp-for="Status" class="form-select">
+                                <option value="Active">🟢 ใช้งานอยู่ (Active)</option>
+                                <option value="Inactive">🔴 ระงับการใช้งาน (Inactive)</option>
+                            </select>
+                            <span asp-validation-for="Status" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="mb-4">
+                        <label asp-for="Password" class="form-label fw-semibold small">รหัสผ่านเริ่มต้น <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light">🔑</span>
+                            <input asp-for="Password" type="password" class="form-control" placeholder="อย่างน้อย 6 ตัวอักษร" />
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                        <div class="form-text text-muted small">ผู้ใช้สามารถใช้รหัสผ่านนี้เพื่อล็อกอินเข้าระบบได้ทันที</div>
+                    </div>
+
+                    <hr class="my-4 text-muted opacity-25">
+
+                    <!-- Submit & Cancel Buttons -->
+                    <div class="d-flex justify-content-end gap-2">
+                        <a asp-action="Users" asp-controller="Admin" class="btn btn-light border px-4 py-2">
+                            ยกเลิก
+                        </a>
+                        <button type="submit" class="btn btn-yellow fw-semibold px-4 py-2 shadow-sm">
+                            💾 บันทึกข้อมูลผู้ใช้ (Save User)
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .add-user-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: #fff3c4;
+        color: #d99f00;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #f2b400;
+        box-shadow: 0 0 0 0.25rem rgba(242, 180, 0, 0.2);
+    }
+</style>

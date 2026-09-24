@@ -1,0 +1,169 @@
+@model Nawarut_8250_L005.Models.RegisterViewModel
+@{
+    ViewData["Title"] = "สมัครสมาชิก (Register)";
+    Layout = "_navbarlayout";
+}
+
+<div class="auth-page-wrapper">
+    <div class="container py-5">
+        <div class="row justify-content-center align-items-center min-vh-75">
+            <div class="col-12 col-md-8 col-lg-6">
+
+                <!-- Main Register Card -->
+                <div class="card auth-card border-0 shadow-lg rounded-4 overflow-hidden">
+                    <div class="card-header bg-white border-0 text-center pt-4 pb-2">
+                        <div class="auth-badge-icon mx-auto mb-3">
+                            <span class="fs-2">📝</span>
+                        </div>
+                        <h3 class="fw-bold text-dark mb-1">สร้างบัญชีผู้ใช้งานใหม่</h3>
+                        <p class="text-muted small">สมัครสมาชิกเพื่อเข้าใช้บริการและรับสิทธิพิเศษจาก JoJo Hotel</p>
+                    </div>
+
+                    <div class="card-body p-4 pt-2">
+                        @if (!ViewData.ModelState.IsValid && ViewData.ModelState[string.Empty]?.Errors.Count > 0)
+                        {
+                            <div class="alert alert-danger rounded-3 py-2 px-3 mb-3 small">
+                                @foreach (var error in ViewData.ModelState[string.Empty]!.Errors)
+                                {
+                                    <div>⚠️ @error.ErrorMessage</div>
+                                }
+                            </div>
+                        }
+
+                        <form asp-action="Register" asp-controller="Account" method="post">
+                            @Html.AntiForgeryToken()
+
+                            <!-- Full Name -->
+                            <div class="mb-3">
+                                <label asp-for="FullName" class="form-label fw-semibold text-secondary small">ชื่อ - นามสกุล <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0 text-muted">👤</span>
+                                    <input asp-for="FullName" class="form-control bg-light border-start-0 ps-0" placeholder="เช่น นายสมเกียรติ รักสงบ" />
+                                </div>
+                                <span asp-validation-for="FullName" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="mb-3">
+                                <label asp-for="Email" class="form-label fw-semibold text-secondary small">อีเมล <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0 text-muted">✉️</span>
+                                    <input asp-for="Email" class="form-control bg-light border-start-0 ps-0" placeholder="user@example.com" />
+                                </div>
+                                <span asp-validation-for="Email" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Phone Number -->
+                            <div class="mb-3">
+                                <label asp-for="PhoneNumber" class="form-label fw-semibold text-secondary small">เบอร์โทรศัพท์ <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0 text-muted">📞</span>
+                                    <input asp-for="PhoneNumber" class="form-control bg-light border-start-0 ps-0" placeholder="08x-xxx-xxxx" />
+                                </div>
+                                <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                            </div>
+
+                            <div class="row g-2">
+                                <!-- Password -->
+                                <div class="col-12 col-md-6 mb-3">
+                                    <label asp-for="Password" class="form-label fw-semibold text-secondary small">รหัสผ่าน <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-end-0 text-muted">🔑</span>
+                                        <input asp-for="Password" type="password" class="form-control bg-light border-start-0 ps-0" placeholder="อย่างน้อย 6 ตัว" />
+                                    </div>
+                                    <span asp-validation-for="Password" class="text-danger small"></span>
+                                </div>
+
+                                <!-- Confirm Password -->
+                                <div class="col-12 col-md-6 mb-3">
+                                    <label asp-for="ConfirmPassword" class="form-label fw-semibold text-secondary small">ยืนยันรหัสผ่าน <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-end-0 text-muted">🔒</span>
+                                        <input asp-for="ConfirmPassword" type="password" class="form-control bg-light border-start-0 ps-0" placeholder="กรอกรหัสผ่านอีกครั้ง" />
+                                    </div>
+                                    <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-check mb-4">
+                                <input type="checkbox" class="form-check-input custom-checkbox" id="termsCheck" required checked />
+                                <label class="form-check-label small text-muted" for="termsCheck">
+                                    ฉันยอมรับ <a href="#" class="text-golden text-decoration-none">ข้อกำหนดการใช้งาน</a> และ <a href="#" class="text-golden text-decoration-none">นโยบายความเป็นส่วนตัว</a>
+                                </label>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <button type="submit" class="btn btn-primary-hotel w-100 py-2 fs-6 fw-bold rounded-3 shadow-sm mb-3">
+                                ยืนยันการสมัครสมาชิก
+                            </button>
+                        </form>
+
+                        <!-- Footer Links -->
+                        <div class="text-center mt-3 pt-2 border-top">
+                            <span class="small text-muted">มีบัญชีผู้ใช้งานอยู่แล้ว? </span>
+                            <a asp-action="Login" asp-controller="Account" class="small fw-bold text-decoration-none text-golden">
+                                เข้าสู่ระบบที่นี่
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .auth-page-wrapper {
+        background: linear-gradient(135deg, #fffdf8 0%, #f7f5ef 100%);
+        min-height: calc(100vh - 72px);
+    }
+
+    .auth-card {
+        background: #ffffff;
+    }
+
+    .auth-badge-icon {
+        width: 60px;
+        height: 60px;
+        background: #fff8df;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid #ffe89e;
+    }
+
+    .btn-primary-hotel {
+        background: #f2b400;
+        border: none;
+        color: #ffffff;
+        transition: all 0.2s ease;
+    }
+
+    .btn-primary-hotel:hover {
+        background: #d99f00;
+        color: #ffffff;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(242, 180, 0, 0.3);
+    }
+
+    .text-golden {
+        color: #d99f00;
+    }
+
+    .text-golden:hover {
+        color: #b88600;
+        text-decoration: underline !important;
+    }
+
+    .form-control:focus {
+        border-color: #f2b400;
+        box-shadow: 0 0 0 0.25rem rgba(242, 180, 0, 0.2);
+    }
+
+    .custom-checkbox:checked {
+        background-color: #f2b400;
+        border-color: #f2b400;
+    }
+</style>
