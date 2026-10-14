@@ -4,11 +4,76 @@ using Nawarut_8250_L005.Models;
 using Nawarut_8250_L005.ViewModels;
 using LoginViewModel = Nawarut_8250_L005.ViewModels.LoginViewModel;
 using RegisterViewModel = Nawarut_8250_L005.ViewModels.RegisterViewModel;
+using Nawarut_8250_L005.Entities;
+
 
 namespace Nawarut_8250_L005.Controllers;
 
 public class HomeController : Controller
 {
+    private readonly Csi402dbContext _db;
+
+    public HomeController(Csi402dbContext db)
+    {
+        _db = db;
+    }
+
+    public IActionResult Lab9()
+    {
+        //Create || Insert Value in SQL
+        return View();
+    }
+
+    [HttpPost]
+    public IActionResult Lab9(Labstudent data)
+    {
+        if(data.StdPassword != null)
+        {
+            if(ModelState.IsValid)
+            {
+                var CheckStd = (from a in _db.Labstudents where a.StdId == data.StdId select a).FirstOrDefault();
+                // Select * from Labstudens where StdId == "@StdId"
+                if(CheckStd == null)
+                {
+                    //Create || Insert Value in SQL
+                    Labstudent s = new();
+                    // Table2 a = new();
+                    s.StdId = data.StdId;
+                    // a.Code = data.StdId;
+                    s.StdPassword = data.StdPassword;
+                    s.StdName = data.StdName;
+                    s.StdLastname = data.StdLastname;
+                    _db.Add(s);
+                    // _db.Add(a);
+                    _db.SaveChanges();
+                    return View(data);
+                }
+                else
+                {
+                    ViewBag.Status = "StdCode ซ้ำ";
+                    return View(data);
+                }
+            }
+            else
+            {
+                ViewBag.Status = "Error";
+                return View(data);
+            }
+        }
+        else
+        {
+            ViewBag.Status = "Password Null";
+            return View(data);
+        }
+    }
+
+    public IActionResult Lab9_1()
+    {
+        var Student = (from s in _db.Labstudents select s).ToList();
+        // Select * From Labstudent
+        return View(Student);
+    }
+
     public IActionResult Index()
     {
         return View();
@@ -181,6 +246,7 @@ public class HomeController : Controller
     }
 
     public IActionResult UserList() => RedirectToAction("Lab5_3");
+
 }
 
 
