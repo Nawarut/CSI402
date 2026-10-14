@@ -1,11 +1,21 @@
 using Nawarut_8250_L005.Services;
+using Microsoft.EntityFrameworkCore;
+using Nawarut_8250_L005.Models;
+using Nawarut_8250_L005.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddDbContext<Csi402dbContext>(
+    options => options.UseMySql(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))
+    )
+);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddSingleton<IUserService, UserService>();
 builder.Services.AddDistributedMemoryCache();
+
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(60);

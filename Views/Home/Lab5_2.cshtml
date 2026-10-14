@@ -1,0 +1,90 @@
+@model Nawarut_8250_L005.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<section class="mx-auto max-w-2xl px-4 py-10">
+    <div class="rounded-2xl bg-white p-6 shadow-lg shadow-slate-900/5 sm:p-10 border border-slate-100">
+        <div class="text-center">
+            <p class="text-sm font-semibold text-emerald-700 tracking-wider">CREATE ACCOUNT</p>
+            <h1 class="mt-1 text-2xl font-bold text-slate-900">สมัครสมาชิก</h1>
+        </div>
+
+        <form asp-controller="Home" asp-action="Lab5_2" method="post" class="mt-8 grid gap-4 sm:grid-cols-2">
+            <div asp-validation-summary="ModelOnly" class="text-sm text-rose-600 sm:col-span-2"></div>
+
+            <label class="block">
+                <span class="mb-1.5 block text-sm font-medium text-slate-700">ชื่อ</span>
+                <input asp-for="Firstname" class="h-11 w-full rounded-lg border border-slate-300 px-3 text-sm focus:border-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-700 transition" />
+                <span asp-validation-for="Firstname" class="text-sm text-rose-600"></span>
+            </label>
+
+            <label class="block">
+                <span class="mb-1.5 block text-sm font-medium text-slate-700">นามสกุล</span>
+                <input asp-for="Lastname" class="h-11 w-full rounded-lg border border-slate-300 px-3 text-sm focus:border-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-700 transition" />
+                <span asp-validation-for="Lastname" class="text-sm text-rose-600"></span>
+            </label>
+
+            <label class="block sm:col-span-2">
+                <span class="mb-1.5 block text-sm font-medium text-slate-700">อีเมล</span>
+                <input asp-for="Email" type="email" placeholder="name@example.com"
+                       class="h-11 w-full rounded-lg border border-slate-300 px-3 text-sm focus:border-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-700 transition" />
+                <span asp-validation-for="Email" class="text-sm text-rose-600"></span>
+            </label>
+
+            <label class="block sm:col-span-2">
+                <span class="mb-1.5 block text-sm font-medium text-slate-700">เบอร์โทรศัพท์</span>
+                <input asp-for="Phone" type="tel" placeholder="000-000-0000"
+                       class="h-11 w-full rounded-lg border border-slate-300 px-3 text-sm focus:border-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-700 transition" />
+                <span asp-validation-for="Phone" class="text-sm text-rose-600"></span>
+            </label>
+
+            <label class="block">
+                <span class="mb-1.5 block text-sm font-medium text-slate-700">บทบาท (Role)</span>
+                <select asp-for="Role" class="h-11 w-full rounded-lg border border-slate-300 px-3 text-sm focus:border-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-700 bg-white transition">
+                    <option value="Renter">Renter (ผู้เช่า)</option>
+                    <option value="Staff">Staff (พนักงาน)</option>
+                    <option value="Accountant">Accountant (บัญชี)</option>
+                </select>
+                <span asp-validation-for="Role" class="text-sm text-rose-600"></span>
+            </label>
+
+            <label class="block">
+                <span class="mb-1.5 block text-sm font-medium text-slate-700">ล็อกซ์ / ห้องที่ (Slot No)</span>
+                <input asp-for="SlotNo" placeholder="เช่น A01 หรือ -"
+                       class="h-11 w-full rounded-lg border border-slate-300 px-3 text-sm focus:border-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-700 transition" />
+                <span asp-validation-for="SlotNo" class="text-sm text-rose-600"></span>
+            </label>
+
+            <label class="block">
+                <span class="mb-1.5 block text-sm font-medium text-slate-700">รหัสผ่าน</span>
+                <input asp-for="Password" type="password"
+                       class="h-11 w-full rounded-lg border border-slate-300 px-3 text-sm focus:border-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-700 transition" />
+                <span asp-validation-for="Password" class="text-sm text-rose-600"></span>
+            </label>
+
+            <label class="block">
+                <span class="mb-1.5 block text-sm font-medium text-slate-700">ยืนยันรหัสผ่าน</span>
+                <input asp-for="ConfirmPassword" type="password"
+                       class="h-11 w-full rounded-lg border border-slate-300 px-3 text-sm focus:border-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-700 transition" />
+                <span asp-validation-for="ConfirmPassword" class="text-sm text-rose-600"></span>
+            </label>
+
+            @if (ViewBag.Error != null)
+            {
+                <div class="rounded-lg bg-rose-50 p-3 text-sm text-rose-600 sm:col-span-2 border border-rose-200">
+                    @ViewBag.Error
+                </div>
+            }
+
+            <button type="submit" class="mt-2 h-11 rounded-lg bg-emerald-800 text-sm font-semibold text-white sm:col-span-2 hover:bg-emerald-700 active:bg-emerald-900 transition shadow">
+                สมัครสมาชิก
+            </button>
+        </form>
+
+        <p class="mt-6 text-center text-sm text-slate-600">
+            มีบัญชีอยู่แล้ว?
+            <a asp-controller="Home" asp-action="Lab5" class="font-semibold text-emerald-700 hover:underline">เข้าสู่ระบบ</a>
+        </p>
+    </div>
+</section>

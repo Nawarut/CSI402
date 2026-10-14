@@ -1,6 +1,9 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Nawarut_8250_L005.Models;
+using Nawarut_8250_L005.ViewModels;
+using LoginViewModel = Nawarut_8250_L005.ViewModels.LoginViewModel;
+using RegisterViewModel = Nawarut_8250_L005.ViewModels.RegisterViewModel;
 
 namespace Nawarut_8250_L005.Controllers;
 
@@ -90,21 +93,94 @@ public class HomeController : Controller
         {
             ViewBag.Result = "F";
         }
-        // if(sum > 10)
-        // {
-        //     ViewBag.Result = "True";
-        // }
-        // else if(sum>0)
-        // {
-        //     ViewBag.Result = "True2";
-        // }
-        // else
-        // {
-        //     ViewBag.Result = "false";
-        // }
 
         return View();
     }
+
+    // ==========================================
+    // 1. Login (Lab5)
+    // ==========================================
+    [HttpGet]
+    public IActionResult Lab5()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    public IActionResult Lab5(LoginViewModel data)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(data);
+        }
+
+        // ตรวจสอบอีเมลในฐานข้อมูลจำลอง (UserListViewModel)
+        var user = UserListViewModel.UsersDataList().Users
+            .FirstOrDefault(u => string.Equals(u.Email, data.Email, StringComparison.OrdinalIgnoreCase));
+
+        if (user != null || data.Email == "supphanat@2.com" || data.Email?.EndsWith("@example.com") == true)
+        {
+            TempData["SuccessMessage"] = "เข้าสู่ระบบสำเร็จ";
+            return RedirectToAction("Lab5_3");
+        }
+
+        ViewBag.Error = "อีเมลหรือรหัสผ่านไม่ถูกต้อง";
+        return View(data);
+    }
+
+    public IActionResult Login() => RedirectToAction("Lab5");
+
+    // ==========================================
+    // 2. Register or AddUser (Lab5_2)
+    // ==========================================
+    [HttpGet]
+    public IActionResult Lab5_2()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    public IActionResult Lab5_2(RegisterViewModel data)
+    {
+        if (data.Password != data.ConfirmPassword)
+        {
+            ViewBag.Error = "รหัสผ่านไม่ตรงกัน";
+            return View(data);
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return View(data);
+        }
+
+        var userList = UserListViewModel.UsersDataList();
+        userList.Users.Add(new UserViewModel
+        {
+            Firstname = data.Firstname,
+            Lastname = data.Lastname,
+            Email = data.Email,
+            Phone = data.Phone,
+            Password = data.Password,
+            Role = string.IsNullOrWhiteSpace(data.Role) ? "Renter" : data.Role,
+            SlotNo = string.IsNullOrWhiteSpace(data.SlotNo) ? "-" : data.SlotNo,
+            Status = string.IsNullOrWhiteSpace(data.Status) ? "Active" : data.Status
+        });
+
+        return RedirectToAction("Lab5_3");
+    }
+
+    public IActionResult Register() => RedirectToAction("Lab5_2");
+
+    // ==========================================
+    // 3. Index หรืออื่นๆ / UserList (Lab5_3)
+    // ==========================================
+    [HttpGet]
+    public IActionResult Lab5_3()
+    {
+        return View(UserListViewModel.UsersDataList());
+    }
+
+    public IActionResult UserList() => RedirectToAction("Lab5_3");
 }
 
 
