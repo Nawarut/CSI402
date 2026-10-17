@@ -1,149 +1,276 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Nawarut_8250_L005.Models;
+using Microsoft.EntityFrameworkCore;
+using Nawarut_8250_L005.Entities;
+using UserModel = Nawarut_8250_L005.Models.User;
 
 namespace Nawarut_8250_L005.Services;
 
 public interface IUserService
 {
-    List<User> GetAll();
-    User? GetById(int id);
-    User? GetByEmail(string email);
-    User? Authenticate(string email, string password);
-    bool Add(User user);
+    List<UserModel> GetAll();
+    UserModel? GetById(int id);
+    UserModel? GetByEmail(string email);
+    UserModel? Authenticate(string email, string password);
+    bool Add(UserModel user);
     bool Delete(int id);
 }
 
 public class UserService : IUserService
 {
-    private static readonly List<User> _users = new()
-    {
-        new User
-        {
-            Id = 1,
-            FullName = "Administrator (ผู้ดูแลระบบ)",
-            Email = "admin@jojo.com",
-            PhoneNumber = "081-234-5678",
-            Role = "Admin",
-            Status = "Active",
-            Password = "admin123",
-            CreatedAt = DateTime.Now.AddDays(-30)
-        },
-        new User
-        {
-            Id = 2,
-            FullName = "สมชาย ใจดี",
-            Email = "somchai@gmail.com",
-            PhoneNumber = "089-876-5432",
-            Role = "User",
-            Status = "Active",
-            Password = "user123",
-            CreatedAt = DateTime.Now.AddDays(-15)
-        },
-        new User
-        {
-            Id = 3,
-            FullName = "วราภรณ์ สุขสวัสดิ์",
-            Email = "waraporn@hotel.com",
-            PhoneNumber = "082-111-2233",
-            Role = "Staff",
-            Status = "Active",
-            Password = "staff123",
-            CreatedAt = DateTime.Now.AddDays(-10)
-        },
-        new User
-        {
-            Id = 4,
-            FullName = "กิตติศักดิ์ มั่งมี",
-            Email = "kittisak@example.com",
-            PhoneNumber = "085-444-9988",
-            Role = "User",
-            Status = "Inactive",
-            Password = "user123",
-            CreatedAt = DateTime.Now.AddDays(-5)
-        },
-        new User
-        {
-            Id = 5,
-            FullName = "ณวรัตน์ อินมีศรี",
-            Email = "nawarut@jojo.com",
-            PhoneNumber = "086-555-7799",
-            Role = "Admin",
-            Status = "Active",
-            Password = "admin123",
-            CreatedAt = DateTime.Now.AddDays(-2)
-        }
-    };
+    private readonly Csi402dbContext _db;
 
-    private static int _nextId = 6;
-    private static readonly object _lock = new();
-
-    public List<User> GetAll()
+    public UserService(Csi402dbContext db)
     {
-        lock (_lock)
-        {
-            return _users.OrderByDescending(u => u.Id).ToList();
-        }
+        _db = db;
+        EnsureSeedData();
     }
 
-    public User? GetById(int id)
+    public List<UserModel> GetAll()
     {
-        lock (_lock)
-        {
-            return _users.FirstOrDefault(u => u.Id == id);
-        }
+        return _db.Users
+            .Include(u => u.Role)
+            .OrderByDescending(u => u.UserId)
+            .AsEnumerable()
+            .Select(MapToModel)
+            .ToList();
     }
 
-    public User? GetByEmail(string email)
+    public UserModel? GetById(int id)
     {
-        lock (_lock)
-        {
-            return _users.FirstOrDefault(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
-        }
+        var entity = _db.Users
+            .Include(u => u.Role)
+            .FirstOrDefault(u => u.UserId == (uint)id);
+
+        return entity != null ? MapToModel(entity) : null;
     }
 
-    public User? Authenticate(string email, string password)
+    public UserModel? GetByEmail(string email)
     {
-        lock (_lock)
-        {
-            return _users.FirstOrDefault(u => 
-                u.Email.Equals(email, StringComparison.OrdinalIgnoreCase) && 
-                u.Password == password);
-        }
+        var entity = _db.Users
+            .Include(u => u.Role)
+            .FirstOrDefault(u => u.Email.ToLower() == email.ToLower());
+
+        return entity != null ? MapToModel(entity) : null;
     }
 
-    public bool Add(User user)
+    public UserModel? Authenticate(string email, string password)
     {
-        lock (_lock)
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+            return null;
+
+        string cleanEmail = email.Trim().ToLower();
+        string cleanPassword = password.Trim();
+
+        var entity = _db.Users
+            .Include(u => u.Role)
+            .FirstOrDefault(u => u.Email.ToLower() == cleanEmail && u.PasswordHash == cleanPassword);
+
+        if (entity != null)
         {
-            if (_users.Any(u => u.Email.Equals(user.Email, StringComparison.OrdinalIgnoreCase)))
+            entity.LastLoginAt = DateTime.Now;
+            try
             {
-                return false; // Email already exists
+                _db.SaveChanges();
             }
-
-            user.Id = _nextId++;
-            if (user.CreatedAt == default)
+            catch
             {
-                user.CreatedAt = DateTime.Now;
+                // Ignore tracking error on login timestamp update
             }
-
-            _users.Add(user);
-            return true;
+            return MapToModel(entity);
         }
+
+        return null;
+    }
+
+    public bool Add(UserModel user)
+    {
+        if (_db.Users.Any(u => u.Email.ToLower() == user.Email.ToLower()))
+        {
+            return false; // Email already exists
+        }
+
+        // Determine RoleId
+        byte roleId = 3; // Default User
+        if (string.Equals(user.Role, "Admin", StringComparison.OrdinalIgnoreCase))
+        {
+            var r = _db.Roles.FirstOrDefault(x => x.RoleCode == "ADMIN");
+            roleId = r?.RoleId ?? 1;
+        }
+        else if (string.Equals(user.Role, "Staff", StringComparison.OrdinalIgnoreCase))
+        {
+            var r = _db.Roles.FirstOrDefault(x => x.RoleCode == "STAFF");
+            roleId = r?.RoleId ?? 2;
+        }
+        else
+        {
+            var r = _db.Roles.FirstOrDefault(x => x.RoleCode == "USER" || x.RoleCode == "GUEST");
+            roleId = r?.RoleId ?? 3;
+        }
+
+        // Parse FullName into FirstName and LastName
+        var parts = (user.FullName ?? string.Empty).Trim().Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+        string firstName = parts.Length > 0 ? parts[0] : user.Email;
+        string lastName = parts.Length > 1 ? parts[1] : "-";
+
+        var entity = new User
+        {
+            RoleId = roleId,
+            Email = user.Email.Trim(),
+            PasswordHash = string.IsNullOrEmpty(user.Password) ? "1234" : user.Password.Trim(),
+            FirstName = firstName,
+            LastName = lastName,
+            Phone = string.IsNullOrWhiteSpace(user.PhoneNumber) ? null : user.PhoneNumber.Trim(),
+            Status = string.Equals(user.Status, "Inactive", StringComparison.OrdinalIgnoreCase) ? "inactive" : "active",
+            EmailVerified = true,
+            CreatedAt = user.CreatedAt == default ? DateTime.Now : user.CreatedAt,
+            UpdatedAt = DateTime.Now
+        };
+
+        _db.Users.Add(entity);
+        _db.SaveChanges();
+
+        user.Id = (int)entity.UserId;
+        return true;
     }
 
     public bool Delete(int id)
     {
-        lock (_lock)
+        var entity = _db.Users.Find((uint)id);
+        if (entity != null)
         {
-            var user = _users.FirstOrDefault(u => u.Id == id);
-            if (user != null)
+            _db.Users.Remove(entity);
+            _db.SaveChanges();
+            return true;
+        }
+        return false;
+    }
+
+    private static UserModel MapToModel(User entity)
+    {
+        string roleName = "User";
+        if (entity.RoleId == 1 || (entity.Role != null && string.Equals(entity.Role.RoleCode, "ADMIN", StringComparison.OrdinalIgnoreCase)))
+        {
+            roleName = "Admin";
+        }
+        else if (entity.RoleId == 2 || (entity.Role != null && string.Equals(entity.Role.RoleCode, "STAFF", StringComparison.OrdinalIgnoreCase)))
+        {
+            roleName = "Staff";
+        }
+        else
+        {
+            roleName = "User";
+        }
+
+        string status = string.Equals(entity.Status, "inactive", StringComparison.OrdinalIgnoreCase) 
+            ? "Inactive" 
+            : "Active";
+
+        return new UserModel
+        {
+            Id = (int)entity.UserId,
+            FullName = $"{entity.FirstName} {entity.LastName}".Trim(),
+            Email = entity.Email,
+            PhoneNumber = entity.Phone ?? string.Empty,
+            Role = roleName,
+            Status = status,
+            Password = entity.PasswordHash,
+            CreatedAt = entity.CreatedAt
+        };
+    }
+
+    private void EnsureSeedData()
+    {
+        try
+        {
+            // Seed roles if empty
+            if (!_db.Roles.Any())
             {
-                _users.Remove(user);
-                return true;
+                _db.Roles.AddRange(
+                    new Role { RoleId = 1, RoleCode = "ADMIN", RoleName = "ผู้ดูแลระบบ", Description = "สิทธิ์ระดับผู้ดูแลระบบทั้งหมด" },
+                    new Role { RoleId = 2, RoleCode = "STAFF", RoleName = "พนักงาน", Description = "สิทธิ์พนักงานปฏิบัติการ" },
+                    new Role { RoleId = 3, RoleCode = "USER", RoleName = "ผู้ใช้งานทั่วไป", Description = "สิทธิ์ลูกค้า/ผู้ใช้งานทั่วไป" }
+                );
+                _db.SaveChanges();
             }
-            return false;
+
+            // Seed users if empty
+            if (!_db.Users.Any())
+            {
+                _db.Users.AddRange(
+                    new User
+                    {
+                        RoleId = 1,
+                        Email = "admin@jojo.com",
+                        PasswordHash = "admin123",
+                        FirstName = "Administrator",
+                        LastName = "(ผู้ดูแลระบบ)",
+                        Phone = "081-234-5678",
+                        Status = "active",
+                        EmailVerified = true,
+                        CreatedAt = DateTime.Now.AddDays(-30),
+                        UpdatedAt = DateTime.Now.AddDays(-30)
+                    },
+                    new User
+                    {
+                        RoleId = 3,
+                        Email = "somchai@gmail.com",
+                        PasswordHash = "user123",
+                        FirstName = "สมชาย",
+                        LastName = "ใจดี",
+                        Phone = "089-876-5432",
+                        Status = "active",
+                        EmailVerified = true,
+                        CreatedAt = DateTime.Now.AddDays(-15),
+                        UpdatedAt = DateTime.Now.AddDays(-15)
+                    },
+                    new User
+                    {
+                        RoleId = 2,
+                        Email = "waraporn@hotel.com",
+                        PasswordHash = "staff123",
+                        FirstName = "วราภรณ์",
+                        LastName = "สุขสวัสดิ์",
+                        Phone = "082-111-2233",
+                        Status = "active",
+                        EmailVerified = true,
+                        CreatedAt = DateTime.Now.AddDays(-10),
+                        UpdatedAt = DateTime.Now.AddDays(-10)
+                    },
+                    new User
+                    {
+                        RoleId = 3,
+                        Email = "kittisak@example.com",
+                        PasswordHash = "user123",
+                        FirstName = "กิตติศักดิ์",
+                        LastName = "มั่งมี",
+                        Phone = "085-444-9988",
+                        Status = "inactive",
+                        EmailVerified = true,
+                        CreatedAt = DateTime.Now.AddDays(-5),
+                        UpdatedAt = DateTime.Now.AddDays(-5)
+                    },
+                    new User
+                    {
+                        RoleId = 1,
+                        Email = "nawarut@jojo.com",
+                        PasswordHash = "password123",
+                        FirstName = "ณวรัตน์",
+                        LastName = "อินมีศรี",
+                        Phone = "086-555-7789",
+                        Status = "active",
+                        EmailVerified = true,
+                        CreatedAt = DateTime.Now.AddDays(-2),
+                        UpdatedAt = DateTime.Now.AddDays(-2)
+                    }
+                );
+                _db.SaveChanges();
+            }
+        }
+        catch
+        {
+            // Fallback gracefully if database table is already filled or locked
         }
     }
 }

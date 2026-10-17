@@ -13,7 +13,7 @@ builder.Services.AddDbContext<Csi402dbContext>(
 );
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddSingleton<IUserService, UserService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddSession(options =>

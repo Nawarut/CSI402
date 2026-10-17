@@ -31,82 +31,82 @@ build_property._RazorSourceGeneratorDebug =
 build_property.EffectiveAnalysisLevelStyle = 10.0
 build_property.EnableCodeStyleSeverity = 
 
-[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Account/Login.cshtml]
+[c:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Account/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxMb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Account/Register.cshtml]
+[c:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Account/Register.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxSZWdpc3Rlci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Admin/AddUser.cshtml]
+[c:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Admin/AddUser.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRkVXNlci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Admin/index.cshtml]
+[c:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Admin/index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5caW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Admin/Users.cshtml]
+[c:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Admin/Users.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cVXNlcnMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Home/Index.cshtml]
+[c:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Home/Lab2.cshtml]
+[c:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Home/Lab2.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxMYWIyLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Home/Lab5.cshtml]
+[c:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Home/Lab5.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxMYWI1LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Home/Lab5_2.cshtml]
+[c:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Home/Lab5_2.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxMYWI1XzIuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Home/Lab5_3.cshtml]
+[c:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Home/Lab5_3.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxMYWI1XzMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Home/Lab9.cshtml]
+[c:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Home/Lab9.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxMYWI5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Home/Lab9_1.cshtml]
+[c:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Home/Lab9_1.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxMYWI5XzEuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Home/Privacy.cshtml]
+[c:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Shared/Error.cshtml]
+[c:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Shared/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Shared/_adminlayout.cshtml]
+[c:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Shared/_adminlayout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9hZG1pbmxheW91dC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Shared/_navbarlayout.cshtml]
+[c:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Shared/_navbarlayout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9uYXZiYXJsYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Shared/_ValidationScriptsPartial.cshtml]
+[c:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/_ViewImports.cshtml]
+[c:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/_ViewStart.cshtml]
+[c:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/_ViewStart.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Shared/_Layout.cshtml]
+[c:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Shared/_Layout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = b-dro0c6aupo

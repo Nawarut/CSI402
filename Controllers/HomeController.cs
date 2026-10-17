@@ -1,10 +1,12 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Nawarut_8250_L005.Models;
 using Nawarut_8250_L005.ViewModels;
 using LoginViewModel = Nawarut_8250_L005.ViewModels.LoginViewModel;
 using RegisterViewModel = Nawarut_8250_L005.ViewModels.RegisterViewModel;
 using Nawarut_8250_L005.Entities;
+using DbUser = Nawarut_8250_L005.Entities.User;
 
 
 namespace Nawarut_8250_L005.Controllers;
@@ -163,11 +165,84 @@ public class HomeController : Controller
     }
 
     // ==========================================
-    // 1. Login (Lab5)
+    // Helper: ตรวจสอบและเตรียมข้อมูลพื้นฐาน (Roles & Initial Users)
+    // ==========================================
+    private void EnsureDefaultData()
+    {
+        try
+        {
+            if (!_db.Roles.Any())
+            {
+                _db.Roles.AddRange(
+                    new Role { RoleCode = "ADMIN", RoleName = "Admin", Description = "ผู้ดูแลระบบ" },
+                    new Role { RoleCode = "STAFF", RoleName = "Staff", Description = "พนักงาน" },
+                    new Role { RoleCode = "ACCOUNTANT", RoleName = "Accountant", Description = "ฝ่ายบัญชี" },
+                    new Role { RoleCode = "RENTER", RoleName = "Renter", Description = "ผู้เช่า" },
+                    new Role { RoleCode = "GUEST", RoleName = "Guest", Description = "ผู้เยี่ยมชม" }
+                );
+                _db.SaveChanges();
+            }
+
+            if (!_db.Users.Any())
+            {
+                var adminRole = _db.Roles.FirstOrDefault(r => r.RoleCode == "ADMIN") ?? _db.Roles.First();
+                var renterRole = _db.Roles.FirstOrDefault(r => r.RoleCode == "RENTER") ?? _db.Roles.First();
+                var staffRole = _db.Roles.FirstOrDefault(r => r.RoleCode == "STAFF") ?? _db.Roles.First();
+
+                _db.Users.AddRange(
+                    new DbUser
+                    {
+                        FirstName = "Nawarut",
+                        LastName = "Inmeesri",
+                        Email = "nawarut@jojo.com",
+                        Phone = "086-555-7799",
+                        PasswordHash = "admin123",
+                        RoleId = adminRole.RoleId,
+                        Status = "active",
+                        CreatedAt = DateTime.Now,
+                        UpdatedAt = DateTime.Now
+                    },
+                    new DbUser
+                    {
+                        FirstName = "Anan",
+                        LastName = "Sukjai",
+                        Email = "anan@example.com",
+                        Phone = "081-111-1111",
+                        PasswordHash = "123456",
+                        RoleId = renterRole.RoleId,
+                        Status = "active",
+                        CreatedAt = DateTime.Now,
+                        UpdatedAt = DateTime.Now
+                    },
+                    new DbUser
+                    {
+                        FirstName = "Mali",
+                        LastName = "Jairak",
+                        Email = "mali@example.com",
+                        Phone = "082-222-2222",
+                        PasswordHash = "123456",
+                        RoleId = staffRole.RoleId,
+                        Status = "active",
+                        CreatedAt = DateTime.Now,
+                        UpdatedAt = DateTime.Now
+                    }
+                );
+                _db.SaveChanges();
+            }
+        }
+        catch
+        {
+            // ป้องกันข้อผิดพลาดกรณีการเชื่อมต่อหรือข้อมูลมีอยู่แล้ว
+        }
+    }
+
+    // ==========================================
+    // 1. Login (Lab5) - [R] ตรวจสอบสิทธิ์ผู้ใช้จากฐานข้อมูล
     // ==========================================
     [HttpGet]
     public IActionResult Lab5()
     {
+        EnsureDefaultData();
         return View();
     }
 
@@ -179,13 +254,27 @@ public class HomeController : Controller
             return View(data);
         }
 
-        // ตรวจสอบอีเมลในฐานข้อมูลจำลอง (UserListViewModel)
-        var user = UserListViewModel.UsersDataList().Users
-            .FirstOrDefault(u => string.Equals(u.Email, data.Email, StringComparison.OrdinalIgnoreCase));
+        EnsureDefaultData();
 
-        if (user != null || data.Email == "supphanat@2.com" || data.Email?.EndsWith("@example.com") == true)
+        // ตรวจสอบอีเมลและรหัสผ่านจากฐานข้อมูลจริงด้วย LINQ เหมือนใน Lab9
+        // SELECT * FROM users WHERE email = @Email AND password_hash = @Password LIMIT 1
+        var user = (from u in _db.Users
+                    where u.Email == data.Email && u.PasswordHash == data.Password
+                    select u).FirstOrDefault();
+
+        if (user != null)
         {
-            TempData["SuccessMessage"] = "เข้าสู่ระบบสำเร็จ";
+            if (user.Status == "inactive" || user.Status == "locked")
+            {
+                ViewBag.Error = "บัญชีนี้ถูกระงับการใช้งาน กรุณาติดต่อผู้ดูแลระบบ";
+                return View(data);
+            }
+
+            HttpContext.Session.SetInt32("UserId", (int)user.UserId);
+            HttpContext.Session.SetString("UserName", $"{user.FirstName} {user.LastName}");
+            HttpContext.Session.SetString("UserEmail", user.Email);
+
+            TempData["SuccessMessage"] = $"เข้าสู่ระบบสำเร็จ! ยินดีต้อนรับคุณ {user.FirstName} {user.LastName}";
             return RedirectToAction("Lab5_3");
         }
 
@@ -196,11 +285,12 @@ public class HomeController : Controller
     public IActionResult Login() => RedirectToAction("Lab5");
 
     // ==========================================
-    // 2. Register or AddUser (Lab5_2)
+    // 2. Register or AddUser (Lab5_2) - [C] บันทึกข้อมูลลงฐานข้อมูล
     // ==========================================
     [HttpGet]
     public IActionResult Lab5_2()
     {
+        EnsureDefaultData();
         return View();
     }
 
@@ -218,34 +308,104 @@ public class HomeController : Controller
             return View(data);
         }
 
-        var userList = UserListViewModel.UsersDataList();
-        userList.Users.Add(new UserViewModel
-        {
-            Firstname = data.Firstname,
-            Lastname = data.Lastname,
-            Email = data.Email,
-            Phone = data.Phone,
-            Password = data.Password,
-            Role = string.IsNullOrWhiteSpace(data.Role) ? "Renter" : data.Role,
-            SlotNo = string.IsNullOrWhiteSpace(data.SlotNo) ? "-" : data.SlotNo,
-            Status = string.IsNullOrWhiteSpace(data.Status) ? "Active" : data.Status
-        });
+        EnsureDefaultData();
 
+        // 1. ตรวจสอบว่า Email ซ้ำในฐานข้อมูลหรือไม่ ด้วย LINQ (Check Email เหมือน CheckStd ใน Lab9)
+        // SELECT * FROM users WHERE email = @Email LIMIT 1
+        var checkUser = (from u in _db.Users
+                         where u.Email == data.Email
+                         select u).FirstOrDefault();
+
+        if (checkUser != null)
+        {
+            ViewBag.Error = "อีเมลนี้มีผู้ใช้งานแล้วในระบบ";
+            return View(data);
+        }
+
+        // ค้นหา Role จากตาราง roles
+        var role = (from r in _db.Roles
+                    where r.RoleCode == data.Role || r.RoleName == data.Role
+                    select r).FirstOrDefault() ?? _db.Roles.FirstOrDefault();
+
+        // 2. สร้าง Entity DbUser ใหม่ และกำหนดค่า (Insert Value in SQL)
+        DbUser newUser = new()
+        {
+            FirstName = data.Firstname ?? "",
+            LastName = data.Lastname ?? "",
+            Email = data.Email ?? "",
+            Phone = data.Phone,
+            PasswordHash = data.Password ?? "",
+            Status = "active",
+            RoleId = role != null ? role.RoleId : (byte)1,
+            CreatedAt = DateTime.Now,
+            UpdatedAt = DateTime.Now
+        };
+
+        // 3. บันทึกลงฐานข้อมูลด้วย EF Core เหมือนใน Lab9 (_db.Add & _db.SaveChanges)
+        _db.Users.Add(newUser);
+        _db.SaveChanges();
+
+        TempData["SuccessMessage"] = $"สมัครสมาชิก/เพิ่มผู้ใช้ \"{newUser.FirstName} {newUser.LastName}\" สำเร็จเรียบร้อยแล้ว";
         return RedirectToAction("Lab5_3");
     }
 
     public IActionResult Register() => RedirectToAction("Lab5_2");
 
     // ==========================================
-    // 3. Index หรืออื่นๆ / UserList (Lab5_3)
+    // 3. UserList (Lab5_3) - [R] ดึงข้อมูลผู้ใช้ทั้งหมดจากฐานข้อมูล
     // ==========================================
     [HttpGet]
     public IActionResult Lab5_3()
     {
-        return View(UserListViewModel.UsersDataList());
+        EnsureDefaultData();
+
+        // ดึงข้อมูลผู้ใช้ทั้งหมดจากฐานข้อมูลจริงด้วย LINQ เหมือนใน Lab9_1
+        // SELECT * FROM users JOIN roles ON users.role_id = roles.role_id ORDER BY user_id DESC
+        var usersFromDb = (from u in _db.Users.Include(u => u.Role)
+                           orderby u.UserId descending
+                           select u).ToList();
+
+        var model = new UserListViewModel
+        {
+            Users = usersFromDb.Select(u => new UserViewModel
+            {
+                UserId = u.UserId,
+                Firstname = u.FirstName,
+                Lastname = u.LastName,
+                Email = u.Email,
+                Phone = u.Phone ?? "-",
+                Role = u.Role != null ? u.Role.RoleName : "User",
+                Status = u.Status == "active" ? "Active" : "Suspended",
+                SlotNo = "-"
+            }).ToList()
+        };
+
+        return View(model);
     }
 
     public IActionResult UserList() => RedirectToAction("Lab5_3");
+
+    // ==========================================
+    // 4. DeleteUser - [D] ลบข้อมูลผู้ใช้จากฐานข้อมูล
+    // ==========================================
+    [HttpPost]
+    public IActionResult DeleteUser(uint id)
+    {
+        // ค้นหาผู้ใช้ที่ต้องการลบด้วย LINQ
+        var user = (from u in _db.Users where u.UserId == id select u).FirstOrDefault();
+        if (user != null)
+        {
+            _db.Users.Remove(user);
+            _db.SaveChanges();
+            TempData["SuccessMessage"] = $"ลบผู้ใช้งาน {user.FirstName} {user.LastName} สำเร็จแล้ว";
+        }
+        else
+        {
+            TempData["Error"] = "ไม่พบข้อมูลผู้ใช้ที่ต้องการลบ";
+        }
+
+        return RedirectToAction("Lab5_3");
+    }
 
 }
 

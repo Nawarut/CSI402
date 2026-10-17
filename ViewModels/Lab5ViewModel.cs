@@ -53,6 +53,7 @@ namespace Nawarut_8250_L005.ViewModels
     // ==========================================
     public class UserViewModel
     {
+        public uint UserId { get; set; }
         public string? Firstname { get; set; }
         public string? Lastname { get; set; }
         public string? Email { get; set; }
