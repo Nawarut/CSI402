@@ -7,6 +7,8 @@
             <th>Password</th>
             <th>Name</th>
             <th>Lastname</th>
+            <th></th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -17,7 +19,10 @@
                 <td>@item.StdPassword</td>
                 <td>@item.StdName</td>
                 <td>@item.StdLastname</td>
+                <td><a asp-action="Lab10" asp-controller="Home" asp-route-StdId=@item.StdId>Edit</a></td>
+                <td><a asp-action="Lab10_1" asp-controller="Home" asp-route-StdId=@item.StdId>Delete</a></td> 
             </tr>
         }
     </tbody>
+    <p class="text-danger">@ViewBag.status</p>
 </table>

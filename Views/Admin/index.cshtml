@@ -56,27 +56,23 @@
 
 
     <div class="col-md-3">
-        <div class="dashboard-card">
-
-            <div class="d-flex justify-content-between">
-
-                <div>
-                    <div class="dashboard-card-title">
-                        ผู้ใช้งาน
+        <a asp-controller="Home" asp-action="Lab5_3" class="text-decoration-none">
+            <div class="dashboard-card" style="cursor: pointer;">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <div class="dashboard-card-title">
+                            ผู้ใช้งาน (User List)
+                        </div>
+                        <div class="dashboard-card-number text-dark">
+                            @(ViewBag.TotalUsers ?? 5)
+                        </div>
                     </div>
-
-                    <div class="dashboard-card-number">
-                        120
+                    <div class="dashboard-icon">
+                        👥
                     </div>
                 </div>
-
-                <div class="dashboard-icon">
-                    👤
-                </div>
-
             </div>
-
-        </div>
+        </a>
     </div>
 
 

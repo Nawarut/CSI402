@@ -145,4 +145,33 @@ namespace Nawarut_8250_L005.ViewModels
         public string? Name { get; set; }
         public string? LastName { get; set; }
     }
+
+    // ==========================================
+    // 6. EditUser ViewModel (สำหรับหน้าแก้ไขข้อมูลผู้ใช้ - ประยุกต์จาก Lab 10)
+    // ==========================================
+    public class EditUserViewModel
+    {
+        [Required]
+        public uint UserId { get; set; }
+
+        [Required(ErrorMessage = "กรุณากรอกชื่อ")]
+        public string? Firstname { get; set; }
+
+        [Required(ErrorMessage = "กรุณากรอกนามสกุล")]
+        public string? Lastname { get; set; }
+
+        [Required(ErrorMessage = "กรุณากรอกอีเมล")]
+        [EmailAddress(ErrorMessage = "รูปแบบอีเมลไม่ถูกต้อง")]
+        public string? Email { get; set; }
+
+        [Phone(ErrorMessage = "รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง")]
+        public string? Phone { get; set; }
+
+        [DataType(DataType.Password)]
+        public string? Password { get; set; }
+
+        public string? Role { get; set; } = "Renter";
+        public string? SlotNo { get; set; } = "-";
+        public string? Status { get; set; } = "active";
+    }
 }

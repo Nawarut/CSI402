@@ -23,36 +23,16 @@ public class AdminController : Controller
         return View();
     }
 
-    // User List (UserList)
+    // User List (UserList) - รวมเข้ากับหน้ารายชื่อผู้ใช้ Lab5_3 ใน Admin Panel
     public IActionResult Users(string? search = null, string? roleFilter = null)
     {
-        var users = _userService.GetAll();
-
-        if (!string.IsNullOrWhiteSpace(search))
-        {
-            var s = search.Trim();
-            users = users.Where(u =>
-                u.FullName.Contains(s, StringComparison.OrdinalIgnoreCase) ||
-                u.Email.Contains(s, StringComparison.OrdinalIgnoreCase) ||
-                u.PhoneNumber.Contains(s, StringComparison.OrdinalIgnoreCase)).ToList();
-        }
-
-        if (!string.IsNullOrWhiteSpace(roleFilter) && roleFilter != "All")
-        {
-            users = users.Where(u => u.Role.Equals(roleFilter, StringComparison.OrdinalIgnoreCase)).ToList();
-        }
-
-        ViewBag.Search = search;
-        ViewBag.RoleFilter = roleFilter;
-        ViewBag.TotalUsers = _userService.GetAll().Count;
-
-        return View(users);
+        return RedirectToAction("Lab5_3", "Home");
     }
 
     // Alias for UserList as requested in assessment prompt
     public IActionResult UserList(string? search = null, string? roleFilter = null)
     {
-        return RedirectToAction(nameof(Users), new { search, roleFilter });
+        return RedirectToAction("Lab5_3", "Home");
     }
 
     // Add User (GET)

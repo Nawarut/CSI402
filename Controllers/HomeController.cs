@@ -69,8 +69,9 @@ public class HomeController : Controller
         }
     }
 
-    public IActionResult Lab9_1()
+    public IActionResult Lab9_1(string? status)
     {
+        ViewBag.status = status;
         var Student = (from s in _db.Labstudents select s).ToList();
         // Select * From Labstudent
         return View(Student);
@@ -90,6 +91,41 @@ public class HomeController : Controller
     public IActionResult Error()
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+    }
+
+    public IActionResult Lab10(string? StdId)
+    {
+        var User = (from s in _db.Labstudents where s.StdId == StdId select s).FirstOrDefault();
+        return View(User);
+    }
+
+    [HttpPost]
+    public IActionResult Lab10(Labstudent data)
+    {
+        var User = (from s in _db.Labstudents where s.StdId == data.StdId select s).FirstOrDefault();
+        if (User != null)
+        {
+            User.StdPassword = data.StdPassword;
+            User.StdName = data.StdName;
+            User.StdLastname = data.StdLastname;
+            _db.SaveChanges();
+        }
+        return View(data);
+    }
+
+    public IActionResult Lab10_1(string? StdId)
+    {
+        var Check = (from s in _db.Labstudents where s.StdId == StdId select s).FirstOrDefault();
+        if(Check != null)
+        {
+            _db.Remove(Check);
+            _db.SaveChanges();
+            return RedirectToAction("Lab9_1","Home",new{ status = "ลบสำเร็จ"});
+        }
+        else
+        {
+            return RedirectToAction("Lab9_1","Home",new{ status = "ลบไม่สำเร็จ"});
+        }
     }
 
     public IActionResult Lab2()
@@ -367,16 +403,34 @@ public class HomeController : Controller
 
         var model = new UserListViewModel
         {
-            Users = usersFromDb.Select(u => new UserViewModel
+            Users = usersFromDb.Select(u =>
             {
-                UserId = u.UserId,
-                Firstname = u.FirstName,
-                Lastname = u.LastName,
-                Email = u.Email,
-                Phone = u.Phone ?? "-",
-                Role = u.Role != null ? u.Role.RoleName : "User",
-                Status = u.Status == "active" ? "Active" : "Suspended",
-                SlotNo = "-"
+                string roleName = "User";
+                if (u.Role != null)
+                {
+                    var code = (u.Role.RoleCode ?? "").ToUpperInvariant();
+                    if (code.Contains("ADMIN")) roleName = "Admin";
+                    else if (code.Contains("STAFF")) roleName = "Staff";
+                    else if (code.Contains("ACCOUNT")) roleName = "Accountant";
+                    else if (code.Contains("RENTER")) roleName = "Renter";
+                    else if (code.Contains("GUEST")) roleName = "Guest";
+                    else if (!string.IsNullOrEmpty(u.Role.RoleName) && !u.Role.RoleName.StartsWith("Ó"))
+                        roleName = u.Role.RoleName;
+                    else
+                        roleName = u.Role.RoleCode ?? "User";
+                }
+
+                return new UserViewModel
+                {
+                    UserId = u.UserId,
+                    Firstname = u.FirstName,
+                    Lastname = u.LastName,
+                    Email = u.Email,
+                    Phone = u.Phone ?? "-",
+                    Role = roleName,
+                    Status = u.Status == "active" ? "Active" : "Suspended",
+                    SlotNo = "-"
+                };
             }).ToList()
         };
 
@@ -386,18 +440,17 @@ public class HomeController : Controller
     public IActionResult UserList() => RedirectToAction("Lab5_3");
 
     // ==========================================
-    // 4. DeleteUser - [D] ลบข้อมูลผู้ใช้จากฐานข้อมูล
+    // 4. DeleteUser / Lab10_1 - [D] ลบข้อมูลผู้ใช้จากฐานข้อมูล
     // ==========================================
-    [HttpPost]
     public IActionResult DeleteUser(uint id)
     {
-        // ค้นหาผู้ใช้ที่ต้องการลบด้วย LINQ
+        // ค้นหาผู้ใช้ที่ต้องการลบด้วย LINQ แบบเดียวกับ Lab 10_1
         var user = (from u in _db.Users where u.UserId == id select u).FirstOrDefault();
         if (user != null)
         {
             _db.Users.Remove(user);
             _db.SaveChanges();
-            TempData["SuccessMessage"] = $"ลบผู้ใช้งาน {user.FirstName} {user.LastName} สำเร็จแล้ว";
+            TempData["SuccessMessage"] = $"ลบผู้ใช้งาน \"{user.FirstName} {user.LastName}\" สำเร็จแล้ว";
         }
         else
         {
@@ -407,6 +460,116 @@ public class HomeController : Controller
         return RedirectToAction("Lab5_3");
     }
 
+    public IActionResult Lab5_Delete(uint id) => DeleteUser(id);
+
+    // ==========================================
+    // 5. EditUser / Lab10 - [U] แก้ไขข้อมูลผู้ใช้ (ประยุกต์ใช้หลักการของ Lab 10)
+    // ==========================================
+    [HttpGet]
+    public IActionResult EditUser(uint? id)
+    {
+        if (id == null)
+        {
+            return RedirectToAction("Lab5_3");
+        }
+
+        EnsureDefaultData();
+
+        // 1. ค้นหาข้อมูลผู้ใช้ที่ต้องการแก้ไขด้วย LINQ (เหมือน Lab 10 ที่ค้นหาตามรหัส)
+        var user = (from u in _db.Users.Include(u => u.Role)
+                    where u.UserId == id
+                    select u).FirstOrDefault();
+
+        if (user == null)
+        {
+            TempData["Error"] = "ไม่พบข้อมูลผู้ใช้ที่ต้องการแก้ไข";
+            return RedirectToAction("Lab5_3");
+        }
+
+        string userRole = "Renter";
+        if (user.Role != null)
+        {
+            var code = (user.Role.RoleCode ?? "").ToUpperInvariant();
+            if (code.Contains("ADMIN")) userRole = "Admin";
+            else if (code.Contains("STAFF")) userRole = "Staff";
+            else if (code.Contains("ACCOUNT")) userRole = "Accountant";
+            else if (code.Contains("RENTER")) userRole = "Renter";
+            else if (code.Contains("GUEST")) userRole = "Guest";
+            else userRole = user.Role.RoleName ?? "Renter";
+        }
+
+        // 2. ส่งข้อมูลผู้ใช้ไปยัง View สำหรับแก้ไข
+        var model = new EditUserViewModel
+        {
+            UserId = user.UserId,
+            Firstname = user.FirstName,
+            Lastname = user.LastName,
+            Email = user.Email,
+            Phone = user.Phone,
+            Password = user.PasswordHash,
+            Role = userRole,
+            Status = user.Status
+        };
+
+        return View("EditUser", model);
+    }
+
+    [HttpPost]
+    public IActionResult EditUser(EditUserViewModel data)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View("EditUser", data);
+        }
+
+        EnsureDefaultData();
+
+        // 1. ค้นหาผู้ใช้เดิมจากฐานข้อมูลด้วย LINQ (เหมือน [HttpPost] Lab 10)
+        var user = (from u in _db.Users
+                    where u.UserId == data.UserId
+                    select u).FirstOrDefault();
+
+        if (user != null)
+        {
+            // 2. กำหนดค่าฟิลด์ที่ต้องการแก้ไข
+            user.FirstName = data.Firstname ?? "";
+            user.LastName = data.Lastname ?? "";
+            user.Phone = data.Phone;
+            user.Status = data.Status ?? "active";
+            user.UpdatedAt = DateTime.Now;
+
+            // หากมีการระบุรหัสผ่านใหม่
+            if (!string.IsNullOrWhiteSpace(data.Password))
+            {
+                user.PasswordHash = data.Password;
+            }
+
+            // ค้นหาและอัปเดตบทบาท (Role)
+            var role = (from r in _db.Roles
+                        where r.RoleName == data.Role || r.RoleCode == data.Role
+                        select r).FirstOrDefault();
+            if (role != null)
+            {
+                user.RoleId = role.RoleId;
+            }
+
+            // 3. บันทึกข้อมูลลงฐานข้อมูลจริงด้วย EF Core (_db.SaveChanges())
+            _db.SaveChanges();
+
+            TempData["SuccessMessage"] = $"แก้ไขข้อมูลผู้ใช้ \"{user.FirstName} {user.LastName}\" สำเร็จเรียบร้อยแล้ว";
+            return RedirectToAction("Lab5_3");
+        }
+        else
+        {
+            ViewBag.Error = "ไม่พบข้อมูลผู้ใช้ในระบบ";
+            return View("EditUser", data);
+        }
+    }
+
+    public IActionResult Lab5_Edit(uint? id) => EditUser(id);
+
+    [HttpPost]
+    public IActionResult Lab5_Edit(EditUserViewModel data) => EditUser(data);
 }
 
 
