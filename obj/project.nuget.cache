@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "RvSQXt7GcUE=",
+  "dgSpecHash": "0PG12D8zPbI=",
   "success": true,
   "projectFilePath": "C:\\Users\\Game Of Cpu\\Documents\\GitHub\\CSI402\\Nawarut_8250_L005.csproj",
   "expectedPackageFiles": [
@@ -32,5 +32,18 @@
     "C:\\Users\\Game Of Cpu\\.nuget\\packages\\system.composition.runtime\\7.0.0\\system.composition.runtime.7.0.0.nupkg.sha512",
     "C:\\Users\\Game Of Cpu\\.nuget\\packages\\system.composition.typedparts\\7.0.0\\system.composition.typedparts.7.0.0.nupkg.sha512"
   ],
-  "logs": []
+  "logs": [
+    {
+      "code": "NU1902",
+      "level": "Warning",
+      "message": "Package 'MySqlConnector' 2.4.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-473q-m89c-ghf8",
+      "projectPath": "C:\\Users\\Game Of Cpu\\Documents\\GitHub\\CSI402\\Nawarut_8250_L005.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\Game Of Cpu\\Documents\\GitHub\\CSI402\\Nawarut_8250_L005.csproj",
+      "libraryId": "MySqlConnector",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    }
+  ]
 }
