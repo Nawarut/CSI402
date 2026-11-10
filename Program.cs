@@ -14,6 +14,7 @@ builder.Services.AddDbContext<Csi402dbContext>(
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IBookingPricingService, BookingPricingService>();
 builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddSession(options =>

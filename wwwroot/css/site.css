@@ -1,32 +1,353 @@
-html {
+/* ========================================================
+   ORIGIN FINANCIAL — STYLE REFERENCE
+   Midnight gallery of quiet wealth. Hushed near-black room,
+   whisper-weight serif headlines, and luminous color panels.
+   Theme: dark
+======================================================== */
+
+:root {
+  /* Chromatic Accents */
+  --color-iris-gleam: #847dff;
+  --color-cyan-signal: #00b3dd;
+  --color-pale-iris: #d1c9ff;
+  --color-deep-iris: #4b49aa;
+  --color-orchid-bloom: #dd90d8;
+  --color-periwinkle: #90b8f0;
+
+  /* Dark Surfaces */
+  --color-obsidian: #0f1011;
+  --color-abyss: #090a0b;
+  --color-graphite: #2e2e2e;
+  --color-steel: #3f4041;
+  --color-silver: #cacaca;
+
+  /* Neutrals & Text */
+  --color-fog: #6a6b6b;
+  --color-ash: #9f9fa0;
+  --color-cloud: #f5f5f7;
+  --color-pure: #ffffff;
+  --color-void: #000000;
+
+  /* Typography Families with full Thai glyph support */
+  --font-serif-display: 'DM Serif Display', 'Prompt', 'Playfair Display', Georgia, serif;
+  --font-sans-ui: 'Prompt', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-roboto-mono: 'Roboto Mono', 'Prompt', ui-monospace, SFMono-Regular, monospace;
+
+  /* Typography Scale */
+  --text-mono-label: 12px;
+  --text-body-sm: 14px;
+  --text-body: 16px;
+  --text-subheading: 18px;
+  --text-heading-lg: 38px;
+  --text-display-sm: 80px;
+  --text-display: 96px;
+
+  /* Radii per Origin spec */
+  --radius-buttons: 8px;
+  --radius-inputs: 8px;
+  --radius-cards: 16px;
+  --radius-feature-cards: 30px;
+  --radius-category-tiles: 30px;
+  --radius-pill: 9999px;
+
+  /* Shadow */
+  --shadow-origin-lg: rgba(0, 0, 0, 0.4) 0px 18px 20px 0px;
+}
+
+/* Base Body on Obsidian Canvas */
+html, body {
+  background-color: var(--color-obsidian);
+  color: var(--color-pure);
+  font-family: var(--font-sans-ui);
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Serif Display: Weight 300, line-height 0.9-1.0 */
+.origin-display {
+  font-family: var(--font-serif-display);
+  font-weight: 300;
+  font-size: clamp(48px, 8vw, var(--text-display));
+  line-height: 0.92;
+  color: var(--color-cloud);
+  letter-spacing: -0.01em;
+}
+
+.origin-display-sm {
+  font-family: var(--font-serif-display);
+  font-weight: 300;
+  font-size: clamp(36px, 6vw, var(--text-display-sm));
+  line-height: 1.0;
+  color: var(--color-cloud);
+}
+
+.origin-heading-lg {
+  font-family: var(--font-serif-display);
+  font-weight: 300;
+  font-size: clamp(26px, 4vw, var(--text-heading-lg));
+  line-height: 1.05;
+  color: var(--color-pure);
+}
+
+/* Subhead: Suisse Int'l 18px weight 300 */
+.origin-subhead {
+  font-family: var(--font-sans-ui);
+  font-weight: 300;
+  font-size: var(--text-subheading);
+  line-height: 1.5;
+  color: var(--color-ash);
+}
+
+/* Body: 16px weight 400 in Ash */
+.origin-body {
+  font-family: var(--font-sans-ui);
+  font-weight: 400;
+  font-size: var(--text-body);
+  line-height: 1.5;
+  color: var(--color-ash);
+}
+
+/* Mono Label: Roboto Mono uppercase with tracking */
+.origin-mono {
+  font-family: var(--font-roboto-mono);
+  font-size: var(--text-mono-label);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Buttons */
+
+/* 1. Primary CTA Button: White fill, Black text, 8px radius (21:1 AAA contrast) */
+.btn-origin-primary {
+  background-color: var(--color-pure);
+  color: var(--color-void) !important;
+  border: 1px solid var(--color-pure);
+  border-radius: var(--radius-buttons);
+  padding: 12px 22px;
+  font-family: var(--font-sans-ui);
+  font-size: 16px;
+  font-weight: 400;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-origin-primary:hover {
+  background-color: var(--color-cloud);
+  color: var(--color-void) !important;
+  transform: translateY(-1px);
+}
+
+/* 2. Ghost Outline Button: Transparent bg, 1px white border, 8px radius */
+.btn-origin-ghost {
+  background-color: transparent;
+  color: var(--color-pure) !important;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: var(--radius-buttons);
+  padding: 11px 20px;
+  font-family: var(--font-sans-ui);
+  font-size: 15px;
+  font-weight: 400;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-origin-ghost:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: var(--color-pure);
+  color: var(--color-pure) !important;
+}
+
+/* 3. Glass Button: rgba(255,255,255,0.1), 8px radius */
+.btn-origin-glass {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--color-pure) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius-buttons);
+  padding: 9px 14px;
+  font-family: var(--font-sans-ui);
   font-size: 14px;
+  font-weight: 400;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
 }
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+.btn-origin-glass:hover {
+  background-color: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+/* Pill Chip Eyebrow: 1440px radius, rgba(255,255,255,0.12) */
+.origin-pill-chip {
+  background-color: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius-pill);
+  padding: 7px 20px;
+  font-family: var(--font-roboto-mono);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-cloud);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
-html {
-  position: relative;
-  min-height: 100%;
+/* Feature Category Cards: 30px radius with Saturated Chromatic Backgrounds */
+.origin-tile-iris {
+  background-color: var(--color-iris-gleam);
+  color: var(--color-pure);
+  border-radius: var(--radius-feature-cards);
+  padding: 32px;
+  border: none;
+  transition: transform 0.2s ease;
 }
 
-body {
-  margin-bottom: 60px;
+.origin-tile-orchid {
+  background-color: var(--color-orchid-bloom);
+  color: var(--color-pure);
+  border-radius: var(--radius-feature-cards);
+  padding: 32px;
+  border: none;
+  transition: transform 0.2s ease;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+.origin-tile-deep-iris {
+  background-color: var(--color-deep-iris);
+  color: var(--color-pure);
+  border-radius: var(--radius-feature-cards);
+  padding: 32px;
+  border: none;
+  transition: transform 0.2s ease;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+.origin-tile-periwinkle {
+  background-color: var(--color-periwinkle);
+  color: var(--color-pure);
+  border-radius: var(--radius-feature-cards);
+  padding: 32px;
+  border: none;
+  transition: transform 0.2s ease;
 }
 
+/* Graphite Elevated Card: #2e2e2e, 16px radius */
+.origin-card-graphite {
+  background-color: var(--color-graphite);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-cards);
+  padding: 32px;
+}
+
+/* Inverted Silver Card: #cacaca, 30px radius, black text */
+.origin-card-silver {
+  background-color: var(--color-silver);
+  color: var(--color-void);
+  border-radius: var(--radius-feature-cards);
+  padding: 32px;
+}
+
+/* Form Inputs in Origin style: #000000 background, 8px radius */
+.origin-input {
+  background-color: var(--color-void) !important;
+  color: var(--color-cloud) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  border-radius: var(--radius-inputs) !important;
+  padding: 10px 16px !important;
+  font-family: var(--font-sans-ui) !important;
+  font-size: 15px !important;
+}
+
+.origin-input:focus {
+  outline: none !important;
+  border-color: var(--color-iris-gleam) !important;
+  box-shadow: 0 0 0 2px rgba(132, 125, 255, 0.25) !important;
+}
+
+.origin-input option {
+  background-color: var(--color-obsidian);
+  color: var(--color-cloud);
+}
+
+/* Force All Origin & Admin Tables to stay dark and legible */
+.origin-table,
+.origin-table > :not(caption) > * > *,
+.origin-table tr,
+.origin-table td,
+.origin-table th {
+  --bs-table-bg: transparent !important;
+  background-color: transparent !important;
+  color: var(--color-pure, #ffffff) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.table.origin-table th {
+  background-color: rgba(15, 16, 17, 0.95) !important;
+  color: var(--color-ash) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+.table.origin-table td {
+  background-color: transparent !important;
+  color: var(--color-cloud) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+  vertical-align: middle;
+}
+
+.table.origin-table tr:hover td {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+/* Visible Action Buttons */
+.btn-action-edit {
+  background: rgba(255, 209, 102, 0.15) !important;
+  color: #ffd166 !important;
+  border: 1px solid rgba(255, 209, 102, 0.4) !important;
+  border-radius: 6px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  padding: 5px 12px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  text-decoration: none !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+}
+.btn-action-edit:hover {
+  background: rgba(255, 209, 102, 0.3) !important;
+  color: #ffffff !important;
+  border-color: #ffd166 !important;
+}
+
+.btn-action-delete {
+  background: rgba(255, 107, 107, 0.15) !important;
+  color: #ff6b6b !important;
+  border: 1px solid rgba(255, 107, 107, 0.4) !important;
+  border-radius: 6px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  padding: 5px 12px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  text-decoration: none !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+}
+.btn-action-delete:hover {
+  background: rgba(255, 107, 107, 0.3) !important;
+  color: #ffffff !important;
+  border-color: #ff6b6b !important;
+}

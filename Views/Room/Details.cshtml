@@ -1,0 +1,493 @@
+@model Nawarut_8250_L005.ViewModels.RoomDetailsPageViewModel
+@using Microsoft.AspNetCore.Http
+@{
+    ViewData["Title"] = Model.Room.TypeName + " — Room " + Model.Room.RoomNumber;
+    Layout = "_navbarlayout";
+    var checkIn = Model.CheckIn;
+    var checkOut = Model.CheckOut;
+    var nights = Model.TotalNights;
+    var isLoggedIn = !string.IsNullOrEmpty(Context.Session.GetString("UserName"));
+}
+
+<!-- ==========================================
+     BREADCRUMB
+========================================== -->
+<div class="py-3 border-bottom" style="border-color: rgba(255,255,255,0.08) !important; background-color: var(--color-obsidian);">
+    <div class="container" style="max-width: 1200px;">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="origin-mono text-decoration-none" style="color: var(--color-ash); font-size: 11px;">หน้าหลัก</a></li>
+                <li class="breadcrumb-item"><a href="#" class="origin-mono text-decoration-none" style="color: var(--color-ash); font-size: 11px;">ห้องพัก</a></li>
+                <li class="breadcrumb-item active origin-mono" style="color: var(--color-cloud); font-size: 11px;">ห้อง @Model.Room.RoomNumber &mdash; @Model.Room.TypeName</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<!-- ==========================================
+     ALERTS
+========================================== -->
+<div class="container mt-4" style="max-width: 1200px;">
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="origin-card-graphite mb-4 d-flex justify-content-between align-items-center" role="alert">
+            <span class="small">&middot; @TempData["SuccessMessage"]</span>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="origin-card-graphite mb-4 d-flex justify-content-between align-items-center" style="border-color: var(--color-ember-accent) !important;" role="alert">
+            <span class="small text-danger">&times; @TempData["Error"]</span>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        </div>
+    }
+</div>
+
+<!-- ==========================================
+     ROOM DETAILS HERO & CONTENT
+========================================== -->
+<div class="container py-4" style="max-width: 1200px;">
+    <div class="row g-5">
+
+        <!-- ==========================================
+             LEFT: รายละเอียดห้องพัก & รูปภาพ
+        ========================================== -->
+        <div class="col-lg-8">
+
+            <!-- Gallery Frame -->
+            <div class="mb-4">
+                @if (Model.Room.Images.Any())
+                {
+                    var cover = Model.Room.Images.FirstOrDefault(i => i.IsCover) ?? Model.Room.Images.First();
+                    <div class="position-relative mb-2 overflow-hidden"
+                         style="height: 440px; border-radius: var(--radius-cards); background: url('@cover.ImageUrl') center/cover no-repeat; border: 1px solid rgba(255,255,255,0.12);">
+                        <span class="position-absolute top-0 start-0 m-3 origin-pill-chip" style="background: rgba(15,16,17,0.85);">
+                            ห้อง @Model.Room.RoomNumber &middot; @Model.Room.TypeName
+                        </span>
+                        <span class="position-absolute bottom-0 end-0 m-3 badge bg-white text-dark rounded-pill px-3 py-2 fw-bold" style="font-size: 11px;">
+                            📷 @Model.Room.Images.Count รูปภาพ
+                        </span>
+                    </div>
+                }
+                else
+                {
+                    <div class="position-relative mb-2 overflow-hidden d-flex align-items-center justify-content-center"
+                         style="height: 440px; border-radius: var(--radius-cards); background: url('https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat; border: 1px solid rgba(255,255,255,0.12);">
+                        <span class="position-absolute top-0 start-0 m-3 origin-pill-chip" style="background: rgba(15,16,17,0.85);">
+                            ห้อง @Model.Room.RoomNumber
+                        </span>
+                    </div>
+                }
+            </div>
+
+            <!-- Title & Price -->
+            <div class="mb-4 pb-4 border-bottom" style="border-color: rgba(255,255,255,0.08) !important;">
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+                    <div>
+                        <span class="origin-mono d-block mb-1" style="color: var(--color-iris-gleam);">LUXURY SUITE &middot; รายละเอียดห้องพัก</span>
+                        <h1 class="origin-heading-lg mb-2" style="font-size: 38px;">@Model.Room.TypeName</h1>
+                        <div class="d-flex flex-wrap gap-3 origin-mono" style="color: var(--color-ash); font-size: 12px;">
+                            <span>เตียง: @Model.Room.BedType</span>
+                            <span>&middot;</span>
+                            @if (Model.Room.SizeSqm.HasValue)
+                            {
+                                <span>ขนาด: @Model.Room.SizeSqm ตร.ม.</span>
+                                <span>&middot;</span>
+                            }
+                            @if (Model.Room.FloorNo.HasValue)
+                            {
+                                <span>ชั้น: @Model.Room.FloorNo</span>
+                                <span>&middot;</span>
+                            }
+                            <span>ห้องหมายเลข: @Model.Room.RoomNumber</span>
+                        </div>
+                    </div>
+                    <div class="text-lg-end">
+                        <div class="origin-heading-lg mb-0" style="color: var(--color-cyan-signal); font-size: 36px;">
+                            ฿@Model.Room.PricePerNight.ToString("N0")
+                        </div>
+                        <div class="origin-mono mb-2" style="color: var(--color-ash); font-size: 11px;">ราคาต่อคืน (รวมภาษี)</div>
+                        @{
+                            var isAvail = Model.Room.Status == "available";
+                        }
+                        <span class="badge border rounded-pill px-3 py-1" style="border-color: var(--color-cyan-signal); color: var(--color-cyan-signal); font-size: 11px;">
+                            @(isAvail ? "✓ ห้องว่างพร้อมจอง" : Model.Room.Status)
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Check-in 09:00 / Check-out 12:00 Standard Box -->
+            <div class="origin-card-graphite p-4 mb-5">
+                <div class="row g-4 text-center">
+                    <div class="col-6 border-end" style="border-color: rgba(255,255,255,0.08) !important;">
+                        <span class="origin-mono d-block mb-1" style="color: var(--color-cyan-signal); font-size: 11px;">STANDARD CHECK-IN</span>
+                        <div class="origin-heading-lg my-1" style="font-size: 32px; color: var(--color-pure);">09:00 น.</div>
+                        <span class="origin-mono" style="color: var(--color-ash); font-size: 11px;">เวลาเข้าพักมาตรฐาน</span>
+                    </div>
+                    <div class="col-6">
+                        <span class="origin-mono d-block mb-1" style="color: var(--color-orchid-bloom); font-size: 11px;">STANDARD CHECK-OUT</span>
+                        <div class="origin-heading-lg my-1" style="font-size: 32px; color: var(--color-pure);">12:00 น.</div>
+                        <span class="origin-mono" style="color: var(--color-ash); font-size: 11px;">เวลาเช็คเอาท์มาตรฐาน</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- คำอธิบายห้องพัก -->
+            <div class="mb-5">
+                <span class="origin-mono d-block mb-2" style="color: var(--color-iris-gleam);">SUITE OVERVIEW &middot; คำอธิบาย</span>
+                <p class="origin-body" style="font-size: 17px; line-height: 1.8;">
+                    @if (!string.IsNullOrEmpty(Model.Room.Description) && !Model.Room.Description.Contains('Ó') && !Model.Room.Description.Contains('©'))
+                    {
+                        @Model.Room.Description
+                    }
+                    else
+                    {
+                        <text>
+                            สัมผัสความสุขแห่งการพักผ่อนในห้อง @Model.Room.TypeName ที่ถูกรังสรรค์ขึ้นอย่างประณีต 
+                            พร้อมทิวทัศน์อันงดงามและการออกแบบที่คำนึงถึงความสะดวกสบายเป็นหัวใจสำคัญ 
+                            รองรับผู้เข้าพักได้สูงสุด @Model.Room.MaxGuests ท่าน พร้อมสิ่งอำนวยความสะดวกระดับ 5 ดาวครบครัน
+                        </text>
+                    }
+                </p>
+            </div>
+
+            <!-- รายการสิ่งอำนวยความสะดวก (Amenities) -->
+            <div class="mb-5">
+                <span class="origin-mono d-block mb-3" style="color: var(--color-iris-gleam);">AMENITIES &middot; สิ่งอำนวยความสะดวก</span>
+                <div class="row g-3">
+                    @if (Model.Room.Amenities.Any(a => !a.Name.Contains('Ó')))
+                    {
+                        @foreach (var amenity in Model.Room.Amenities.Where(a => !a.Name.Contains('Ó')))
+                        {
+                            <div class="col-6 col-md-4">
+                                <div class="origin-card-graphite p-3 d-flex align-items-center gap-2" style="border-radius: var(--radius-buttons); padding: 14px 18px !important;">
+                                    <span style="color: var(--color-cyan-signal);">&#x25C6;</span>
+                                    <span class="small" style="color: var(--color-cloud);">@amenity.Name</span>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        var standardAmenities = new[] {
+                            "Wi-Fi ความเร็วสูง", "เครื่องปรับอากาศปรับอุณหภูมิ", "สมาร์ททีวี 4K",
+                            "อ่างอาบน้ำหรูหรา", "ชุดชงกาแฟและชาพรีเมียม", "สิทธิ์เข้าใช้สระว่ายน้ำ",
+                            "บริการที่จอดรถฟรี", "บริการอาหารเช้ากูร์เมต์", "ชุดคลุมอาบน้ำผ้าคอตตอน",
+                            "ตู้นิรภัยภายในห้อง", "ผลิตภัณฑ์ดูแลผิวกายออร์แกนิก", "บริการรูมเซอร์วิส 24 ชม."
+                        };
+                        @foreach (var item in standardAmenities)
+                        {
+                            <div class="col-6 col-md-4">
+                                <div class="origin-card-graphite p-3 d-flex align-items-center gap-2" style="border-radius: var(--radius-buttons); padding: 14px 18px !important;">
+                                    <span style="color: var(--color-cyan-signal); font-size: 10px;">&#x25C6;</span>
+                                    <span class="small" style="color: var(--color-cloud);">@item</span>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+
+            <!-- นโยบายการยกเลิก -->
+            <div class="origin-card-graphite p-4 mb-5">
+                <span class="origin-mono d-block mb-3" style="color: var(--color-iris-gleam);">CANCELLATION POLICY &middot; เงื่อนไขการยกเลิก</span>
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="origin-mono small mb-1" style="color: var(--color-pure);">&middot; ยกเลิกฟรี (100% REFUND)</div>
+                        <p class="origin-body mb-0" style="font-size: 13px;">ยกเลิกล่วงหน้าอย่างน้อย 7 วันก่อนเวลาเช็คอิน 09:00 น. รับเงินคืนเต็มจำนวน</p>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="origin-mono small mb-1" style="color: var(--color-pure);">&middot; ยกเลิกบางส่วน (50% REFUND)</div>
+                        <p class="origin-body mb-0" style="font-size: 13px;">ยกเลิก 3-7 วันก่อนการเข้าพัก มีค่าธรรมเนียมตามนโยบาย รับเงินคืน 50%</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ==========================================
+             RIGHT: แผงควบคุมการจอง (Extra Bed + Multi-Room Cart)
+        ========================================== -->
+        <div class="col-lg-4">
+            <div class="sticky-top" style="top: 90px;">
+
+                <!-- Form Card -->
+                <div class="origin-card-graphite p-4 mb-4">
+                    
+                    <span class="origin-mono d-block mb-1" style="color: var(--color-iris-gleam); font-size: 11px;">RESERVATION PANEL</span>
+                    <h3 class="origin-heading-lg mb-4" style="font-size: 22px;">ห้อง @Model.Room.RoomNumber &mdash; @Model.Room.TypeName</h3>
+
+                    <form method="post" asp-action="AddToCart" asp-controller="Room" id="addToCartForm">
+                        <input type="hidden" name="RoomId" value="@Model.Room.RoomId" />
+                        <input type="hidden" name="CheckIn" id="formCheckIn" value="@checkIn" />
+                        <input type="hidden" name="CheckOut" id="formCheckOut" value="@checkOut" />
+
+                        <!-- Check-in & Check-out -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-6">
+                                <label class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">เช็คอิน (09:00)</label>
+                                <input type="date" id="checkInInput" class="origin-input w-100"
+                                       value="@checkIn" min="@DateTime.Today.ToString("yyyy-MM-dd")"
+                                       onchange="updateDates()" />
+                            </div>
+                            <div class="col-6">
+                                <label class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">เช็คเอาท์ (12:00)</label>
+                                <input type="date" id="checkOutInput" class="origin-input w-100"
+                                       value="@checkOut"
+                                       onchange="updateDates()" />
+                            </div>
+                        </div>
+
+                        <!-- จำนวนผู้เข้าพัก -->
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label class="origin-mono mb-0" style="color: var(--color-ash); font-size: 11px;">จำนวนผู้เข้าพัก</label>
+                                <span class="origin-mono" style="color: var(--color-ash); font-size: 10px;">สูงสุด @Model.Room.MaxGuests ท่าน</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <button type="button" class="btn-origin-ghost py-1 px-3"
+                                        onclick="changeCount('guests', -1, 1, @Model.Room.MaxGuests)">−</button>
+                                <input type="number" id="guestsInput" name="Guests"
+                                       class="origin-input text-center w-50"
+                                       value="@Math.Min(Model.Adults, Model.Room.MaxGuests)"
+                                       min="1" max="@Model.Room.MaxGuests" readonly />
+                                <button type="button" class="btn-origin-ghost py-1 px-3"
+                                        onclick="changeCount('guests', 1, 1, @Model.Room.MaxGuests)">+</button>
+                            </div>
+                        </div>
+
+                        <!-- ตัวเลือกเตียงเสริม (Extra Bed) -->
+                        @if (Model.Room.MaxExtraBeds > 0)
+                        {
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="origin-mono mb-0" style="color: var(--color-ash); font-size: 11px;">🛏 เพิ่มเตียงเสริม (EXTRA BED)</label>
+                                    <span class="origin-mono" style="color: var(--color-cyan-signal); font-size: 10px;">+฿@Model.ExtraBedPricePerNight.ToString("N0") / คืน</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <button type="button" class="btn-origin-ghost py-1 px-3"
+                                            onclick="changeCount('extraBeds', -1, 0, @Model.Room.MaxExtraBeds)">−</button>
+                                    <input type="number" id="extraBedsInput" name="ExtraBeds"
+                                           class="origin-input text-center w-50"
+                                           value="0" min="0" max="@Model.Room.MaxExtraBeds" readonly />
+                                    <button type="button" class="btn-origin-ghost py-1 px-3"
+                                            onclick="changeCount('extraBeds', 1, 0, @Model.Room.MaxExtraBeds)">+</button>
+                                </div>
+                                <div class="origin-mono mt-1" style="color: var(--color-ash); font-size: 10px;">เพิ่มได้สูงสุด @Model.Room.MaxExtraBeds เตียง</div>
+                            </div>
+                        }
+                        else
+                        {
+                            <input type="hidden" name="ExtraBeds" value="0" />
+                            <div class="p-2 mb-3 small border text-center" style="border-color: rgba(255,255,255,0.08)!important; color: var(--color-ash); font-size: 11px;">
+                                ห้องนี้ไม่รองรับเตียงเสริม
+                            </div>
+                        }
+
+                        <!-- Real-time calculation summary -->
+                        <div class="p-3 mb-4" style="background: rgba(15,16,17,0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius-inputs);">
+                            <div class="d-flex justify-content-between origin-mono mb-1" style="font-size: 11px; color: var(--color-ash);">
+                                <span>ราคาห้องพัก</span>
+                                <span style="color: var(--color-pure);">฿@Model.Room.PricePerNight.ToString("N0")</span>
+                            </div>
+                            <div class="d-flex justify-content-between origin-mono mb-1" id="extraBedRow" style="display:none!important; font-size: 11px; color: var(--color-ash);">
+                                <span>เตียงเสริม (<span id="extraBedCount">0</span> เตียง)</span>
+                                <span style="color: var(--color-cyan-signal);">฿<span id="extraBedCost">0</span></span>
+                            </div>
+                            <div class="d-flex justify-content-between origin-mono mb-2" style="font-size: 11px; color: var(--color-ash);">
+                                <span>จำนวนคืน</span>
+                                <span id="nightsDisplay" style="color: var(--color-pure);">@nights คืน</span>
+                            </div>
+                            <hr class="my-2" style="border-color: rgba(255,255,255,0.12);" />
+                            <div class="d-flex justify-content-between align-items-baseline pt-1 mb-2">
+                                <span class="origin-mono fw-bold" style="font-size: 12px;">ราคารวมห้องนี้</span>
+                                <span class="fw-bold" style="color: var(--color-pure); font-size: 18px;">฿<span id="totalPrice">@((Model.Room.PricePerNight * nights).ToString("N0"))</span></span>
+                            </div>
+                            <div class="p-2 rounded-2 d-flex justify-content-between align-items-center" style="background: rgba(0,179,221,0.1); border: 1px dashed rgba(0,179,221,0.3);">
+                                <span class="origin-mono" style="font-size: 10px; color: var(--color-cyan-signal);">มัดจำล่วงหน้า 5%</span>
+                                <span class="fw-bold origin-mono" style="color: var(--color-cyan-signal); font-size: 12px;">฿<span id="depositEst">@((Model.Room.PricePerNight * nights * 0.05m).ToString("N2"))</span></span>
+                            </div>
+                        </div>
+
+                        <!-- Promotion Privileges Pill List -->
+                        <div class="p-3 mb-4 rounded-3" style="background: rgba(132,125,255,0.06); border: 1px solid rgba(132,125,255,0.2);">
+                            <span class="origin-mono d-block mb-2" style="color: var(--color-iris-gleam); font-size: 10px;">PROMOTIONAL PRIVILEGES AVAILABLE:</span>
+                            <ul class="list-unstyled mb-0 d-flex flex-column gap-1 origin-mono" style="font-size: 10px; color: var(--color-ash);">
+                                <li><span style="color:var(--color-iris-gleam);">&bull;</span> สมาชิกใหม่จองครั้งแรก: <strong class="text-white">ลด 10%</strong></li>
+                                <li><span style="color:var(--color-iris-gleam);">&bull;</span> พัก 2 คืนขึ้นไป: <strong class="text-white">ลด 15%</strong></li>
+                                <li><span style="color:var(--color-iris-gleam);">&bull;</span> ยอดรวมเกิน 5,000 บาท: <strong class="text-white">ลด 500 บาท</strong></li>
+                                <li><span style="color:var(--color-iris-gleam);">&bull;</span> พักกลุ่ม 4 คนขึ้นไป: <strong class="text-white">ลด 20%</strong></li>
+                                <li><span style="color:var(--color-iris-gleam);">&bull;</span> จองล่วงหน้า 30 วันขึ้นไป: <strong class="text-white">ลด 25%</strong></li>
+                            </ul>
+                        </div>
+
+                        @if (Model.Room.IsAvailable)
+                        {
+                            <button type="submit" class="btn-origin-primary w-100 justify-content-center py-3">
+                                เพิ่มห้องนี้ลงรายการจอง &rarr;
+                            </button>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn-origin-ghost w-100 py-3" disabled>
+                                ห้องนี้ไม่ว่างในขณะนี้
+                            </button>
+                        }
+                    </form>
+
+                </div>
+
+                <!-- Multi-Room Allocation Cart (จองได้หลายห้องพร้อมกันในการจองครั้งเดียว) -->
+                @if (Model.Cart.Any())
+                {
+                    <div class="origin-card-graphite p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom" style="border-color: rgba(255,255,255,0.08) !important;">
+                            <span class="origin-mono fw-bold" style="font-size: 11px; color: var(--color-iris-gleam);">รายการห้องที่เลือก</span>
+                            <span class="origin-pill-chip py-1 px-3" style="font-size: 10px;">
+                                @Model.Cart.Count ห้อง
+                            </span>
+                        </div>
+
+                        <div class="cart-items-list mb-3">
+                            @foreach (var cartItem in Model.Cart)
+                            {
+                                <div class="p-3 mb-2" style="background: rgba(15,16,17,0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius-inputs);">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <div class="fw-bold text-white small">ห้อง @cartItem.RoomNumber</div>
+                                            <div class="origin-mono mb-1" style="color: var(--color-ash); font-size: 10px;">@cartItem.TypeName &middot; @cartItem.Guests ท่าน</div>
+                                            @if (cartItem.ExtraBeds > 0)
+                                            {
+                                                <div class="origin-mono text-warning" style="font-size: 10px;">+ @cartItem.ExtraBeds เตียงเสริม</div>
+                                            }
+                                        </div>
+                                        <div class="text-end">
+                                            <div class="fw-bold" style="color: var(--color-cyan-signal); font-size: 13px;">฿@cartItem.LineTotal.ToString("N0")</div>
+                                            <form method="post" asp-action="RemoveFromCart" asp-controller="Room" class="d-inline">
+                                                <input type="hidden" name="roomId" value="@cartItem.RoomId" />
+                                                <input type="hidden" name="checkIn" value="@checkIn" />
+                                                <input type="hidden" name="checkOut" value="@checkOut" />
+                                                <button type="submit" class="border-0 bg-transparent p-0 origin-mono text-danger" style="font-size: 10px; cursor: pointer;"
+                                                        onclick="return confirm('นำห้องนี้ออกจากรายการ?')">
+                                                    ลบออก &times;
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <div class="pt-2 mb-3 border-top d-flex justify-content-between align-items-baseline" style="border-color: rgba(255,255,255,0.08) !important;">
+                            <span class="origin-mono" style="color: var(--color-ash); font-size: 11px;">ยอดรวมทุกห้อง</span>
+                            <span class="fw-bold" style="color: var(--color-cyan-signal); font-size: 20px;">฿@Model.CartSubtotal.ToString("N0")</span>
+                        </div>
+
+                        @if (isLoggedIn)
+                        {
+                            <a asp-action="Checkout" asp-controller="Room"
+                               asp-route-checkIn="@checkIn"
+                               asp-route-checkOut="@checkOut"
+                               asp-route-adults="@Model.Adults"
+                               asp-route-children="@Model.Children"
+                               class="btn-origin-primary w-100 justify-content-center text-center mb-2">
+                                ไปยังหน้ายืนยันการจอง &rarr;
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-action="Login" asp-controller="Account"
+                               class="btn-origin-primary w-100 justify-content-center text-center mb-2">
+                                เข้าสู่ระบบเพื่อยืนยัน &rarr;
+                            </a>
+                        }
+
+                        <form method="post" asp-action="ClearCart" asp-controller="Room">
+                            <button type="submit" class="btn-origin-ghost w-100 text-center py-2" style="font-size: 11px;"
+                                    onclick="return confirm('ล้างรายการห้องพักทั้งหมด?')">
+                                ล้างรายการห้องทั้งหมด
+                            </button>
+                        </form>
+                    </div>
+                }
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ==========================================
+     SCRIPTS (Real-time Calculation)
+========================================== -->
+@section Scripts {
+    <script>
+        const basePrice = @Model.Room.PricePerNight;
+        const extraBedPrice = @Model.ExtraBedPricePerNight;
+
+        function changeCount(field, delta, min, max) {
+            const inputId = field === 'guests' ? 'guestsInput' : 'extraBedsInput';
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            let val = parseInt(input.value) + delta;
+            val = Math.max(min, Math.min(max, val));
+            input.value = val;
+            recalculate();
+        }
+
+        function getNights() {
+            const ci = document.getElementById('checkInInput').value;
+            const co = document.getElementById('checkOutInput').value;
+            if (!ci || !co) return 1;
+            const diff = (new Date(co) - new Date(ci)) / (1000 * 60 * 60 * 24);
+            return Math.max(1, Math.round(diff));
+        }
+
+        function updateDates() {
+            const ci = document.getElementById('checkInInput').value;
+            const co = document.getElementById('checkOutInput').value;
+
+            if (ci && co && new Date(co) <= new Date(ci)) {
+                const nextDay = new Date(ci);
+                nextDay.setDate(nextDay.getDate() + 1);
+                document.getElementById('checkOutInput').value = nextDay.toISOString().split('T')[0];
+            }
+
+            document.getElementById('formCheckIn').value = document.getElementById('checkInInput').value;
+            document.getElementById('formCheckOut').value = document.getElementById('checkOutInput').value;
+
+            recalculate();
+        }
+
+        function recalculate() {
+            const nights = getNights();
+            const extraBedsEl = document.getElementById('extraBedsInput');
+            const extraBeds = extraBedsEl ? parseInt(extraBedsEl.value) : 0;
+            const extraCost = extraBeds * extraBedPrice * nights;
+            const total = (basePrice * nights) + extraCost;
+
+            document.getElementById('nightsDisplay').textContent = nights + ' คืน';
+            document.getElementById('totalPrice').textContent = total.toLocaleString('en-US', { maximumFractionDigits: 0 });
+
+            const depositEl = document.getElementById('depositEst');
+            if (depositEl) {
+                depositEl.textContent = (total * 0.05).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            }
+
+            const extraBedRow = document.getElementById('extraBedRow');
+            if (extraBedsEl && extraBedRow) {
+                document.getElementById('extraBedCount').textContent = extraBeds;
+                document.getElementById('extraBedCost').textContent = extraCost.toLocaleString('en-US', { maximumFractionDigits: 0 });
+                if (extraBeds > 0) {
+                    extraBedRow.style.removeProperty('display');
+                } else {
+                    extraBedRow.style.display = 'none';
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', recalculate);
+    </script>
+}

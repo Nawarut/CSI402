@@ -5,163 +5,181 @@
     var allCount = Model?.Users?.Count ?? 0;
     var renterCount = Model?.Users?.Count(u => u.Role == "Renter" || u.Role == "ผู้เช่า") ?? 0;
     var staffCount = Model?.Users?.Count(u => u.Role == "Staff" || u.Role == "พนักงาน" || u.Role == "Accountant" || u.Role == "Admin" || u.Role == "ผู้ดูแลระบบ") ?? 0;
-    var suspendedCount = Model?.Users?.Count(u => u.Status == "Suspended" || u.Status == "ระงับการใช้งาน") ?? 0;
+    var suspendedCount = Model?.Users?.Count(u => u.Status == "Suspended" || u.Status == "ระงับการใช้งาน" || u.Status == "inactive" || u.Status == "locked") ?? 0;
 }
 
-<section class="w-full">
+<div class="container-fluid px-0">
+
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="mb-6 rounded-lg bg-emerald-50 p-4 text-sm text-emerald-800 border border-emerald-200 flex items-center justify-between shadow-sm">
-            <div class="flex items-center gap-2">
-                <svg class="w-5 h-5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                </svg>
-                <span>@TempData["SuccessMessage"]</span>
+        <div class="origin-card-graphite p-3 mb-4 d-flex justify-content-between align-items-center" role="alert">
+            <div class="d-flex align-items-center gap-2">
+                <span style="color: var(--color-cyan-signal);">&#x25CF;</span>
+                <span class="small text-white">@TempData["SuccessMessage"]</span>
             </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
         </div>
     }
 
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <div class="d-flex flex-wrap justify-content-between align-items-baseline mb-4">
         <div>
-            <p class="text-xs font-semibold text-emerald-700 uppercase tracking-wider">USER & ROLE PERMISSION</p>
-            <h1 class="text-2xl font-bold text-slate-900 mt-1">จัดการบัญชีผู้ใช้งานและกำหนดสิทธิ์</h1>
-            <p class="text-xs text-slate-500 mt-0.5">ผู้ใช้งานทั้งหมด @allCount บัญชี</p>
+            <span class="origin-mono" style="color: var(--color-iris-gleam); font-size: 11px;">USER &amp; ROLE PERMISSIONS</span>
+            <h2 class="origin-heading-lg mt-1 mb-0" style="font-size: 30px; font-family: 'Prompt', sans-serif !important;">จัดการบัญชีผู้ใช้งานและกำหนดสิทธิ์</h2>
+            <p class="origin-mono mt-1 mb-0" style="color: var(--color-ash); font-size: 11px;">ผู้ใช้งานทั้งหมด @allCount บัญชี &middot; สมาชิกของ JoJo Hotel</p>
         </div>
-        <div class="flex items-center gap-2">
-            <a asp-controller="Home" asp-action="Lab5_2" class="inline-flex items-center justify-center px-4 py-2.5 rounded-lg bg-emerald-800 hover:bg-emerald-700 text-white text-sm font-semibold transition shadow-sm">
-                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                </svg>
-                เพิ่มผู้ใช้งาน
+        <div class="d-flex align-items-center gap-2 mt-3 mt-sm-0">
+            <a asp-controller="Admin" asp-action="AddUser" class="btn-origin-primary py-2 px-3 text-decoration-none" style="font-size: 13px;">
+                + เพิ่มผู้ใช้งาน &rarr;
             </a>
         </div>
     </div>
 
-    <!-- Stat Cards -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    <!-- Stat Cards (Origin Graphite Cards, 16px radius) -->
+    <div class="row g-4 mb-5">
         <!-- บัญชีทั้งหมด -->
-        <div class="bg-white rounded-xl p-5 border border-slate-200/80 shadow-sm">
-            <p class="text-xs font-medium text-slate-500">บัญชีทั้งหมด</p>
-            <h3 class="text-2xl font-bold text-slate-900 mt-2">@allCount</h3>
+        <div class="col-6 col-md-3">
+            <div class="origin-card-graphite p-4 h-100">
+                <span class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">บัญชีทั้งหมด</span>
+                <div class="origin-heading-lg mb-0" style="font-size: 34px; color: var(--color-pure);">@allCount</div>
+                <span class="origin-mono" style="color: var(--color-cyan-signal); font-size: 10px;">ALL RESIDENTS</span>
+            </div>
         </div>
 
-        <!-- บัญชีผู้เช่า -->
-        <div class="bg-white rounded-xl p-5 border border-slate-200/80 shadow-sm">
-            <p class="text-xs font-medium text-slate-500">บัญชีผู้เช่า</p>
-            <h3 class="text-2xl font-bold text-slate-900 mt-2">@renterCount</h3>
+        <!-- บัญชีผู้เช่า / ลูกค้า -->
+        <div class="col-6 col-md-3">
+            <div class="origin-card-graphite p-4 h-100">
+                <span class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">บัญชีผู้เช่า / ลูกค้า</span>
+                <div class="origin-heading-lg mb-0" style="font-size: 34px; color: var(--color-iris-gleam);">@renterCount</div>
+                <span class="origin-mono" style="color: var(--color-iris-gleam); font-size: 10px;">GUESTS &amp; RENTERS</span>
+            </div>
         </div>
 
         <!-- บัญชีพนักงาน -->
-        <div class="bg-white rounded-xl p-5 border border-slate-200/80 shadow-sm">
-            <p class="text-xs font-medium text-slate-500">บัญชีพนักงาน</p>
-            <h3 class="text-2xl font-bold text-slate-900 mt-2">@staffCount</h3>
+        <div class="col-6 col-md-3">
+            <div class="origin-card-graphite p-4 h-100">
+                <span class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">บัญชีเจ้าหน้าที่</span>
+                <div class="origin-heading-lg mb-0" style="font-size: 34px; color: var(--color-orchid-bloom);">@staffCount</div>
+                <span class="origin-mono" style="color: var(--color-orchid-bloom); font-size: 10px;">HOTEL STAFF &amp; ADMIN</span>
+            </div>
         </div>
 
-        <!-- บัญชีถูกระงับ -->
-        <div class="bg-white rounded-xl p-5 border border-slate-200/80 shadow-sm">
-            <p class="text-xs font-medium text-rose-500">บัญชีถูกระงับ</p>
-            <h3 class="text-2xl font-bold text-rose-600 mt-2">@suspendedCount</h3>
+        <!-- บัญชีระงับการใช้งาน -->
+        <div class="col-6 col-md-3">
+            <div class="origin-card-graphite p-4 h-100">
+                <span class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">บัญชีถูกระงับ</span>
+                <div class="origin-heading-lg mb-0" style="font-size: 34px; color: #ff6b6b;">@suspendedCount</div>
+                <span class="origin-mono" style="color: #ff6b6b; font-size: 10px;">SUSPENDED ACCESS</span>
+            </div>
         </div>
     </div>
 
-    <!-- Table Card -->
-    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-        <div class="p-5 border-b border-slate-100 flex items-center justify-between">
-            <h2 class="text-base font-bold text-slate-900">รายชื่อผู้ใช้งาน</h2>
-            <span class="text-xs text-slate-500">ทั้งหมด @allCount รายการ</span>
+    <!-- Table Card (Graphite Card, 16px radius, Dark Table) -->
+    <div class="origin-card-graphite p-0 overflow-hidden mb-5" style="background-color: var(--color-graphite) !important; border: 1px solid rgba(255,255,255,0.08) !important;">
+        <div class="p-4 border-bottom d-flex justify-content-between align-items-center" style="border-color: rgba(255,255,255,0.08) !important;">
+            <div>
+                <span class="origin-mono" style="color: var(--color-iris-gleam); font-size: 11px;">DIRECTORY</span>
+                <h3 class="origin-heading-lg mb-0" style="font-size: 20px; font-family: 'Prompt', sans-serif !important;">รายชื่อผู้ใช้งานทั้งหมด</h3>
+            </div>
+            <span class="origin-mono" style="color: var(--color-ash); font-size: 11px;">ทั้งหมด @allCount รายการ</span>
         </div>
 
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
+        <div class="table-responsive" style="background-color: var(--color-abyss) !important;">
+            <table class="table origin-table mb-0" style="background-color: transparent !important; color: #ffffff !important;">
                 <thead>
-                    <tr class="border-b border-slate-100 bg-slate-50/50">
-                        <th class="py-3.5 px-6 text-xs font-semibold text-slate-500">ผู้ใช้งาน</th>
-                        <th class="py-3.5 px-6 text-xs font-semibold text-slate-500">บทบาท</th>
-                        <th class="py-3.5 px-6 text-xs font-semibold text-slate-500">ล็อกซ์ / ห้องที่</th>
-                        <th class="py-3.5 px-6 text-xs font-semibold text-slate-500">สถานะ</th>
-                        <th class="py-3.5 px-6 text-xs font-semibold text-slate-500 text-right">จัดการ</th>
+                    <tr class="origin-mono" style="border-bottom: 1px solid rgba(255,255,255,0.12) !important; background-color: rgba(15,16,17,0.8) !important; color: var(--color-ash); font-size: 11px;">
+                        <th class="p-3">ผู้ใช้งาน</th>
+                        <th class="p-3">บทบาท (ROLE)</th>
+                        <th class="p-3">ห้องพัก / สล็อต</th>
+                        <th class="p-3">สถานะ</th>
+                        <th class="p-3 text-end">การจัดการ</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
+                <tbody style="background-color: transparent !important;">
                     @if (Model?.Users != null && Model.Users.Any())
                     {
                         @foreach (var user in Model.Users)
                         {
-                            <tr class="hover:bg-slate-50/80 transition-colors">
+                            var rawName = user.FullName;
+                            if (string.IsNullOrWhiteSpace(rawName))
+                            {
+                                rawName = $"{user.Firstname} {user.Lastname}".Trim();
+                            }
+                            if (string.IsNullOrWhiteSpace(rawName) || rawName == "-")
+                            {
+                                rawName = user.Email.Contains('@') ? user.Email.Split('@')[0] : "ผู้ใช้งาน";
+                            }
+
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.06) !important; background-color: transparent !important;">
                                 <!-- ผู้ใช้งาน -->
-                                <td class="py-4 px-6">
-                                    <div class="font-semibold text-slate-900 text-sm">
-                                        @(string.IsNullOrWhiteSpace(user.FullName) ? $"{user.Firstname} {user.Lastname}" : user.FullName)
+                                <td class="p-3 align-middle" style="background-color: transparent !important;">
+                                    <div class="fw-bold" style="color: #ffffff !important; font-size: 14.5px;">
+                                        @rawName
                                     </div>
-                                    <div class="text-xs text-slate-400 mt-0.5 flex items-center gap-1.5">
-                                        <span>@user.Phone</span>
-                                        <span>•</span>
-                                        <span>@user.Email</span>
+                                    <div class="origin-mono" style="color: var(--color-ash); font-size: 11px;">
+                                        <span>@user.Phone</span> &middot; <span>@user.Email</span>
                                     </div>
                                 </td>
 
                                 <!-- บทบาท -->
-                                <td class="py-4 px-6">
+                                <td class="p-3 align-middle" style="background-color: transparent !important;">
                                     @if (user.Role == "Admin" || user.Role == "ผู้ดูแลระบบ")
                                     {
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200">
-                                            Admin
+                                        <span class="badge rounded-pill px-3 py-1" style="background: rgba(132,125,255,0.15); border: 1px solid rgba(132,125,255,0.4); color: var(--color-iris-gleam); font-size: 11px;">
+                                            👑 Admin
                                         </span>
                                     }
                                     else if (user.Role == "Renter" || user.Role == "ผู้เช่า")
                                     {
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-cyan-50 text-cyan-700 border border-cyan-200">
-                                            Renter
+                                        <span class="badge rounded-pill px-3 py-1" style="background: rgba(0,179,221,0.15); border: 1px solid rgba(0,179,221,0.4); color: var(--color-cyan-signal); font-size: 11px;">
+                                            👤 Renter
                                         </span>
                                     }
                                     else if (user.Role == "Staff" || user.Role == "พนักงาน")
                                     {
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                            Staff
+                                        <span class="badge rounded-pill px-3 py-1" style="background: rgba(221,144,216,0.15); border: 1px solid rgba(221,144,216,0.4); color: var(--color-orchid-bloom); font-size: 11px;">
+                                            💼 Staff
                                         </span>
                                     }
                                     else if (user.Role == "Accountant" || user.Role == "บัญชี")
                                     {
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-50 text-teal-700 border border-teal-200">
-                                            Accountant
+                                        <span class="badge rounded-pill px-3 py-1" style="background: rgba(144,184,240,0.15); border: 1px solid rgba(144,184,240,0.4); color: var(--color-periwinkle); font-size: 11px;">
+                                            📊 Accountant
                                         </span>
                                     }
                                     else
                                     {
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
+                                        <span class="badge rounded-pill px-3 py-1" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: var(--color-ash); font-size: 11px;">
                                             @(user.Role ?? "User")
                                         </span>
                                     }
                                 </td>
 
                                 <!-- ล็อกซ์ / ห้องที่ -->
-                                <td class="py-4 px-6 text-sm text-slate-600">
-                                    @(string.IsNullOrWhiteSpace(user.SlotNo) ? "-" : user.SlotNo)
+                                <td class="p-3 align-middle origin-mono" style="color: var(--color-ash); font-size: 12px; background-color: transparent !important;">
+                                    @(string.IsNullOrWhiteSpace(user.SlotNo) ? "—" : user.SlotNo)
                                 </td>
 
                                 <!-- สถานะ -->
-                                <td class="py-4 px-6">
-                                    @if (user.Status == "Active" || user.Status == "ปกติ")
+                                <td class="p-3 align-middle" style="background-color: transparent !important;">
+                                    @if (user.Status == "Active" || user.Status == "ปกติ" || user.Status == "active")
                                     {
-                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-                                            Active
+                                        <span class="origin-mono" style="color: var(--color-cyan-signal); font-size: 11px;">
+                                            ● Active
                                         </span>
                                     }
                                     else
                                     {
-                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-rose-50 text-rose-700 border border-rose-200">
-                                            <span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span>
-                                            @(user.Status ?? "Inactive")
+                                        <span class="origin-mono" style="color: #ff6b6b; font-size: 11px;">
+                                            ● @(user.Status ?? "Inactive")
                                         </span>
                                     }
                                 </td>
 
-                                <!-- จัดการ (Edit & Delete - รวมในหน้ารายชื่อโดยตรง) -->
-                                <td class="py-4 px-6 text-right">
-                                    <div class="inline-flex items-center gap-1.5 justify-end">
-                                        <!-- แก้ไข (Edit - เปิด Modal ในหน้านี้โดยตรง) -->
+                                <!-- จัดการ (Visible Action Buttons) -->
+                                <td class="p-3 align-middle text-end" style="background-color: transparent !important;">
+                                    <div class="d-inline-flex gap-2">
+                                        <!-- แก้ไข -->
                                         <button type="button"
                                                 onclick="openEditUserModal(this)"
                                                 data-userid="@user.UserId"
@@ -171,21 +189,15 @@
                                                 data-phone="@user.Phone"
                                                 data-role="@user.Role"
                                                 data-status="@user.Status"
-                                                class="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 transition shadow-sm cursor-pointer">
-                                            <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                            </svg>
-                                            แก้ไข
+                                                class="btn-action-edit">
+                                            <i class="bi bi-pencil-square"></i> แก้ไข
                                         </button>
 
-                                        <!-- ลบ (Delete - Lab 10_1) -->
-                                        <form asp-controller="Home" asp-action="DeleteUser" method="post" class="inline" onsubmit="return confirm('คุณแน่ใจหรือไม่ว่าต้องการลบผู้ใช้งานนี้?');">
+                                        <!-- ลบ -->
+                                        <form asp-controller="Home" asp-action="DeleteUser" method="post" class="d-inline" onsubmit="return confirm('คุณแน่ใจหรือไม่ว่าต้องการลบผู้ใช้งานนี้?');">
                                             <input type="hidden" name="id" value="@user.UserId" />
-                                            <button type="submit" class="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 transition cursor-pointer">
-                                                <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                </svg>
-                                                ลบ
+                                            <button type="submit" class="btn-action-delete">
+                                                <i class="bi bi-trash3"></i> ลบ
                                             </button>
                                         </form>
                                     </div>
@@ -196,8 +208,8 @@
                     else
                     {
                         <tr>
-                            <td colspan="5" class="py-8 text-center text-sm text-slate-400">
-                                ไม่พบข้อมูลผู้ใช้งาน
+                            <td colspan="5" class="p-5 text-center origin-mono" style="color: var(--color-ash); background-color: transparent !important;">
+                                ไม่พบข้อมูลผู้ใช้งานในระบบ
                             </td>
                         </tr>
                     }
@@ -205,68 +217,63 @@
             </table>
         </div>
     </div>
-</section>
+</div>
 
 <!-- ========================================== -->
-<!-- Modal แก้ไขข้อมูลผู้ใช้ (Inline Edit User Modal) -->
+<!-- Modal แก้ไขข้อมูลผู้ใช้ (Origin Glassmorphism Modal) -->
 <!-- ========================================== -->
-<div id="editUserModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl border border-slate-100 transition-all sm:p-8">
+<div id="editUserModal" class="modal-backdrop-origin" style="display: none; position: fixed; inset: 0; z-index: 2000; background: rgba(9,10,11,0.85); backdrop-filter: blur(24px); align-items: center; justify-content: center; padding: 20px;">
+    <div class="origin-card-graphite p-4 p-md-5" style="max-width: 560px; width: 100%; max-height: 90vh; overflow-y: auto;">
+        
         <!-- Modal Header -->
-        <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <div class="d-flex justify-content-between align-items-start pb-3 mb-4 border-bottom" style="border-color: rgba(255,255,255,0.08) !important;">
             <div>
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
-                    CRUD: UPDATE
-                </span>
-                <h3 class="text-xl font-bold text-slate-900 mt-1">แก้ไขข้อมูลผู้ใช้งาน</h3>
-                <p class="text-xs text-slate-500">แก้ไขข้อมูลและบันทึกลงฐานข้อมูลได้ทันทีในหน้านี้</p>
+                <span class="origin-pill-chip mb-2">CRUD: UPDATE</span>
+                <h3 class="origin-heading-lg mb-1" style="font-size: 24px;">แก้ไขข้อมูลผู้ใช้งาน</h3>
+                <p class="origin-mono mb-0" style="color: var(--color-ash); font-size: 11px;">แก้ไขข้อมูลและบันทึกลงฐานข้อมูล JoJo Hotel ทันที</p>
             </div>
-            <button type="button" onclick="closeEditUserModal()" class="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
+            <button type="button" onclick="closeEditUserModal()" class="btn-close btn-close-white"></button>
         </div>
 
         <!-- Form Edit User -->
-        <form asp-controller="Home" asp-action="EditUser" method="post" class="mt-5 space-y-4">
+        <form asp-controller="Home" asp-action="EditUser" method="post">
             <input type="hidden" id="modalUserId" name="UserId" />
 
             <!-- User ID & Email (Readonly) -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                    <label class="block text-xs font-medium text-slate-600 mb-1">รหัสผู้ใช้ (User ID)</label>
-                    <input type="text" id="modalUserIdDisplay" readonly class="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs text-slate-500 font-mono cursor-not-allowed" />
+            <div class="row g-3 mb-3">
+                <div class="col-6">
+                    <label class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">รหัสผู้ใช้ (USER ID)</label>
+                    <input type="text" id="modalUserIdDisplay" readonly class="origin-input w-100 opacity-75" style="cursor: not-allowed;" />
                 </div>
-                <div>
-                    <label class="block text-xs font-medium text-slate-600 mb-1">อีเมล (บัญชีผู้ใช้)</label>
-                    <input type="email" id="modalEmail" name="Email" readonly class="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs text-slate-500 font-mono cursor-not-allowed" />
+                <div class="col-6">
+                    <label class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">อีเมล (EMAIL)</label>
+                    <input type="email" id="modalEmail" name="Email" readonly class="origin-input w-100 opacity-75" style="cursor: not-allowed;" />
                 </div>
             </div>
 
             <!-- ชื่อ & นามสกุล -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                    <label class="block text-xs font-medium text-slate-700 mb-1">ชื่อ <span class="text-rose-500">*</span></label>
-                    <input type="text" id="modalFirstname" name="Firstname" required class="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm focus:border-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-700" />
+            <div class="row g-3 mb-3">
+                <div class="col-6">
+                    <label class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">ชื่อ *</label>
+                    <input type="text" id="modalFirstname" name="Firstname" required class="origin-input w-100" />
                 </div>
-                <div>
-                    <label class="block text-xs font-medium text-slate-700 mb-1">นามสกุล <span class="text-rose-500">*</span></label>
-                    <input type="text" id="modalLastname" name="Lastname" required class="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm focus:border-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-700" />
+                <div class="col-6">
+                    <label class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">นามสกุล *</label>
+                    <input type="text" id="modalLastname" name="Lastname" required class="origin-input w-100" />
                 </div>
             </div>
 
             <!-- เบอร์โทรศัพท์ -->
-            <div>
-                <label class="block text-xs font-medium text-slate-700 mb-1">เบอร์โทรศัพท์</label>
-                <input type="tel" id="modalPhone" name="Phone" class="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm focus:border-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-700" />
+            <div class="mb-3">
+                <label class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">เบอร์โทรศัพท์</label>
+                <input type="tel" id="modalPhone" name="Phone" class="origin-input w-100" />
             </div>
 
             <!-- บทบาท & สถานะ -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                    <label class="block text-xs font-medium text-slate-700 mb-1">บทบาท (Role)</label>
-                    <select id="modalRole" name="Role" class="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm focus:border-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-700 bg-white">
+            <div class="row g-3 mb-3">
+                <div class="col-6">
+                    <label class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">บทบาท (ROLE)</label>
+                    <select id="modalRole" name="Role" class="origin-input w-100">
                         <option value="Admin">Admin (ผู้ดูแลระบบ)</option>
                         <option value="Staff">Staff (พนักงาน)</option>
                         <option value="Accountant">Accountant (บัญชี)</option>
@@ -274,9 +281,9 @@
                         <option value="Guest">Guest (ผู้เยี่ยมชม)</option>
                     </select>
                 </div>
-                <div>
-                    <label class="block text-xs font-medium text-slate-700 mb-1">สถานะ (Status)</label>
-                    <select id="modalStatus" name="Status" class="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm focus:border-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-700 bg-white">
+                <div class="col-6">
+                    <label class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">สถานะ (STATUS)</label>
+                    <select id="modalStatus" name="Status" class="origin-input w-100">
                         <option value="active">Active (ใช้งานได้ปกติ)</option>
                         <option value="inactive">Inactive (ระงับการใช้งาน)</option>
                         <option value="locked">Locked (ล็อกการใช้งาน)</option>
@@ -285,21 +292,18 @@
             </div>
 
             <!-- รหัสผ่านใหม่ (ถ้าต้องการเปลี่ยน) -->
-            <div>
-                <label class="block text-xs font-medium text-slate-700 mb-1">รหัสผ่านใหม่ (เว้นว่างไว้หากไม่ต้องการเปลี่ยน)</label>
-                <input type="password" name="Password" placeholder="ระบุรหัสผ่านใหม่เมื่อต้องการเปลี่ยน" class="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm focus:border-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-700" />
+            <div class="mb-4">
+                <label class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">รหัสผ่านใหม่ (เว้นว่างไว้หากไม่ต้องการเปลี่ยน)</label>
+                <input type="password" name="Password" placeholder="ระบุรหัสผ่านใหม่เมื่อต้องการเปลี่ยน" class="origin-input w-100" />
             </div>
 
-            <!-- ปุ่มดำเนินการ -->
-            <div class="pt-3 flex items-center justify-end gap-3 border-t border-slate-100">
-                <button type="button" onclick="closeEditUserModal()" class="h-10 px-4 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition cursor-pointer">
+            <!-- Buttons -->
+            <div class="pt-3 border-top d-flex justify-content-end gap-2" style="border-color: rgba(255,255,255,0.08) !important;">
+                <button type="button" onclick="closeEditUserModal()" class="btn-origin-ghost py-2 px-3" style="font-size: 13px;">
                     ยกเลิก
                 </button>
-                <button type="submit" class="h-10 px-5 rounded-lg bg-emerald-800 text-sm font-semibold text-white hover:bg-emerald-700 active:bg-emerald-900 transition shadow flex items-center cursor-pointer">
-                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                    บันทึกการแก้ไข
+                <button type="submit" class="btn-origin-primary py-2 px-4" style="font-size: 13px;">
+                    บันทึกการแก้ไข &rarr;
                 </button>
             </div>
         </form>
@@ -326,13 +330,13 @@
         }
 
         const modal = document.getElementById('editUserModal');
-        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
     }
 
     function closeEditUserModal() {
         const modal = document.getElementById('editUserModal');
-        modal.classList.add('hidden');
+        modal.style.display = 'none';
         document.body.style.overflow = '';
     }
 

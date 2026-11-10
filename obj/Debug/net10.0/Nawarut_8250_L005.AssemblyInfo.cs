@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Nawarut_8250_L005")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ce3e05c4c8d42ecdcb96fbc7f10b78042f8ee217")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ca2bcaff37778bad7ee57a804fc8b1ba75cf4760")]
 [assembly: System.Reflection.AssemblyProductAttribute("Nawarut_8250_L005")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Nawarut_8250_L005")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

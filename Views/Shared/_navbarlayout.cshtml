@@ -5,198 +5,197 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>@ViewData["Title"] - JoJo Hotel</title>
+    <title>@ViewData["Title"] — JoJo Hotel</title>
 
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <!-- Google Fonts: DM Serif Display & Inter & Roboto Mono & Prompt -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&family=Prompt:wght@300;400;500;600&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 
     <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            background-color: #ffffff;
-            color: #333;
-        }
-
-        /* =========================
-           NAVBAR
-        ========================= */
-        .custom-navbar {
+        /* ========================================================
+           ORIGIN STICKY TOP NAVIGATION BAR (GLASSMORPHISM)
+           backdrop-filter: blur(24px), rgba(15,16,17,0.75)
+        ======================================================== */
+        .origin-navbar {
             width: 100%;
-            height: 72px;
-            background-color: #ffffff;
-            border-bottom: 1px solid #eeeeee;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            display: flex;
-            align-items: center;
+            background-color: rgba(15, 16, 17, 0.78);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             position: sticky;
             top: 0;
             z-index: 1000;
         }
 
-        .navbar-container {
-            width: 100%;
-            max-width: 1400px;
+        .origin-navbar-inner {
+            max-width: var(--page-max-width, 1200px);
             margin: 0 auto;
-            padding: 0 35px;
-
+            padding: 0 24px;
+            height: 70px;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
 
-        /* =========================
-           LOGO
-        ========================= */
-        .logo {
+        /* Brand Logo: JoJo Hotel in refined typography */
+        .origin-brand {
             text-decoration: none;
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .origin-brand-title {
+            font-family: var(--font-serif-display);
+            font-size: 24px;
+            font-weight: 400;
+            color: var(--color-pure);
+            letter-spacing: -0.01em;
             line-height: 1;
-            margin-right: 40px;
         }
 
-        .logo-main {
-            font-size: 27px;
-            font-weight: 700;
-            color: #f2b400;
-            letter-spacing: 1px;
-        }
-
-        .logo-sub {
+        .origin-brand-badge {
+            font-family: var(--font-roboto-mono);
             font-size: 9px;
-            font-weight: 600;
-            color: #999;
-            letter-spacing: 2px;
-            margin-top: 4px;
+            font-weight: 500;
+            background: rgba(132, 125, 255, 0.15);
+            color: var(--color-iris-gleam);
+            border: 1px solid rgba(132, 125, 255, 0.3);
+            border-radius: var(--radius-pill);
+            padding: 2px 8px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
         }
 
-        /* =========================
-           MENU
-        ========================= */
-        .navbar-menu {
+        /* Nav links */
+        .origin-nav-menu {
             display: flex;
             align-items: center;
-            gap: 4px;
-            flex: 1;
+            gap: 18px;
         }
 
-        .navbar-menu a {
-            text-decoration: none;
-            color: #333;
+        .origin-nav-link {
+            font-family: var(--font-sans-ui);
             font-size: 15px;
-            font-weight: 500;
-
-            padding: 25px 15px;
-
+            font-weight: 400;
+            color: var(--color-ash);
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: var(--radius-buttons);
             transition: all 0.2s ease;
-        }
-
-        .navbar-menu a:hover {
-            color: #f2b400;
-        }
-
-        /* =========================
-           RIGHT MENU
-        ========================= */
-        .navbar-right {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .login-btn {
-            text-decoration: none;
-            color: #333;
-            font-size: 15px;
-            font-weight: 500;
-            padding: 10px 15px;
-
-            transition: 0.2s;
-        }
-
-        .login-btn:hover {
-            color: #f2b400;
-        }
-
-        .register-btn {
-            text-decoration: none;
-            color: #333;
-            border: 1px solid #dcdcdc;
-            border-radius: 25px;
-            padding: 10px 22px;
-            font-size: 15px;
-            font-weight: 500;
-
-            transition: all 0.2s ease;
-        }
-
-        .register-btn:hover {
-            border-color: #f2b400;
-            color: #f2b400;
-            background-color: #fffdf3;
-        }
-
-        /* =========================
-           MENU BUTTON
-        ========================= */
-        .menu-btn {
-            border: none;
             background: transparent;
-            color: #f2b400;
-            font-size: 25px;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
             cursor: pointer;
-            padding: 5px 10px;
         }
 
-        .menu-btn:hover {
-            color: #d89f00;
+        .origin-nav-link:hover {
+            color: var(--color-pure);
+            background-color: rgba(255, 255, 255, 0.05);
         }
 
-        /* =========================
-           MAIN CONTENT
-        ========================= */
-        main {
-            min-height: calc(100vh - 72px);
+        /* Dropdown: ห้องพักแยกตามจังหวัด */
+        .origin-dropdown {
+            position: relative;
         }
 
-        /* =========================
-           MOBILE
-        ========================= */
-        @@media (max-width: 900px) {
+        .origin-dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            min-width: 680px;
+            background-color: rgba(15, 16, 17, 0.96);
+            backdrop-filter: blur(28px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: var(--radius-cards);
+            padding: 28px;
+            box-shadow: var(--shadow-origin-lg);
+            z-index: 2000;
+        }
 
-            .custom-navbar {
+        .origin-dropdown:hover .origin-dropdown-menu {
+            display: block;
+        }
+
+        .origin-dropdown-col-title {
+            font-family: var(--font-roboto-mono);
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--color-iris-gleam);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding-bottom: 6px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .origin-dropdown-room {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 7px 0;
+            text-decoration: none;
+            color: var(--color-cloud);
+            font-size: 13.5px;
+            transition: all 0.15s ease;
+        }
+
+        .origin-dropdown-room:hover {
+            color: var(--color-pure);
+            padding-left: 4px;
+        }
+
+        .origin-tag-mini {
+            font-family: var(--font-roboto-mono);
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: var(--radius-buttons);
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--color-ash);
+        }
+
+        /* Right actions */
+        .origin-nav-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        /* Footer */
+        .origin-footer {
+            background-color: var(--color-abyss);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 80px 0 50px 0;
+            margin-top: 100px;
+        }
+
+        @@media (max-width: 992px) {
+            .origin-navbar-inner {
                 height: auto;
-                padding: 12px 0;
-            }
-
-            .navbar-container {
+                padding: 16px 20px;
                 flex-wrap: wrap;
-                padding: 0 20px;
             }
-
-            .logo {
-                margin-right: auto;
-            }
-
-            .navbar-menu {
+            .origin-nav-menu {
                 width: 100%;
                 order: 3;
-                margin-top: 10px;
+                margin-top: 14px;
                 flex-direction: column;
                 align-items: flex-start;
+                gap: 8px;
             }
-
-            .navbar-menu a {
-                width: 100%;
-                padding: 10px 0;
-            }
-
-            .navbar-right {
-                margin-left: 10px;
+            .origin-dropdown-menu {
+                position: static;
+                min-width: 100%;
+                box-shadow: none;
+                padding: 16px 0;
             }
         }
     </style>
@@ -204,106 +203,213 @@
 
 <body>
 
-    <!-- =========================
-         NAVBAR
-    ========================= -->
-    <nav class="custom-navbar">
+    <!-- ==========================================
+         ORIGIN STICKY TOP NAVIGATION BAR
+    ========================================== -->
+    <header class="origin-navbar">
+        <div class="origin-navbar-inner">
 
-        <div class="navbar-container">
-
-            <!-- Logo -->
-            <a class="logo"
-               asp-area=""
-               asp-controller="Home"
-               asp-action="Index">
-
-                <span class="logo-main">JoJo</span>
-                <span class="logo-sub">TRAVEL & HOTEL</span>
-
+            <!-- Brand Logo -->
+            <a class="origin-brand" asp-controller="Home" asp-action="Index">
+                <span class="origin-brand-title">JoJo Hotel</span>
+                <span class="origin-brand-badge">RESIDENCES</span>
             </a>
 
-
-            <!-- Menu -->
-            <div class="navbar-menu">
-
-                <a asp-controller="Home"
-                   asp-action="Index">
+            <!-- Navigation Links -->
+            <nav class="origin-nav-menu">
+                <a asp-controller="Home" asp-action="Index" class="origin-nav-link">
                     หน้าหลัก
                 </a>
 
-                <a href="#" onclick="alert('ระบบห้องพักโรงแรม'); return false;">
-                    โรงแรม
-                </a>
+                <!-- Dropdown ห้องพัก แยกตามจังหวัด -->
+                <div class="origin-dropdown">
+                    <span class="origin-nav-link">
+                        ห้องพัก <span style="font-size: 11px;">&#x25BE;</span>
+                    </span>
+                    <div class="origin-dropdown-menu">
+                        <div class="row g-4">
+                            <!-- กรุงเทพฯ -->
+                            <div class="col-4">
+                                <div class="origin-dropdown-col-title">📍 BANGKOK &middot; กรุงเทพฯ</div>
+                                <a asp-controller="Room" asp-action="Details" asp-route-id="1" class="origin-dropdown-room">
+                                    <span>Grand Deluxe Suite</span>
+                                    <span class="origin-tag-mini">KING</span>
+                                </a>
+                                <a asp-controller="Room" asp-action="Details" asp-route-id="1" class="origin-dropdown-room">
+                                    <span>Superior City View</span>
+                                    <span class="origin-tag-mini">TWIN</span>
+                                </a>
+                                <a asp-controller="Room" asp-action="Details" asp-route-id="1" class="origin-dropdown-room">
+                                    <span>Executive Suite</span>
+                                    <span class="origin-tag-mini">SUITE</span>
+                                </a>
+                            </div>
 
-                <a href="#" onclick="alert('ระบบห้องพัก'); return false;">
-                    ห้องพัก
-                </a>
+                            <!-- เชียงใหม่ -->
+                            <div class="col-4">
+                                <div class="origin-dropdown-col-title" style="color: var(--color-cyan-signal);">📍 CHIANG MAI &middot; เชียงใหม่</div>
+                                <a asp-controller="Room" asp-action="Details" asp-route-id="3" class="origin-dropdown-room">
+                                    <span>Lanna Heritage</span>
+                                    <span class="origin-tag-mini">KING</span>
+                                </a>
+                                <a asp-controller="Room" asp-action="Details" asp-route-id="3" class="origin-dropdown-room">
+                                    <span>Mountain Serenity</span>
+                                    <span class="origin-tag-mini">SUITE</span>
+                                </a>
+                                <a asp-controller="Room" asp-action="Details" asp-route-id="3" class="origin-dropdown-room">
+                                    <span>Cozy Garden Sanctuary</span>
+                                    <span class="origin-tag-mini">TWIN</span>
+                                </a>
+                            </div>
 
-                <a href="#" onclick="alert('ระบบการจอง'); return false;">
+                            <!-- ภูเก็ต -->
+                            <div class="col-4">
+                                <div class="origin-dropdown-col-title" style="color: var(--color-orchid-bloom);">📍 PHUKET &middot; ภูเก็ต</div>
+                                <a asp-controller="Room" asp-action="Details" asp-route-id="2" class="origin-dropdown-room">
+                                    <span>Private Pool Villa</span>
+                                    <span class="origin-tag-mini">VILLA</span>
+                                </a>
+                                <a asp-controller="Room" asp-action="Details" asp-route-id="2" class="origin-dropdown-room">
+                                    <span>Beachfront Suite</span>
+                                    <span class="origin-tag-mini">KING</span>
+                                </a>
+                                <a asp-controller="Room" asp-action="Details" asp-route-id="2" class="origin-dropdown-room">
+                                    <span>Sea View Pavilion</span>
+                                    <span class="origin-tag-mini">DOUBLE</span>
+                                </a>
+                            </div>
+
+                            <!-- พัทยา -->
+                            <div class="col-4">
+                                <div class="origin-dropdown-col-title" style="color: var(--color-periwinkle);">📍 PATTAYA &middot; พัทยา</div>
+                                <a asp-controller="Room" asp-action="Details" asp-route-id="4" class="origin-dropdown-room">
+                                    <span>Ocean Breeze Suite</span>
+                                    <span class="origin-tag-mini">KING</span>
+                                </a>
+                                <a asp-controller="Room" asp-action="Details" asp-route-id="4" class="origin-dropdown-room">
+                                    <span>Pattaya Family Suite</span>
+                                    <span class="origin-tag-mini">SUITE</span>
+                                </a>
+                            </div>
+
+                            <!-- หัวหิน -->
+                            <div class="col-4">
+                                <div class="origin-dropdown-col-title" style="color: var(--color-pale-iris);">📍 HUA HIN &middot; หัวหิน</div>
+                                <a asp-controller="Room" asp-action="Details" asp-route-id="5" class="origin-dropdown-room">
+                                    <span>Seaside Deluxe Room</span>
+                                    <span class="origin-tag-mini">KING</span>
+                                </a>
+                                <a asp-controller="Room" asp-action="Details" asp-route-id="5" class="origin-dropdown-room">
+                                    <span>Beach Haven Cottage</span>
+                                    <span class="origin-tag-mini">DOUBLE</span>
+                                </a>
+                            </div>
+
+                            <!-- เกาะสมุย -->
+                            <div class="col-4">
+                                <div class="origin-dropdown-col-title">📍 KOH SAMUI &middot; เกาะสมุย</div>
+                                <a asp-controller="Room" asp-action="Details" asp-route-id="6" class="origin-dropdown-room">
+                                    <span>Tropical Pool Villa</span>
+                                    <span class="origin-tag-mini">VILLA</span>
+                                </a>
+                                <a asp-controller="Room" asp-action="Details" asp-route-id="6" class="origin-dropdown-room">
+                                    <span>Island View Suite</span>
+                                    <span class="origin-tag-mini">SUITE</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="#" class="origin-nav-link" onclick="alert('ระบบการจองห้องพักออนไลน์'); return false;">
                     การจอง
                 </a>
 
-                <a href="#" onclick="alert('ติดต่อ: 02-123-4567'); return false;">
+                <a href="#" class="origin-nav-link" onclick="alert('ติดต่อฝ่ายต้อนรับ: +66 (0) 2 123 4567'); return false;">
                     ติดต่อเรา
                 </a>
+            </nav>
 
-            </div>
-
-
-            <!-- Right -->
-            <div class="navbar-right">
-
+            <!-- Right Actions: Login & Logout buttons -->
+            <div class="origin-nav-right">
                 @if (!string.IsNullOrEmpty(Context.Session.GetString("UserName")))
                 {
-                    <div class="d-flex align-items-center gap-2">
-                        @if (Context.Session.GetString("UserRole") == "Admin")
-                        {
-                            <a asp-controller="Admin" asp-action="Users" class="btn btn-sm btn-warning text-dark fw-bold rounded-pill px-3">
-                                👑 แผงควบคุม Admin
-                            </a>
-                        }
-                        <span class="small fw-semibold text-secondary">👤 @Context.Session.GetString("UserName")</span>
-                        <a asp-controller="Account" asp-action="Logout" class="btn btn-sm btn-outline-danger rounded-pill px-3">
-                            ออกจากระบบ
+                    <span class="origin-mono" style="font-size: 11px; color: var(--color-ash);">
+                        &middot; @Context.Session.GetString("UserName")
+                    </span>
+                    @if (Context.Session.GetString("UserRole") == "Admin")
+                    {
+                        <a asp-controller="Admin" asp-action="Index" class="btn-origin-glass" style="font-size: 12px; padding: 6px 12px;">
+                            👑 ADMIN PANEL
                         </a>
-                    </div>
+                    }
+                    <a asp-controller="Account" asp-action="Logout" class="btn-origin-ghost" style="font-size: 13px; padding: 7px 16px;">
+                        ออกจากระบบ
+                    </a>
                 }
                 else
                 {
-                    <a asp-controller="Account" asp-action="Login" class="login-btn">
+                    <a asp-controller="Account" asp-action="Login" class="origin-nav-link text-white" style="font-size: 14px;">
                         เข้าสู่ระบบ
                     </a>
-
-                    <a asp-controller="Account" asp-action="Register" class="register-btn">
-                        สมัครสมาชิก
+                    <a asp-controller="Account" asp-action="Register" class="btn-origin-primary" style="font-size: 14px; padding: 9px 18px;">
+                        สมัครสมาชิก &rarr;
                     </a>
                 }
-
-                <button class="menu-btn d-md-none">
-                    ☰
-                </button>
-
             </div>
 
         </div>
+    </header>
 
-    </nav>
-
-
-    <!-- =========================
+    <!-- ==========================================
          PAGE CONTENT
-    ========================= -->
+    ========================================== -->
     <main role="main">
         @RenderBody()
     </main>
 
+    <!-- ==========================================
+         ORIGIN EDITORIAL FOOTER
+         Nocturnal gallery palette: Abyss & Obsidian
+    ========================================== -->
+    <footer class="origin-footer">
+        <div class="container" style="max-width: 1200px;">
+            <div class="row g-5 mb-5">
+                <div class="col-12 col-md-5">
+                    <div class="origin-brand-title mb-2">JoJo Hotel &middot; Residences</div>
+                    <p class="origin-body mb-0" style="max-width: 400px;">
+                        A nocturnal gallery of quiet hospitality. Oversized serif whispers and luminous chromatic sanctuaries across Thailand.
+                    </p>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="origin-mono mb-3" style="color: var(--color-cloud);">DESTINATIONS</div>
+                    <ul class="list-unstyled d-flex flex-column gap-2" style="font-size: 14px; color: var(--color-ash);">
+                        <li>Bangkok Sanctuary</li>
+                        <li>Chiang Mai Highlands</li>
+                        <li>Phuket Coastline</li>
+                        <li>Hua Hin Villa</li>
+                        <li>Koh Samui Island</li>
+                    </ul>
+                </div>
+                <div class="col-6 col-md-4">
+                    <div class="origin-mono mb-3" style="color: var(--color-cloud);">SCHEDULE STANDARDS</div>
+                    <ul class="list-unstyled d-flex flex-column gap-2" style="font-size: 14px; color: var(--color-ash);">
+                        <li><span style="color:var(--color-cyan-signal);">&#x25CF;</span> เช็คอิน (Check-in): 09:00 น.</li>
+                        <li><span style="color:var(--color-orchid-bloom);">&#x25CF;</span> เช็คเอาท์ (Check-out): 12:00 น.</li>
+                        <li>Concierge Service: +66 (0) 2 123 4567</li>
+                    </ul>
+                </div>
+            </div>
 
-    <!-- =========================
-         SCRIPT
-    ========================= -->
+            <div class="pt-4 border-top d-flex flex-wrap justify-content-between align-items-center" style="border-color: rgba(255,255,255,0.08) !important;">
+                <span class="origin-mono" style="font-size: 11px; color: var(--color-fog);">&copy; @DateTime.Now.Year JoJo Hotel. All Rights Reserved.</span>
+                <span class="origin-mono" style="font-size: 11px; color: var(--color-iris-gleam);">CURATED ART OF HOSPITALITY</span>
+            </div>
+        </div>
+    </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-
     @await RenderSectionAsync("Scripts", required: false)
 
 </body>

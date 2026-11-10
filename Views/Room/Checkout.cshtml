@@ -1,0 +1,320 @@
+@model Nawarut_8250_L005.ViewModels.RoomDetailsPageViewModel
+@using Microsoft.AspNetCore.Http
+@{
+    ViewData["Title"] = "สรุปการจองและคำนวณมัดจำ";
+    Layout = "_navbarlayout";
+    var userName = Context.Session.GetString("UserName");
+    var checkIn = Model.CheckIn;
+    var checkOut = Model.CheckOut;
+    var nights = Model.TotalNights;
+    var pricing = Model.Pricing;
+}
+
+<!-- Breadcrumb -->
+<div class="py-3 border-bottom" style="border-color: rgba(255,255,255,0.08) !important; background-color: var(--color-obsidian);">
+    <div class="container" style="max-width: 1050px;">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="origin-mono text-decoration-none" style="color: var(--color-ash); font-size: 11px;">หน้าหลัก</a></li>
+                <li class="breadcrumb-item"><a href="#" class="origin-mono text-decoration-none" style="color: var(--color-ash); font-size: 11px;">การจอง</a></li>
+                <li class="breadcrumb-item active origin-mono" style="color: var(--color-cloud); font-size: 11px;">สรุปรายการจองและส่วนลด</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="container py-5" style="max-width: 1050px;">
+
+    <!-- Heading -->
+    <div class="d-flex flex-wrap justify-content-between align-items-baseline mb-4 pb-2 border-bottom" style="border-color: rgba(255,255,255,0.08) !important;">
+        <div>
+            <span class="origin-mono d-block" style="color: var(--color-iris-gleam); font-size: 11px;">RESERVATION &amp; PAYMENT SUMMARY</span>
+            <h2 class="origin-heading-lg mt-1 mb-0" style="font-size: 32px;">สรุปการจอง ส่วนลด และค่ามัดจำ</h2>
+        </div>
+        <span class="origin-mono" style="color: var(--color-cyan-signal); font-size: 12px;">@Model.Cart.Count ห้องที่เลือก &middot; @nights คืน</span>
+    </div>
+
+    <!-- 1. Itinerary Card: 09:00 Check-in & 12:00 Check-out -->
+    <div class="origin-card-graphite p-4 mb-4">
+        <span class="origin-mono d-block mb-3" style="color: var(--color-iris-gleam);">SCHEDULE STANDARDS &middot; ข้อมูลการเข้าพัก</span>
+        <div class="row g-4 text-center">
+            <div class="col-6 col-md-3 border-end" style="border-color: rgba(255,255,255,0.08) !important;">
+                <span class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">วันเช็คอิน</span>
+                <div class="fw-bold mb-1 text-white">@(DateTime.TryParse(checkIn, out var ci) ? ci.ToString("dd MMM yyyy") : checkIn)</div>
+                <div class="origin-mono" style="color: var(--color-cyan-signal); font-size: 11px;">มาตรฐาน 09:00 น.</div>
+            </div>
+            <div class="col-6 col-md-3 border-end" style="border-color: rgba(255,255,255,0.08) !important;">
+                <span class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">วันเช็คเอาท์</span>
+                <div class="fw-bold mb-1 text-white">@(DateTime.TryParse(checkOut, out var co) ? co.ToString("dd MMM yyyy") : checkOut)</div>
+                <div class="origin-mono" style="color: var(--color-orchid-bloom); font-size: 11px;">มาตรฐาน 12:00 น.</div>
+            </div>
+            <div class="col-6 col-md-3 border-end" style="border-color: rgba(255,255,255,0.08) !important;">
+                <span class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">จำนวนคืน</span>
+                <div class="fw-bold mb-1 text-white">@nights คืน</div>
+                <div class="origin-mono" style="color: var(--color-ash); font-size: 11px;">@nights NIGHT(S)</div>
+            </div>
+            <div class="col-6 col-md-3">
+                <span class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">จองล่วงหน้า</span>
+                <div class="fw-bold mb-1 text-white">@pricing.DaysInAdvance วัน</div>
+                <div class="origin-mono" style="color: var(--color-cyan-signal); font-size: 11px;">@(pricing.DaysInAdvance >= 30 ? "✓ เข้าเกณฑ์ลด 25%" : $"{pricing.DaysInAdvance} DAYS AHEAD")</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Table of Selected Rooms -->
+    <div class="origin-card-graphite p-0 mb-4 overflow-hidden">
+        <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="border-color: rgba(255,255,255,0.08) !important;">
+            <span class="origin-mono" style="color: var(--color-iris-gleam); font-size: 11px;">รายการห้องพักในตะกร้า</span>
+            <span class="origin-mono" style="color: var(--color-ash); font-size: 11px;">สกุลเงิน: บาท (THB)</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-borderless mb-0 text-white">
+                <thead>
+                    <tr class="origin-mono border-bottom" style="border-color: rgba(255,255,255,0.08) !important; color: var(--color-ash); font-size: 11px;">
+                        <th class="p-3">ห้องพัก</th>
+                        <th class="p-3 text-center">ผู้เข้าพัก</th>
+                        <th class="p-3 text-center">เตียงเสริม</th>
+                        <th class="p-3 text-end">ราคารวม</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Cart)
+                    {
+                        <tr class="border-bottom" style="border-color: rgba(255,255,255,0.05) !important;">
+                            <td class="p-3">
+                                <div class="fw-bold">ห้อง @item.RoomNumber &mdash; @item.TypeName</div>
+                                <div class="origin-body" style="font-size: 12px; color: var(--color-ash);">เตียง @item.BedType &middot; ฿@item.PricePerNight.ToString("N0") &times; @nights คืน</div>
+                            </td>
+                            <td class="p-3 text-center align-middle origin-mono">
+                                @item.Guests ท่าน
+                            </td>
+                            <td class="p-3 text-center align-middle origin-mono">
+                                @if (item.ExtraBeds > 0)
+                                {
+                                    <span style="color: var(--color-cyan-signal);">+@item.ExtraBeds เตียง (+฿@((item.ExtraBeds * Model.ExtraBedPricePerNight * nights).ToString("N0")))</span>
+                                }
+                                else
+                                {
+                                    <span style="color: var(--color-fog);">&mdash;</span>
+                                }
+                            </td>
+                            <td class="p-3 text-end align-middle fw-bold" style="color: var(--color-pure); font-size: 15px;">
+                                ฿@item.LineTotal.ToString("N0")
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr style="background: rgba(15,16,17,0.7);">
+                        <td colspan="3" class="p-3 origin-mono fw-bold text-end" style="color: var(--color-ash);">ยอดรวมห้องพักและเตียงเสริม (ก่อนหักส่วนลด)</td>
+                        <td class="p-3 fw-bold text-end" style="color: var(--color-pure); font-size: 18px;">฿@pricing.SubtotalAmount.ToString("N0")</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <!-- 3. เงื่อนไขโปรโมชั่น 5 ข้อ (Promotion Logic & Breakdown) -->
+    <div class="origin-card-graphite p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom" style="border-color: rgba(255,255,255,0.08) !important;">
+            <div>
+                <span class="origin-mono" style="color: var(--color-iris-gleam); font-size: 11px;">PROMOTIONAL AUDIT</span>
+                <h3 class="origin-heading-lg mb-0" style="font-size: 22px;">เงื่อนไขโปรโมชั่นและส่วนลดที่ได้รับ</h3>
+            </div>
+            <span class="origin-pill-chip py-1 px-3" style="font-size: 10px; color: var(--color-cyan-signal); border-color: rgba(0,179,221,0.3);">
+                ผ่านเกณฑ์ @pricing.EligiblePromotions.Count จาก 5 รายการ
+            </span>
+        </div>
+
+        <div class="row g-3">
+            @foreach (var promo in pricing.Promotions)
+            {
+                <div class="col-12">
+                    <div class="p-3 rounded-3 d-flex flex-wrap justify-content-between align-items-center gap-2"
+                         style="background: @(promo.IsEligible ? "rgba(132,125,255,0.08)" : "rgba(15,16,17,0.5)"); border: 1px solid @(promo.IsEligible ? "rgba(132,125,255,0.35)" : "rgba(255,255,255,0.08)");">
+                        
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="fs-4">
+                                @(promo.IsEligible ? "🎉" : "⚪")
+                            </span>
+                            <div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="fw-bold text-white">@promo.Title</span>
+                                    <span class="origin-pill-chip py-0 px-2" style="font-size: 9px; @(promo.IsEligible ? "color: var(--color-cyan-signal); border-color: rgba(0,179,221,0.4);" : "color: var(--color-ash); border-color: rgba(255,255,255,0.1);")">
+                                        @promo.ConditionText
+                                    </span>
+                                </div>
+                                <div class="origin-mono mt-1" style="color: var(--color-ash); font-size: 11px;">
+                                    @promo.EligibilityReason
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-end">
+                            @if (promo.IsEligible)
+                            {
+                                <div class="fw-bold" style="color: var(--color-iris-gleam); font-size: 18px;">
+                                    -฿@promo.DiscountAmount.ToString("N0")
+                                </div>
+                                <span class="badge rounded-pill px-2 py-1" style="background: rgba(0,179,221,0.15); border: 1px solid rgba(0,179,221,0.4); color: var(--color-cyan-signal); font-size: 10px;">
+                                    ✓ ได้รับส่วนลด
+                                </span>
+                            }
+                            else
+                            {
+                                <div class="origin-mono" style="color: var(--color-fog); font-size: 13px;">
+                                    ฿0
+                                </div>
+                                <span class="origin-mono text-muted" style="font-size: 10px;">
+                                    ยังไม่เข้าเงื่อนไข
+                                </span>
+                            }
+                        </div>
+
+                    </div>
+                </div>
+            }
+        </div>
+
+        @if (pricing.TotalDiscountAmount > 0)
+        {
+            <div class="mt-4 p-3 rounded-3 d-flex justify-content-between align-items-center" style="background: rgba(132,125,255,0.12); border: 1px solid rgba(132,125,255,0.3);">
+                <div class="origin-mono text-white fw-bold" style="font-size: 12px;">
+                    ✨ รวมส่วนลดโปรโมชั่นทั้งหมดที่ได้รับ:
+                </div>
+                <div class="origin-heading-lg mb-0" style="color: var(--color-iris-gleam); font-size: 26px;">
+                    -฿@pricing.TotalDiscountAmount.ToString("N0")
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- 4. ระบบการชำระเงินและมัดจำ (5% Advance Deposit Calculation) -->
+    <div class="origin-card-graphite p-4 mb-4" style="border: 1px solid rgba(0,179,221,0.35) !important;">
+        
+        <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom" style="border-color: rgba(255,255,255,0.08) !important;">
+            <div>
+                <span class="origin-mono" style="color: var(--color-cyan-signal); font-size: 11px;">PAYMENT &amp; DEPOSIT SCHEDULE</span>
+                <h3 class="origin-heading-lg mb-0" style="font-size: 24px;">ระบบการชำระเงินและค่ามัดจำ</h3>
+            </div>
+            <span class="badge rounded-pill px-3 py-1" style="background: rgba(0,179,221,0.15); color: var(--color-cyan-signal); border: 1px solid rgba(0,179,221,0.3); font-size: 11px;">
+                มัดจำล่วงหน้า @pricing.DepositPercent%
+            </span>
+        </div>
+
+        <!-- Breakdown List -->
+        <div class="p-3 rounded-3 mb-4" style="background: rgba(15,16,17,0.7); border: 1px solid rgba(255,255,255,0.08);">
+            
+            <div class="d-flex justify-content-between align-items-center py-2 border-bottom" style="border-color: rgba(255,255,255,0.06) !important;">
+                <span class="origin-mono" style="color: var(--color-ash); font-size: 12px;">1. ราคาค่าห้องพักรวม (Room Subtotal)</span>
+                <span class="text-white fw-bold">฿@pricing.RoomSubtotal.ToString("N0")</span>
+            </div>
+
+            @if (pricing.ExtraBedTotal > 0)
+            {
+                <div class="d-flex justify-content-between align-items-center py-2 border-bottom" style="border-color: rgba(255,255,255,0.06) !important;">
+                    <span class="origin-mono" style="color: var(--color-ash); font-size: 12px;">2. ค่าเตียงเสริมรวม (Extra Bed Total)</span>
+                    <span class="text-white fw-bold">+฿@pricing.ExtraBedTotal.ToString("N0")</span>
+                </div>
+            }
+
+            <div class="d-flex justify-content-between align-items-center py-2 border-bottom" style="border-color: rgba(255,255,255,0.06) !important;">
+                <span class="origin-mono" style="color: var(--color-ash); font-size: 12px;">3. ยอดรวมก่อนหักส่วนลด (Subtotal)</span>
+                <span class="text-white fw-bold">฿@pricing.SubtotalAmount.ToString("N0")</span>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center py-2 border-bottom" style="border-color: rgba(255,255,255,0.06) !important;">
+                <span class="origin-mono" style="color: var(--color-iris-gleam); font-size: 12px;">4. หักส่วนลดโปรโมชั่น (Promotional Discounts)</span>
+                <span class="fw-bold" style="color: var(--color-iris-gleam);">-฿@pricing.TotalDiscountAmount.ToString("N0")</span>
+            </div>
+
+            <!-- Net Total Amount -->
+            <div class="d-flex justify-content-between align-items-baseline py-3 border-bottom" style="border-color: rgba(255,255,255,0.12) !important;">
+                <div>
+                    <span class="origin-mono fw-bold text-white" style="font-size: 13px;">5. ราคาค่าห้องรวมสุทธิ (หลังหักส่วนลด)</span>
+                    <div class="origin-mono" style="color: var(--color-ash); font-size: 10px;">NET TOTAL AMOUNT</div>
+                </div>
+                <div class="origin-heading-lg mb-0" style="color: var(--color-pure); font-size: 28px;">
+                    ฿@pricing.NetAmount.ToString("N0")
+                </div>
+            </div>
+
+            <!-- 5% Deposit Amount Highlighted -->
+            <div class="p-4 my-3 rounded-3 d-flex flex-wrap justify-content-between align-items-center"
+                 style="background: linear-gradient(135deg, rgba(0,179,221,0.18) 0%, rgba(132,125,255,0.18) 100%); border: 1px solid rgba(0,179,221,0.5);">
+                <div>
+                    <span class="origin-pill-chip mb-1" style="background: rgba(0,179,221,0.25); color: var(--color-cyan-signal); border-color: rgba(0,179,221,0.5);">
+                        ADVANCE DEPOSIT REQUIRED
+                    </span>
+                    <h4 class="origin-heading-lg mb-1" style="font-size: 22px; color: var(--color-pure);">
+                        ค่ามัดจำที่ต้องจ่ายล่วงหน้า (5%)
+                    </h4>
+                    <p class="origin-mono mb-0" style="color: var(--color-cloud); font-size: 11px;">
+                        คำนวณ 5% จากราคาค่าห้องรวมสุทธิ ฿@pricing.NetAmount.ToString("N0")
+                    </p>
+                </div>
+                <div class="text-md-end mt-2 mt-md-0">
+                    <div class="origin-heading-lg mb-0" style="color: var(--color-cyan-signal); font-size: 38px;">
+                        ฿@pricing.DepositAmount.ToString("N2")
+                    </div>
+                    <span class="origin-mono" style="color: var(--color-ash); font-size: 11px;">
+                        ต้องชำระก่อนยืนยันการจอง
+                    </span>
+                </div>
+            </div>
+
+            <!-- Remaining 95% Balance -->
+            <div class="d-flex justify-content-between align-items-baseline pt-2">
+                <div>
+                    <span class="origin-mono" style="color: var(--color-ash); font-size: 12px;">6. ยอดคงเหลือชำระ ณ วันเข้าพัก (95%)</span>
+                    <div class="origin-mono" style="color: var(--color-fog); font-size: 10px;">PAYABLE AT CHECK-IN (09:00 น.)</div>
+                </div>
+                <div class="fw-bold" style="color: var(--color-cloud); font-size: 18px;">
+                    ฿@pricing.RemainingAmount.ToString("N2")
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- 5. User Profile Card -->
+    <div class="origin-card-graphite p-4 mb-4">
+        <span class="origin-mono d-block mb-3" style="color: var(--color-iris-gleam);">RESIDENT DETAILS &middot; ข้อมูลผู้ทำการจอง</span>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <span class="origin-mono d-block" style="color: var(--color-ash); font-size: 11px;">ชื่อ-นามสกุล ผู้เข้าพัก</span>
+                <div class="fw-bold text-white">@userName</div>
+            </div>
+            <div class="col-md-6">
+                <span class="origin-mono d-block" style="color: var(--color-ash); font-size: 11px;">อีเมลสำหรับยืนยันการจองและใบเสร็จมัดจำ</span>
+                <div class="text-white">@Context.Session.GetString("UserEmail")</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. Form Submission / Action Buttons -->
+    <form asp-action="ConfirmBooking" asp-controller="Room" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="checkIn" value="@checkIn" />
+        <input type="hidden" name="checkOut" value="@checkOut" />
+        <input type="hidden" name="adults" value="@Model.Adults" />
+        <input type="hidden" name="children" value="@Model.Children" />
+
+        <div class="d-flex flex-column flex-md-row gap-3">
+            <a asp-action="Details" asp-controller="Room"
+               asp-route-id="@(Model.Cart.FirstOrDefault()?.RoomId ?? 0)"
+               asp-route-checkIn="@checkIn"
+               asp-route-checkOut="@checkOut"
+               class="btn-origin-ghost py-3 text-center flex-fill text-decoration-none">
+                &larr; แก้ไขการเลือกห้องพัก
+            </a>
+            <button type="submit"
+                    class="btn-origin-primary py-3 text-center justify-content-center flex-fill"
+                    onclick="return confirm('ยืนยันการจองและชำระค่ามัดจำล่วงหน้า 5% จำนวน ฿@pricing.DepositAmount.ToString("N2") หรือไม่?');">
+                ชำระมัดจำ ฿@pricing.DepositAmount.ToString("N2") และยืนยันการจอง &rarr;
+            </button>
+        </div>
+    </form>
+
+</div>

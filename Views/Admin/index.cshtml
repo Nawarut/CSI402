@@ -1,146 +1,234 @@
 @{
     Layout = "_AdminLayout";
-    ViewData["Title"] = "Dashboard";
+    ViewData["Title"] = "แดชบอร์ด (Dashboard)";
+    var totalUsers = ViewBag.TotalUsers ?? 5;
+    var activeUsers = ViewBag.ActiveUsers ?? 4;
+    var adminCount = ViewBag.AdminCount ?? 1;
 }
 
-<div class="row g-4">
+<div class="container-fluid px-0">
 
-    <div class="col-md-3">
-        <div class="dashboard-card">
-
-            <div class="d-flex justify-content-between">
-
-                <div>
-                    <div class="dashboard-card-title">
-                        ห้องพักทั้งหมด
-                    </div>
-
-                    <div class="dashboard-card-number">
-                        25
-                    </div>
-                </div>
-
-                <div class="dashboard-icon">
-                    🏨
-                </div>
-
-            </div>
-
+    <!-- Eyebrow & Headline -->
+    <div class="d-flex flex-wrap justify-content-between align-items-baseline mb-4">
+        <div>
+            <span class="origin-mono" style="color: var(--color-iris-gleam); font-size: 11px;">METRICS &middot; ภาพรวมระบบโรงแรม</span>
+            <h2 class="origin-heading-lg mt-1 mb-0" style="font-size: 32px;">แผงสถิติและการดำเนินงาน</h2>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <span class="origin-mono" style="color: var(--color-cyan-signal); font-size: 11px;">
+                <span class="spinner-grow spinner-grow-sm me-1" role="status"></span> อัปเดตข้อมูลล่าสุด: @DateTime.Now.ToString("HH:mm") น.
+            </span>
         </div>
     </div>
 
+    <!-- Stat Cards Row (Graphite Cards, 16px radius) -->
+    <div class="row g-4 mb-5">
 
-    <div class="col-md-3">
-        <div class="dashboard-card">
-
-            <div class="d-flex justify-content-between">
-
-                <div>
-                    <div class="dashboard-card-title">
-                        ห้องที่ถูกจอง
-                    </div>
-
-                    <div class="dashboard-card-number">
-                        12
-                    </div>
+        <!-- Stat 1: Total Rooms -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="origin-card-graphite p-4 h-100 position-relative overflow-hidden">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <span class="origin-mono" style="color: var(--color-ash); font-size: 11px;">ห้องพักทั้งหมด</span>
+                    <span class="origin-pill-chip py-1 px-2" style="font-size: 10px; color: var(--color-cyan-signal); border-color: rgba(0,179,221,0.3);">
+                        CAPACITY
+                    </span>
                 </div>
-
-                <div class="dashboard-icon">
-                    📅
+                <div class="origin-heading-lg mb-1" style="font-size: 36px; color: var(--color-pure);">
+                    25 <span class="origin-mono" style="font-size: 13px; color: var(--color-ash);">ห้อง</span>
                 </div>
-
+                <div class="origin-mono" style="color: var(--color-cyan-signal); font-size: 11px;">
+                    ✓ พร้อมให้บริการ 6 จังหวัด
+                </div>
             </div>
-
         </div>
-    </div>
 
-
-    <div class="col-md-3">
-        <a asp-controller="Home" asp-action="Lab5_3" class="text-decoration-none">
-            <div class="dashboard-card" style="cursor: pointer;">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <div class="dashboard-card-title">
-                            ผู้ใช้งาน (User List)
-                        </div>
-                        <div class="dashboard-card-number text-dark">
-                            @(ViewBag.TotalUsers ?? 5)
-                        </div>
-                    </div>
-                    <div class="dashboard-icon">
-                        👥
-                    </div>
+        <!-- Stat 2: Booked Rooms -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="origin-card-graphite p-4 h-100 position-relative overflow-hidden">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <span class="origin-mono" style="color: var(--color-ash); font-size: 11px;">ห้องที่ถูกจองแล้ว</span>
+                    <span class="origin-pill-chip py-1 px-2" style="font-size: 10px; color: var(--color-orchid-bloom); border-color: rgba(221,144,216,0.3);">
+                        OCCUPANCY
+                    </span>
+                </div>
+                <div class="origin-heading-lg mb-1" style="font-size: 36px; color: var(--color-orchid-bloom);">
+                    12 <span class="origin-mono" style="font-size: 13px; color: var(--color-ash);">ห้อง</span>
+                </div>
+                <div class="origin-mono" style="color: var(--color-ash); font-size: 11px;">
+                    อัตราเข้าพัก 48% &middot; วันนี้
                 </div>
             </div>
-        </a>
-    </div>
-
-
-    <div class="col-md-3">
-        <div class="dashboard-card">
-
-            <div class="d-flex justify-content-between">
-
-                <div>
-                    <div class="dashboard-card-title">
-                        จำนวนการจอง
-                    </div>
-
-                    <div class="dashboard-card-number">
-                        86
-                    </div>
-                </div>
-
-                <div class="dashboard-icon">
-                    📈
-                </div>
-
-            </div>
-
         </div>
-    </div>
 
-</div>
-
-
-<div class="admin-table mt-5">
-
-    <div class="p-4">
-
-        <h5 class="mb-3">
-            การจองล่าสุด
-        </h5>
-
-        <table class="table">
-
-            <thead>
-                <tr>
-                    <th>Booking ID</th>
-                    <th>ผู้จอง</th>
-                    <th>ห้อง</th>
-                    <th>วันที่</th>
-                    <th>สถานะ</th>
-                </tr>
-            </thead>
-
-            <tbody>
-
-                <tr>
-                    <td>#BK001</td>
-                    <td>สมชาย</td>
-                    <td>Deluxe Room</td>
-                    <td>12/09/2026</td>
-                    <td>
-                        <span class="badge bg-success">
-                            ยืนยันแล้ว
+        <!-- Stat 3: Total Users -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <a asp-controller="Home" asp-action="Lab5_3" class="text-decoration-none">
+                <div class="origin-card-graphite p-4 h-100 position-relative overflow-hidden" style="cursor: pointer; transition: all 0.2s ease;">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="origin-mono" style="color: var(--color-ash); font-size: 11px;">ผู้ใช้งาน (User List)</span>
+                        <span class="origin-pill-chip py-1 px-2" style="font-size: 10px; color: var(--color-iris-gleam); border-color: rgba(132,125,255,0.3);">
+                            RESIDENTS
                         </span>
-                    </td>
-                </tr>
+                    </div>
+                    <div class="origin-heading-lg mb-1" style="font-size: 36px; color: var(--color-iris-gleam);">
+                        @totalUsers <span class="origin-mono" style="font-size: 13px; color: var(--color-ash);">บัญชี</span>
+                    </div>
+                    <div class="origin-mono" style="color: var(--color-pure); font-size: 11px;">
+                        คลิกเพื่อจัดการผู้ใช้ &rarr;
+                    </div>
+                </div>
+            </a>
+        </div>
 
-            </tbody>
+        <!-- Stat 4: Total Bookings -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="origin-card-graphite p-4 h-100 position-relative overflow-hidden">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <span class="origin-mono" style="color: var(--color-ash); font-size: 11px;">ยอดการจองสะสม</span>
+                    <span class="origin-pill-chip py-1 px-2" style="font-size: 10px; color: var(--color-periwinkle); border-color: rgba(144,184,240,0.3);">
+                        LIFETIME
+                    </span>
+                </div>
+                <div class="origin-heading-lg mb-1" style="font-size: 36px; color: var(--color-periwinkle);">
+                    86 <span class="origin-mono" style="font-size: 13px; color: var(--color-ash);">รายการ</span>
+                </div>
+                <div class="origin-mono" style="color: var(--color-ash); font-size: 11px;">
+                    +14% จากเดือนที่ผ่านมา
+                </div>
+            </div>
+        </div>
 
-        </table>
+    </div>
 
+    <!-- Quick Action / Management Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-12 col-lg-8">
+            <!-- Recent Bookings Table Card -->
+            <div class="origin-card-graphite p-0 overflow-hidden">
+                <div class="p-4 border-bottom d-flex justify-content-between align-items-center" style="border-color: rgba(255,255,255,0.08) !important;">
+                    <div>
+                        <span class="origin-mono" style="color: var(--color-iris-gleam); font-size: 11px;">TRANSACTIONS</span>
+                        <h3 class="origin-heading-lg mb-0" style="font-size: 22px;">รายการจองล่าสุด</h3>
+                    </div>
+                    <a asp-controller="Home" asp-action="Index" fragment="recommended-rooms" class="origin-mono text-decoration-none" style="color: var(--color-cyan-signal); font-size: 11px;">
+                        ดูห้องพักทั้งหมด &rarr;
+                    </a>
+                </div>
+
+                <div class="table-responsive" style="background-color: var(--color-abyss) !important;">
+                    <table class="table origin-table mb-0" style="background-color: transparent !important; color: #ffffff !important;">
+                        <thead>
+                            <tr class="origin-mono border-bottom" style="border-color: rgba(255,255,255,0.08) !important; color: var(--color-ash); font-size: 11px;">
+                                <th class="p-3">BOOKING ID</th>
+                                <th class="p-3">ผู้เข้าพัก</th>
+                                <th class="p-3">ห้องพัก</th>
+                                <th class="p-3 text-center">วันที่เข้าพัก</th>
+                                <th class="p-3 text-center">เวลา</th>
+                                <th class="p-3 text-end">สถานะ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-bottom" style="border-color: rgba(255,255,255,0.05) !important;">
+                                <td class="p-3 align-middle origin-mono text-white fw-bold">#BK-0891</td>
+                                <td class="p-3 align-middle">
+                                    <div class="fw-bold">สมชาย มีสุข</div>
+                                    <div class="origin-mono" style="color: var(--color-ash); font-size: 11px;">somchai@gmail.com</div>
+                                </td>
+                                <td class="p-3 align-middle">
+                                    <div class="fw-bold">Grand Deluxe Suite</div>
+                                    <div class="origin-mono" style="color: var(--color-ash); font-size: 11px;">ห้อง 101 &middot; กทม.</div>
+                                </td>
+                                <td class="p-3 align-middle text-center origin-mono" style="color: var(--color-cloud); font-size: 12px;">
+                                    12/09/2026
+                                </td>
+                                <td class="p-3 align-middle text-center origin-mono" style="color: var(--color-cyan-signal); font-size: 11px;">
+                                    09:00 - 12:00
+                                </td>
+                                <td class="p-3 align-middle text-end">
+                                    <span class="badge border rounded-pill px-3 py-1" style="border-color: var(--color-cyan-signal); color: var(--color-cyan-signal); font-size: 10px;">
+                                        ● ยืนยันแล้ว
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr class="border-bottom" style="border-color: rgba(255,255,255,0.05) !important;">
+                                <td class="p-3 align-middle origin-mono text-white fw-bold">#BK-0890</td>
+                                <td class="p-3 align-middle">
+                                    <div class="fw-bold">วรรณา นภาลัย</div>
+                                    <div class="origin-mono" style="color: var(--color-ash); font-size: 11px;">wanna@example.com</div>
+                                </td>
+                                <td class="p-3 align-middle">
+                                    <div class="fw-bold">Private Pool Villa</div>
+                                    <div class="origin-mono" style="color: var(--color-ash); font-size: 11px;">ห้อง 204 &middot; ภูเก็ต</div>
+                                </td>
+                                <td class="p-3 align-middle text-center origin-mono" style="color: var(--color-cloud); font-size: 12px;">
+                                    15/09/2026
+                                </td>
+                                <td class="p-3 align-middle text-center origin-mono" style="color: var(--color-cyan-signal); font-size: 11px;">
+                                    09:00 - 12:00
+                                </td>
+                                <td class="p-3 align-middle text-end">
+                                    <span class="badge border rounded-pill px-3 py-1" style="border-color: var(--color-iris-gleam); color: var(--color-iris-gleam); font-size: 10px;">
+                                        ● ชำระเงินแล้ว
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 align-middle origin-mono text-white fw-bold">#BK-0889</td>
+                                <td class="p-3 align-middle">
+                                    <div class="fw-bold">ธนกร ภักดี</div>
+                                    <div class="origin-mono" style="color: var(--color-ash); font-size: 11px;">thanakorn@jojo.com</div>
+                                </td>
+                                <td class="p-3 align-middle">
+                                    <div class="fw-bold">Lanna Heritage Room</div>
+                                    <div class="origin-mono" style="color: var(--color-ash); font-size: 11px;">ห้อง 302 &middot; เชียงใหม่</div>
+                                </td>
+                                <td class="p-3 align-middle text-center origin-mono" style="color: var(--color-cloud); font-size: 12px;">
+                                    18/09/2026
+                                </td>
+                                <td class="p-3 align-middle text-center origin-mono" style="color: var(--color-cyan-signal); font-size: 11px;">
+                                    09:00 - 12:00
+                                </td>
+                                <td class="p-3 align-middle text-end">
+                                    <span class="badge border rounded-pill px-3 py-1" style="border-color: var(--color-ash); color: var(--color-ash); font-size: 10px;">
+                                        ● รอยืนยัน
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Access Column -->
+        <div class="col-12 col-lg-4">
+            <div class="origin-card-graphite p-4 h-100 d-flex flex-column justify-content-between">
+                <div>
+                    <span class="origin-mono" style="color: var(--color-iris-gleam); font-size: 11px;">QUICK CONTROLS</span>
+                    <h3 class="origin-heading-lg mb-3" style="font-size: 22px;">การเข้าถึงด่วน</h3>
+                    <p class="origin-body mb-4" style="font-size: 13.5px; color: var(--color-ash);">
+                        จัดการระบบผู้ใช้ การเข้าพัก และตั้งค่าข้อมูลสำหรับ JoJo Hotel Control Portal
+                    </p>
+
+                    <div class="d-flex flex-column gap-2 mb-4">
+                        <a asp-controller="Admin" asp-action="AddUser" class="btn-origin-primary w-100 justify-content-center py-2 text-decoration-none">
+                            + เพิ่มผู้ใช้งานใหม่ &rarr;
+                        </a>
+                        <a asp-controller="Home" asp-action="Lab5_3" class="btn-origin-ghost w-100 justify-content-center py-2 text-decoration-none">
+                            จัดการสิทธิ์และบัญชีผู้ใช้
+                        </a>
+                        <a asp-controller="Home" asp-action="Index" class="btn-origin-ghost w-100 justify-content-center py-2 text-decoration-none">
+                            ดูเว็บไซต์หน้าบ้าน (Home)
+                        </a>
+                    </div>
+                </div>
+
+                <div class="p-3 rounded-3" style="background: rgba(15,16,17,0.7); border: 1px solid rgba(255,255,255,0.08);">
+                    <div class="origin-mono" style="color: var(--color-cyan-signal); font-size: 10px;">STANDARD OPERATING HOURS</div>
+                    <div class="small text-white mt-1">เช็คอิน: <strong>09:00 น.</strong> | เช็คเอาท์: <strong>12:00 น.</strong></div>
+                </div>
+            </div>
+        </div>
     </div>
 
 </div>

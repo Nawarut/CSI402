@@ -1,5 +1,9 @@
+@using Microsoft.AspNetCore.Http
 @{
     Layout = null;
+    var currentAction = ViewContext.RouteData.Values["Action"]?.ToString() ?? "";
+    var currentController = ViewContext.RouteData.Values["Controller"]?.ToString() ?? "";
+    var adminName = Context.Session.GetString("UserName") ?? "Admin Resident";
 }
 
 <!DOCTYPE html>
@@ -9,386 +13,410 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>@ViewData["Title"] - Admin Panel</title>
+    <title>@ViewData["Title"] — JoJo Hotel Admin Console</title>
 
-    <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
-    <!-- Google Fonts & Tailwind CSS CDN -->
+    <!-- Google Fonts: DM Serif Display & Inter & Roboto Mono & Prompt -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&family=Prompt:wght@300;400;500;600&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 
     <style>
-
-        * {
-            box-sizing: border-box;
+        /* ========================================================
+           ORIGIN ADMIN CONSOLE LAYOUT
+           Near-black obsidian canvas, 16px graphite surfaces
+        ======================================================== */
+        :root {
+            --admin-sidebar-width: 270px;
         }
 
         body {
+            background-color: var(--color-obsidian, #0f1011);
+            color: var(--color-pure, #ffffff);
+            font-family: 'Prompt', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
             margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f7f7f7;
-            color: #333;
+            padding: 0;
+            overflow-x: hidden;
         }
 
-        /* =========================
-           LAYOUT
-        ========================= */
+        .origin-heading-lg, .origin-topbar-title {
+            font-family: 'Prompt', 'Inter', var(--font-serif-display), sans-serif !important;
+            font-weight: 600;
+        }
 
-        .admin-wrapper {
+        /* Force All Admin Tables to stay dark and legible - NO WHITE OVERLAY */
+        .origin-admin-main .table,
+        .origin-admin-main table {
+            --bs-table-bg: transparent !important;
+            --bs-table-color: var(--color-pure, #ffffff) !important;
+            background-color: transparent !important;
+            color: var(--color-pure, #ffffff) !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        .origin-admin-main .table > :not(caption) > * > *,
+        .origin-admin-main table td,
+        .origin-admin-main table th {
+            background-color: transparent !important;
+            color: var(--color-pure, #ffffff) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+        }
+
+        .origin-admin-main .table-responsive {
+            background-color: var(--color-abyss, #090a0b) !important;
+            border-radius: var(--radius-cards, 16px);
+        }
+
+        /* High-Contrast Visible Action Buttons in Admin */
+        .btn-action-edit {
+            background: rgba(255, 209, 102, 0.15) !important;
+            color: #ffd166 !important;
+            border: 1px solid rgba(255, 209, 102, 0.4) !important;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 5px 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .btn-action-edit:hover {
+            background: rgba(255, 209, 102, 0.3) !important;
+            color: #ffffff !important;
+            border-color: #ffd166 !important;
+        }
+
+        .btn-action-delete {
+            background: rgba(255, 107, 107, 0.15) !important;
+            color: #ff6b6b !important;
+            border: 1px solid rgba(255, 107, 107, 0.4) !important;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 5px 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .btn-action-delete:hover {
+            background: rgba(255, 107, 107, 0.3) !important;
+            color: #ffffff !important;
+            border-color: #ff6b6b !important;
+        }
+
+        .origin-admin-wrapper {
             display: flex;
             min-height: 100vh;
         }
 
-        /* =========================
-           SIDEBAR
-        ========================= */
-
-        .admin-sidebar {
-            width: 250px;
-            min-height: 100vh;
-            background: #ffffff;
-            border-right: 1px solid #eeeeee;
+        /* SIDEBAR */
+        .origin-admin-sidebar {
+            width: var(--admin-sidebar-width);
+            background-color: var(--color-abyss, #090a0b);
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
             position: fixed;
-            left: 0;
             top: 0;
             bottom: 0;
-            z-index: 100;
+            left: 0;
+            z-index: 1050;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
-        .admin-logo {
+        .origin-admin-brand {
             height: 75px;
+            padding: 0 24px;
             display: flex;
             align-items: center;
-            padding: 0 25px;
-            border-bottom: 1px solid #eeeeee;
+            gap: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            text-decoration: none;
         }
 
-        .admin-logo span {
-            font-size: 23px;
-            font-weight: bold;
-            color: #f2b400;
+        .origin-admin-brand-title {
+            font-family: var(--font-serif-display);
+            font-size: 22px;
+            color: var(--color-pure);
+            letter-spacing: -0.01em;
+            line-height: 1;
         }
 
-        .admin-menu {
-            padding: 20px 12px;
+        .origin-admin-menu {
+            padding: 20px 14px;
+            flex-grow: 1;
+            overflow-y: auto;
         }
 
-        .admin-menu-title {
-            font-size: 12px;
-            color: #999;
-            margin: 10px 15px;
+        .origin-menu-section-label {
+            font-family: var(--font-roboto-mono);
+            font-size: 10px;
+            font-weight: 500;
+            color: var(--color-ash);
+            letter-spacing: 0.16em;
             text-transform: uppercase;
+            padding: 12px 14px 6px 14px;
+            margin-top: 8px;
         }
 
-        .admin-menu a {
+        .origin-menu-item {
             display: flex;
             align-items: center;
             gap: 12px;
-
-            padding: 13px 15px;
-            margin-bottom: 5px;
-
+            padding: 11px 14px;
+            color: var(--color-ash);
             text-decoration: none;
-            color: #444;
-
-            border-radius: 8px;
-
-            transition: 0.2s;
+            font-size: 14px;
+            border-radius: var(--radius-buttons, 8px);
+            transition: all 0.2s ease;
+            margin-bottom: 4px;
         }
 
-        .admin-menu a:hover {
-            background: #fff8df;
-            color: #f2b400;
+        .origin-menu-item:hover {
+            color: var(--color-pure);
+            background-color: rgba(255, 255, 255, 0.05);
         }
 
-        .admin-menu a.active {
-            background: #fff3c4;
-            color: #d99f00;
-            font-weight: 600;
+        .origin-menu-item.active {
+            color: var(--color-pure);
+            background-color: rgba(132, 125, 255, 0.12);
+            border: 1px solid rgba(132, 125, 255, 0.3);
+            font-weight: 500;
         }
 
-        /* =========================
-           MAIN
-        ========================= */
-
-        .admin-main {
-            margin-left: 250px;
-            width: calc(100% - 250px);
+        .origin-menu-item.active .origin-menu-icon {
+            color: var(--color-iris-gleam);
         }
 
-        /* =========================
-           TOPBAR
-        ========================= */
+        .origin-menu-icon {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+            display: inline-block;
+        }
 
-        .admin-topbar {
+        .origin-sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(15, 16, 17, 0.5);
+        }
+
+        /* MAIN */
+        .origin-admin-main {
+            margin-left: var(--admin-sidebar-width);
+            width: calc(100% - var(--admin-sidebar-width));
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: var(--color-obsidian, #0f1011);
+        }
+
+        /* TOPBAR */
+        .origin-admin-topbar {
             height: 75px;
-            background: #ffffff;
-            border-bottom: 1px solid #eeeeee;
-
+            background-color: rgba(15, 16, 17, 0.85);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0 32px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-
-            padding: 0 30px;
         }
 
-        .admin-page-title {
-            font-size: 22px;
-            font-weight: 600;
-        }
-
-        .admin-user {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .admin-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-
-            background: #f2b400;
-            color: #ffffff;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            font-weight: bold;
-        }
-
-        .logout-btn {
-            text-decoration: none;
-            color: #777;
-        }
-
-        .logout-btn:hover {
-            color: #dc3545;
-        }
-
-        /* =========================
-           CONTENT
-        ========================= */
-
-        .admin-content {
-            padding: 30px;
-        }
-
-        /* =========================
-           DASHBOARD CARD
-        ========================= */
-
-        .dashboard-card {
-            background: #ffffff;
-            border-radius: 12px;
-            padding: 22px;
-
-            border: 1px solid #eeeeee;
-
-            transition: 0.2s;
-        }
-
-        .dashboard-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.06);
-        }
-
-        .dashboard-card-title {
-            color: #888;
-            font-size: 14px;
-            margin-bottom: 8px;
-        }
-
-        .dashboard-card-number {
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        .dashboard-icon {
-            width: 45px;
-            height: 45px;
-            border-radius: 10px;
-
-            background: #fff3c4;
-            color: #e0a500;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            font-size: 20px;
-        }
-
-        /* =========================
-           TABLE
-        ========================= */
-
-        .admin-table {
-            background: #ffffff;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid #eeeeee;
-        }
-
-        .admin-table table {
+        .origin-topbar-title {
+            font-family: var(--font-serif-display);
+            font-size: 24px;
+            font-weight: 400;
             margin: 0;
+            color: var(--color-pure);
         }
 
-        .admin-table th {
-            background: #fff8df;
-            border-bottom: 1px solid #eeeeee;
-            font-weight: 600;
+        .origin-admin-user-pill {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius-pill);
+            padding: 6px 14px 6px 8px;
         }
 
-        /* =========================
-           BUTTON
-        ========================= */
-
-        .btn-yellow {
-            background: #f2b400;
-            color: white;
-            border: none;
-            padding: 9px 18px;
-            border-radius: 7px;
+        .origin-admin-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--color-iris-gleam);
+            color: var(--color-void);
+            font-family: var(--font-roboto-mono);
+            font-weight: bold;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .btn-yellow:hover {
-            background: #dca300;
-            color: white;
+        /* CONTENT */
+        .origin-admin-content {
+            padding: 32px;
+            flex-grow: 1;
         }
 
-        /* =========================
-           MOBILE
-        ========================= */
-
-        @@media (max-width: 900px) {
-
-            .admin-sidebar {
-                width: 210px;
+        @@media (max-width: 992px) {
+            :root {
+                --admin-sidebar-width: 0px;
             }
-
-            .admin-main {
-                margin-left: 210px;
-                width: calc(100% - 210px);
+            .origin-admin-sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                width: 270px;
             }
-
-            .admin-content {
+            .origin-admin-sidebar.show {
+                transform: translateX(0);
+            }
+            .origin-admin-main {
+                margin-left: 0;
+                width: 100%;
+            }
+            .origin-admin-content {
                 padding: 20px;
             }
-
         }
-
     </style>
 </head>
 
 <body>
 
-    <div class="admin-wrapper">
+    <div class="origin-admin-wrapper">
 
-        <!-- SIDEBAR -->
-        <aside class="admin-sidebar">
+        <!-- ==========================================
+             ORIGIN ADMIN SIDEBAR
+        ========================================== -->
+        <aside class="origin-admin-sidebar" id="adminSidebar">
 
-            <div class="admin-logo">
-                <span>ADMIN PANEL</span>
+            <div>
+                <!-- Brand Logo -->
+                <a class="origin-admin-brand" asp-controller="Home" asp-action="Index">
+                    <span class="origin-admin-brand-title">JoJo Hotel</span>
+                    <span class="origin-pill-chip py-1 px-2" style="font-size: 9px; color: var(--color-iris-gleam); border-color: rgba(132,125,255,0.3);">
+                        ADMIN CONSOLE
+                    </span>
+                </a>
+
+                <!-- Navigation Menu -->
+                <div class="origin-admin-menu">
+
+                    <div class="origin-menu-section-label">OVERVIEW &middot; ภาพรวม</div>
+
+                    <a asp-controller="Admin" asp-action="Index"
+                       class="origin-menu-item @(currentController == "Admin" && currentAction == "Index" ? "active" : "")">
+                        <span class="origin-menu-icon"><i class="bi bi-grid-1x2"></i></span>
+                        <span>แดชบอร์ด (Dashboard)</span>
+                    </a>
+
+                    <div class="origin-menu-section-label">MANAGEMENT &middot; การจัดการ</div>
+
+                    <a asp-controller="Home" asp-action="Lab5_3"
+                       class="origin-menu-item @(currentAction == "Lab5_3" || (currentController == "Admin" && currentAction == "Users") ? "active" : "")">
+                        <span class="origin-menu-icon"><i class="bi bi-people"></i></span>
+                        <span>ผู้ใช้งาน (User List)</span>
+                    </a>
+
+                    <a asp-controller="Admin" asp-action="AddUser"
+                       class="origin-menu-item @(currentController == "Admin" && currentAction == "AddUser" ? "active" : "")">
+                        <span class="origin-menu-icon"><i class="bi bi-person-plus"></i></span>
+                        <span>เพิ่มผู้ใช้ใหม่ (Add User)</span>
+                    </a>
+
+                    <a asp-controller="Home" asp-action="Index" fragment="recommended-rooms" class="origin-menu-item">
+                        <span class="origin-menu-icon"><i class="bi bi-door-open"></i></span>
+                        <span>จัดการห้องพัก (Rooms)</span>
+                    </a>
+
+                    <a href="#" class="origin-menu-item" onclick="alert('ระบบจัดการโปรโมชั่น (Seasonal Offers)'); return false;">
+                        <span class="origin-menu-icon"><i class="bi bi-tag"></i></span>
+                        <span>โปรโมชั่น (Promotions)</span>
+                    </a>
+
+                    <a href="#" class="origin-menu-item" onclick="alert('ระบบจัดการการจอง (Reservation Portfolio)'); return false;">
+                        <span class="origin-menu-icon"><i class="bi bi-calendar-check"></i></span>
+                        <span>รายการจอง (Bookings)</span>
+                    </a>
+
+                    <div class="origin-menu-section-label">SITE ACCESS &middot; เว็บไซต์</div>
+
+                    <a asp-controller="Home" asp-action="Index" class="origin-menu-item">
+                        <span class="origin-menu-icon"><i class="bi bi-arrow-up-right-circle"></i></span>
+                        <span>หน้าเว็บหลัก (Home &rarr;)</span>
+                    </a>
+
+                </div>
             </div>
 
-            @{
-                var currentAction = ViewContext.RouteData.Values["Action"]?.ToString() ?? "";
-            }
-
-            <div class="admin-menu">
-
-                <div class="admin-menu-title">
-                    Main
-                </div>
-
-                <a asp-controller="Admin"
-                   asp-action="Index"
-                   class="@(currentAction == "Index" ? "active" : "")">
-                    <span>📊</span> Dashboard
-                </a>
-
-                <div class="admin-menu-title">
-                    Management
-                </div>
-
-                <a asp-controller="Home"
-                   asp-action="Lab5_3"
-                   class="@(currentAction == "Lab5_3" || currentAction == "Users" ? "active" : "")">
-                    <span>👥</span> ผู้ใช้งาน (User List)
-                </a>
-
-                <a asp-controller="Admin"
-                   asp-action="AddUser"
-                   class="@(currentAction == "AddUser" ? "active" : "")">
-                    <span>➕</span> เพิ่มผู้ใช้งาน (Add User)
-                </a>
-
-                <a href="#" onclick="alert('ระบบจัดการห้องพัก'); return false;">
-                    <span>🏨</span> ห้องพัก
-                </a>
-
-                <a href="#" onclick="alert('ระบบโปรโมชั่น'); return false;">
-                    <span>🏷️</span> โปรโมชั่น
-                </a>
-
-                <a href="#" onclick="alert('ระบบการจอง'); return false;">
-                    <span>📅</span> การจอง
-                </a>
-
-                <div class="admin-menu-title">
-                    Navigation
-                </div>
-
-                <a asp-controller="Home"
-                   asp-action="Index">
-                    <span>🌐</span> หน้าเว็บหลัก (Home)
-                </a>
-
+            <!-- Sidebar Footer -->
+            <div class="origin-sidebar-footer d-flex justify-content-between align-items-center">
+                <span class="origin-mono" style="font-size: 10px; color: var(--color-fog);">ORIGIN THEME &middot; V2.0</span>
+                <span class="origin-mono" style="font-size: 10px; color: var(--color-cyan-signal);">&bull; SECURE</span>
             </div>
 
         </aside>
 
-
-        <!-- MAIN -->
-        <div class="admin-main">
+        <!-- ==========================================
+             ORIGIN ADMIN MAIN
+        ========================================== -->
+        <div class="origin-admin-main">
 
             <!-- TOPBAR -->
-            <header class="admin-topbar">
+            <header class="origin-admin-topbar">
 
-                <div class="admin-page-title">
-                    @ViewData["Title"]
+                <div class="d-flex align-items-center gap-3">
+                    <button class="btn btn-sm btn-origin-ghost d-lg-none py-1 px-2"
+                            type="button"
+                            onclick="document.getElementById('adminSidebar').classList.toggle('show');">
+                        <i class="bi bi-list fs-5"></i>
+                    </button>
+                    <div>
+                        <span class="origin-mono d-block" style="font-size: 10px; color: var(--color-iris-gleam); letter-spacing: 0.12em;">JOJO HOTEL CONTROL PORTAL</span>
+                        <h1 class="origin-topbar-title">@ViewData["Title"]</h1>
+                    </div>
                 </div>
 
-                <div class="admin-user">
+                <div class="d-flex align-items-center gap-3">
 
-                    <div>
-                        <strong>@(Context.Session.GetString("UserName") ?? "Admin")</strong>
-                        <div class="text-muted" style="font-size: 11px;">Administrator</div>
+                    <!-- User Pill Badge -->
+                    <div class="origin-admin-user-pill">
+                        <div class="origin-admin-avatar">
+                            @(string.IsNullOrEmpty(adminName) ? "A" : adminName.Substring(0, 1).ToUpper())
+                        </div>
+                        <div class="d-none d-sm-block text-start">
+                            <div class="fw-bold" style="font-size: 13px; line-height: 1.1;">@adminName</div>
+                            <span class="origin-mono" style="font-size: 9px; color: var(--color-ash); letter-spacing: 0.08em;">ADMINISTRATOR</span>
+                        </div>
                     </div>
 
-                    <div class="admin-avatar">
-                        @{
-                            var nameInitial = Context.Session.GetString("UserName");
-                            @(string.IsNullOrEmpty(nameInitial) ? "A" : nameInitial.Substring(0, 1).ToUpper())
-                        }
-                    </div>
-
-                    <a asp-controller="Account" asp-action="Logout" class="logout-btn btn btn-sm btn-outline-danger ms-2">
-                        ออกจากระบบ
+                    <!-- Logout Button -->
+                    <a asp-controller="Account" asp-action="Logout" class="btn-origin-ghost" style="font-size: 12px; padding: 7px 14px;">
+                        <i class="bi bi-box-arrow-right me-1"></i> ออกจากระบบ
                     </a>
 
                 </div>
 
             </header>
 
-
             <!-- CONTENT -->
-            <main class="admin-content">
+            <main class="origin-admin-content">
 
                 @RenderBody()
 
@@ -398,10 +426,8 @@
 
     </div>
 
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
-    </script>
-
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 
 </body>

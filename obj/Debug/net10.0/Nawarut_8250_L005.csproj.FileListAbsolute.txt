@@ -119,7 +119,6 @@ C:\Users\Game Of Cpu\Documents\GitHub\CSI402\obj\Debug\net10.0\rjsmcshtml.dswa.c
 C:\Users\Game Of Cpu\Documents\GitHub\CSI402\obj\Debug\net10.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
 C:\Users\Game Of Cpu\Documents\GitHub\CSI402\obj\Debug\net10.0\scopedcss\bundle\Nawarut_8250_L005.styles.css
 C:\Users\Game Of Cpu\Documents\GitHub\CSI402\obj\Debug\net10.0\scopedcss\projectbundle\Nawarut_8250_L005.bundle.scp.css
-C:\Users\Game Of Cpu\Documents\GitHub\CSI402\obj\Debug\net10.0\compressed\ip3lbg792x-{0}-ktkj6bz9j4-ktkj6bz9j4.gz
 C:\Users\Game Of Cpu\Documents\GitHub\CSI402\obj\Debug\net10.0\compressed\vu93d3c10r-{0}-61n19gt1b8-61n19gt1b8.gz
 C:\Users\Game Of Cpu\Documents\GitHub\CSI402\obj\Debug\net10.0\compressed\4sudvqh3dt-{0}-xtxxf3hu2r-xtxxf3hu2r.gz
 C:\Users\Game Of Cpu\Documents\GitHub\CSI402\obj\Debug\net10.0\compressed\q58ebyd5yd-{0}-t1cqhe9u97-t1cqhe9u97.gz
@@ -283,3 +282,4 @@ C:\Users\Game Of Cpu\Documents\GitHub\CSI402\bin\Debug\net10.0\zh-Hans\Microsoft
 C:\Users\Game Of Cpu\Documents\GitHub\CSI402\bin\Debug\net10.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
 C:\Users\Game Of Cpu\Documents\GitHub\CSI402\obj\Debug\net10.0\Nawarut_8250_L005.csproj.AssemblyReference.cache
 C:\Users\Game Of Cpu\Documents\GitHub\CSI402\obj\Debug\net10.0\Nawarut_.FA40D4D3.Up2Date
+C:\Users\Game Of Cpu\Documents\GitHub\CSI402\obj\Debug\net10.0\compressed\ip3lbg792x-{0}-rs0uy5jpnn-rs0uy5jpnn.gz
