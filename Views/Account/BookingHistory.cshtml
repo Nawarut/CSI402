@@ -1,0 +1,700 @@
+@model Nawarut_8250_L005.ViewModels.BookingHistoryViewModel
+@{
+    ViewData["Title"] = "ประวัติการจอง";
+    Layout = "~/Views/Shared/_navbarlayout.cshtml";
+}
+
+<style>
+    /* ========================================================
+       BOOKING HISTORY — ORIGIN FINANCIAL DESIGN SYSTEM
+    ======================================================== */
+    .bh-canvas {
+        min-height: 100vh;
+        background-color: var(--color-obsidian);
+        padding: 48px 0 100px 0;
+    }
+
+    .bh-container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 24px;
+    }
+
+    /* Breadcrumb */
+    .bh-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-family: var(--font-roboto-mono);
+        font-size: 11px;
+        color: var(--color-ash);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 32px;
+    }
+    .bh-breadcrumb a {
+        color: var(--color-ash);
+        text-decoration: none;
+        transition: color 0.15s;
+    }
+    .bh-breadcrumb a:hover { color: var(--color-pure); }
+    .bh-breadcrumb-sep { opacity: 0.4; }
+
+    /* Page Header */
+    .bh-header { margin-bottom: 40px; }
+    .bh-eyebrow {
+        font-family: var(--font-roboto-mono);
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--color-iris-gleam);
+        margin-bottom: 10px;
+    }
+    .bh-title {
+        font-family: var(--font-serif-display);
+        font-size: clamp(28px, 4vw, 40px);
+        font-weight: 400;
+        color: var(--color-pure);
+        margin-bottom: 8px;
+        line-height: 1.1;
+    }
+    .bh-subtitle {
+        font-family: var(--font-sans-ui);
+        font-size: 15px;
+        color: var(--color-ash);
+    }
+
+    /* Stat Cards Row */
+    .bh-stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 48px;
+    }
+    .bh-stat-card {
+        background: var(--color-graphite);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 16px;
+        padding: 24px 20px;
+    }
+    .bh-stat-label {
+        font-family: var(--font-roboto-mono);
+        font-size: 10px;
+        font-weight: 500;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--color-ash);
+        margin-bottom: 10px;
+    }
+    .bh-stat-value {
+        font-family: var(--font-roboto-mono);
+        font-size: 32px;
+        font-weight: 500;
+        line-height: 1;
+        margin-bottom: 4px;
+    }
+    .bh-stat-desc {
+        font-size: 12px;
+        color: var(--color-ash);
+    }
+
+    /* Alert messages */
+    .bh-alert {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 16px 20px;
+        border-radius: 12px;
+        margin-bottom: 28px;
+        font-size: 14px;
+        font-family: var(--font-sans-ui);
+    }
+    .bh-alert-success {
+        background: rgba(34,197,94,0.12);
+        border: 1px solid rgba(34,197,94,0.3);
+        color: #86efac;
+    }
+    .bh-alert-error {
+        background: rgba(239,68,68,0.12);
+        border: 1px solid rgba(239,68,68,0.3);
+        color: #fca5a5;
+    }
+    .bh-alert-warning {
+        background: rgba(245,158,11,0.12);
+        border: 1px solid rgba(245,158,11,0.3);
+        color: #fcd34d;
+    }
+
+    /* Booking Card */
+    .bh-booking-card {
+        background: var(--color-graphite);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 16px;
+        margin-bottom: 24px;
+        overflow: hidden;
+    }
+
+    .bh-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 24px;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    .bh-booking-code {
+        font-family: var(--font-roboto-mono);
+        font-size: 15px;
+        font-weight: 500;
+        color: var(--color-pure);
+        letter-spacing: 0.06em;
+    }
+    .bh-booking-date {
+        font-family: var(--font-roboto-mono);
+        font-size: 11px;
+        color: var(--color-ash);
+        margin-top: 3px;
+    }
+    .bh-status-badge {
+        font-family: var(--font-roboto-mono);
+        font-size: 10px;
+        font-weight: 500;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 5px 12px;
+        border-radius: 20px;
+    }
+
+    .bh-card-body { padding: 24px; }
+
+    /* Date range bar */
+    .bh-date-bar {
+        display: flex;
+        align-items: center;
+        gap: 0;
+        margin-bottom: 24px;
+        background: rgba(255,255,255,0.04);
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    .bh-date-col {
+        flex: 1;
+        padding: 16px 20px;
+    }
+    .bh-date-col + .bh-date-col {
+        border-left: 1px solid rgba(255,255,255,0.08);
+    }
+    .bh-date-mono {
+        font-family: var(--font-roboto-mono);
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--color-iris-gleam);
+        margin-bottom: 6px;
+    }
+    .bh-date-value {
+        font-family: var(--font-sans-ui);
+        font-size: 18px;
+        font-weight: 500;
+        color: var(--color-pure);
+    }
+    .bh-nights-col {
+        padding: 16px 20px;
+        text-align: center;
+        border-left: 1px solid rgba(255,255,255,0.08);
+        min-width: 100px;
+    }
+    .bh-nights-num {
+        font-family: var(--font-roboto-mono);
+        font-size: 24px;
+        font-weight: 500;
+        color: var(--color-cyan-signal);
+        line-height: 1;
+    }
+    .bh-nights-label {
+        font-family: var(--font-roboto-mono);
+        font-size: 10px;
+        color: var(--color-ash);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-top: 4px;
+    }
+
+    /* Room table */
+    .bh-room-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        font-size: 13px;
+    }
+    .bh-room-table thead tr {
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .bh-room-table th {
+        font-family: var(--font-roboto-mono);
+        font-size: 10px;
+        font-weight: 500;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--color-ash);
+        padding: 8px 12px;
+        text-align: left;
+    }
+    .bh-room-table th:last-child { text-align: right; }
+    .bh-room-table td {
+        padding: 10px 12px;
+        color: var(--color-cloud);
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        vertical-align: middle;
+    }
+    .bh-room-table td:last-child { text-align: right; }
+    .bh-room-table tr:last-child td { border-bottom: none; }
+
+    .bh-room-num {
+        font-family: var(--font-roboto-mono);
+        font-size: 13px;
+        color: var(--color-pure);
+        font-weight: 500;
+    }
+    .bh-room-type {
+        font-size: 12px;
+        color: var(--color-ash);
+    }
+
+    /* Price breakdown */
+    .bh-price-box {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 10px;
+        padding: 16px 20px;
+        margin-bottom: 20px;
+    }
+    .bh-price-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 6px 0;
+        font-size: 14px;
+        color: var(--color-ash);
+    }
+    .bh-price-row + .bh-price-row { border-top: 1px solid rgba(255,255,255,0.05); }
+    .bh-price-row.total {
+        color: var(--color-pure);
+        font-weight: 600;
+        font-size: 15px;
+        border-top: 1px solid rgba(255,255,255,0.12) !important;
+        margin-top: 4px;
+        padding-top: 10px;
+    }
+    .bh-price-amount { font-family: var(--font-roboto-mono); }
+    .bh-price-row .discount { color: #86efac; }
+    .bh-price-row .deposit-label { color: var(--color-cyan-signal); }
+
+    /* Refund notice */
+    .bh-refund-notice {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 16px;
+        background: rgba(245,158,11,0.1);
+        border: 1px solid rgba(245,158,11,0.3);
+        border-radius: 10px;
+        margin-bottom: 20px;
+        font-size: 13px;
+    }
+    .bh-refund-icon { font-size: 18px; }
+    .bh-refund-text { color: #fcd34d; font-family: var(--font-sans-ui); }
+    .bh-refund-status {
+        margin-left: auto;
+        font-family: var(--font-roboto-mono);
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #fbbf24;
+        background: rgba(245,158,11,0.15);
+        padding: 3px 10px;
+        border-radius: 20px;
+    }
+
+    /* Actions */
+    .bh-card-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        padding-top: 16px;
+        border-top: 1px solid rgba(255,255,255,0.07);
+        flex-wrap: wrap;
+    }
+
+    .btn-cancel-booking {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-family: var(--font-sans-ui);
+        font-size: 13px;
+        font-weight: 500;
+        background: rgba(239,68,68,0.12);
+        border: 1px solid rgba(239,68,68,0.4);
+        color: #fca5a5;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .btn-cancel-booking:hover {
+        background: rgba(239,68,68,0.22);
+        border-color: rgba(239,68,68,0.6);
+        color: #fff;
+    }
+
+    /* Empty state */
+    .bh-empty {
+        text-align: center;
+        padding: 80px 20px;
+    }
+    .bh-empty-icon { font-size: 56px; margin-bottom: 20px; opacity: 0.5; }
+    .bh-empty-title {
+        font-family: var(--font-roboto-mono);
+        font-size: 14px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--color-ash);
+        margin-bottom: 12px;
+    }
+    .bh-empty-desc { font-size: 14px; color: var(--color-fog); margin-bottom: 28px; }
+
+    /* Cancel modal */
+    .bh-modal-backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.75);
+        z-index: 9000;
+        align-items: center;
+        justify-content: center;
+    }
+    .bh-modal-backdrop.show { display: flex; }
+    .bh-modal {
+        background: var(--color-graphite);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 20px;
+        padding: 36px 32px;
+        max-width: 460px;
+        width: 90%;
+        box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+    }
+    .bh-modal-title {
+        font-family: var(--font-serif-display);
+        font-size: 22px;
+        color: var(--color-pure);
+        margin-bottom: 12px;
+    }
+    .bh-modal-body { font-size: 14px; color: var(--color-ash); line-height: 1.6; margin-bottom: 24px; }
+    .bh-modal-actions { display: flex; gap: 12px; justify-content: flex-end; }
+</style>
+
+<div class="bh-canvas">
+    <div class="bh-container">
+
+        @* Breadcrumb *@
+        <div class="bh-breadcrumb">
+            <a asp-controller="Home" asp-action="Index">หน้าหลัก</a>
+            <span class="bh-breadcrumb-sep">›</span>
+            <span style="color: var(--color-cloud);">ประวัติการจอง</span>
+        </div>
+
+        @* Page Header *@
+        <div class="bh-header">
+            <div class="bh-eyebrow">MY ACCOUNT · การจองของฉัน</div>
+            <div class="bh-title">ประวัติการจอง</div>
+            <div class="bh-subtitle">
+                สวัสดีคุณ <strong style="color:var(--color-pure);">@Context.Session.GetString("UserName")</strong> —
+                พบรายการจองทั้งหมด @Model.TotalBookings รายการ
+            </div>
+        </div>
+
+        @* Alert Messages *@
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="bh-alert bh-alert-success">
+                <span>✅</span>
+                <span>@TempData["SuccessMessage"]</span>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="bh-alert bh-alert-error">
+                <span>⚠️</span>
+                <span>@TempData["ErrorMessage"]</span>
+            </div>
+        }
+        @if (TempData["WarningMessage"] != null)
+        {
+            <div class="bh-alert bh-alert-warning">
+                <span>🔔</span>
+                <span>@TempData["WarningMessage"]</span>
+            </div>
+        }
+
+        @* Stat Cards *@
+        <div class="bh-stats-row">
+            <div class="bh-stat-card">
+                <div class="bh-stat-label">ทั้งหมด · ALL</div>
+                <div class="bh-stat-value" style="color: var(--color-pure);">@Model.TotalBookings</div>
+                <div class="bh-stat-desc">รายการจองทั้งหมด</div>
+            </div>
+            <div class="bh-stat-card">
+                <div class="bh-stat-label">ใช้งานอยู่ · ACTIVE</div>
+                <div class="bh-stat-value" style="color: var(--color-cyan-signal);">@Model.ActiveBookings</div>
+                <div class="bh-stat-desc">ยืนยันแล้ว / รอดำเนินการ</div>
+            </div>
+            <div class="bh-stat-card">
+                <div class="bh-stat-label">เสร็จสิ้น · COMPLETED</div>
+                <div class="bh-stat-value" style="color: var(--color-periwinkle);">@Model.CompletedBookings</div>
+                <div class="bh-stat-desc">เข้าพักเสร็จเรียบร้อย</div>
+            </div>
+            <div class="bh-stat-card">
+                <div class="bh-stat-label">ยกเลิกแล้ว · CANCELLED</div>
+                <div class="bh-stat-value" style="color: #ef4444;">@Model.CancelledBookings</div>
+                <div class="bh-stat-desc">ยกเลิกและคืนเงินมัดจำ</div>
+            </div>
+        </div>
+
+        @* Booking Cards *@
+        @if (!Model.Bookings.Any())
+        {
+            <div class="bh-empty">
+                <div class="bh-empty-icon">📋</div>
+                <div class="bh-empty-title">ยังไม่มีประวัติการจอง</div>
+                <div class="bh-empty-desc">คุณยังไม่เคยจองห้องพักกับ JoJo Hotel</div>
+                <a asp-controller="Home" asp-action="Index" class="btn-origin-primary" style="font-size:14px; padding:12px 28px;">
+                    ดูห้องพัก &rarr;
+                </a>
+            </div>
+        }
+        else
+        {
+            @foreach (var booking in Model.Bookings)
+            {
+                var depositPct = booking.DepositPercent <= 1m ? booking.DepositPercent * 100m : booking.DepositPercent;
+                <div class="bh-booking-card" id="booking-@booking.BookingId">
+
+                    @* Card Header *@
+                    <div class="bh-card-header">
+                        <div>
+                            <div class="bh-booking-code">🏨 @booking.BookingCode</div>
+                            <div class="bh-booking-date">
+                                จองเมื่อ @booking.CreatedAt.ToString("dd MMM yyyy HH:mm")
+                            </div>
+                        </div>
+                        <span class="bh-status-badge"
+                              style="background:@(booking.StatusColor)1a; border:1px solid @(booking.StatusColor)55; color:@booking.StatusColor;">
+                            @booking.StatusLabel
+                        </span>
+                    </div>
+
+                    @* Card Body *@
+                    <div class="bh-card-body">
+
+                        @* Date Range *@
+                        <div class="bh-date-bar">
+                            <div class="bh-date-col">
+                                <div class="bh-date-mono">CHECK-IN · เช็คอิน</div>
+                                <div class="bh-date-value">
+                                    @booking.CheckInDate.ToString("dd MMM yyyy")
+                                </div>
+                                <div style="font-size:12px;color:var(--color-ash);margin-top:4px;">เวลา 09:00 น.</div>
+                            </div>
+                            <div class="bh-nights-col">
+                                <div class="bh-nights-num">@booking.Nights</div>
+                                <div class="bh-nights-label">คืน</div>
+                            </div>
+                            <div class="bh-date-col">
+                                <div class="bh-date-mono">CHECK-OUT · เช็คเอาท์</div>
+                                <div class="bh-date-value">
+                                    @booking.CheckOutDate.ToString("dd MMM yyyy")
+                                </div>
+                                <div style="font-size:12px;color:var(--color-ash);margin-top:4px;">เวลา 12:00 น.</div>
+                            </div>
+                        </div>
+
+                        @* Room Table *@
+                        @if (booking.Rooms.Any())
+                        {
+                            <div style="font-family:var(--font-roboto-mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-ash);margin-bottom:10px;">
+                                ROOMS · ห้องพัก (@booking.Rooms.Count ห้อง, @booking.TotalGuests ผู้เข้าพัก)
+                            </div>
+                            <table class="bh-room-table">
+                                <thead>
+                                    <tr>
+                                        <th>ห้องพัก</th>
+                                        <th>ประเภท</th>
+                                        <th>ราคา/คืน</th>
+                                        <th>เตียงเสริม</th>
+                                        <th>รวม</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var room in booking.Rooms)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div class="bh-room-num">🛏 @room.RoomNumber</div>
+                                            </td>
+                                            <td>
+                                                <div class="bh-room-type">@room.TypeName</div>
+                                            </td>
+                                            <td>
+                                                <span style="font-family:var(--font-roboto-mono);color:var(--color-cloud);">
+                                                    ฿@room.PricePerNight.ToString("N0")
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @if (room.ExtraBeds > 0)
+                                                {
+                                                    <span style="font-family:var(--font-roboto-mono);color:var(--color-orchid-bloom);">
+                                                        @room.ExtraBeds × ฿@room.ExtraBedPrice.ToString("N0")
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span style="color:var(--color-fog);">—</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <strong style="font-family:var(--font-roboto-mono);color:var(--color-pure);">
+                                                    ฿@room.LineTotal.ToString("N0")
+                                                </strong>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+
+                        @* Price Breakdown *@
+                        <div class="bh-price-box">
+                            <div class="bh-price-row">
+                                <span>ราคาค่าห้องรวม (@booking.Nights คืน)</span>
+                                <span class="bh-price-amount">฿@booking.SubtotalAmount.ToString("N0")</span>
+                            </div>
+                            @if (booking.ExtraBedAmount > 0)
+                            {
+                                <div class="bh-price-row">
+                                    <span>ค่าเตียงเสริม</span>
+                                    <span class="bh-price-amount">+฿@booking.ExtraBedAmount.ToString("N0")</span>
+                                </div>
+                            }
+                            @if (booking.DiscountAmount > 0)
+                            {
+                                <div class="bh-price-row">
+                                    <span>ส่วนลดโปรโมชั่น</span>
+                                    <span class="bh-price-amount discount">−฿@booking.DiscountAmount.ToString("N0")</span>
+                                </div>
+                            }
+                            <div class="bh-price-row total">
+                                <span>ยอดสุทธิ</span>
+                                <span class="bh-price-amount">฿@booking.NetAmount.ToString("N0")</span>
+                            </div>
+                            <div class="bh-price-row" style="padding-top:10px;">
+                                <span class="deposit-label">💳 ค่ามัดจำที่ชำระแล้ว (@depositPct.ToString("0")%)</span>
+                                <span class="bh-price-amount" style="color:var(--color-cyan-signal);">฿@booking.DepositAmount.ToString("N2")</span>
+                            </div>
+                            <div class="bh-price-row">
+                                <span>ยอดคงเหลือที่ต้องชำระ ณ วันเช็คอิน</span>
+                                <span class="bh-price-amount" style="color:var(--color-periwinkle);">
+                                    ฿@((booking.NetAmount - booking.DepositAmount).ToString("N2"))
+                                </span>
+                            </div>
+                        </div>
+
+                        @* Refund Notice (ถ้ายกเลิก) *@
+                        @if (booking.IsCancelled && booking.DepositAmount > 0)
+                        {
+                            <div class="bh-refund-notice">
+                                <span class="bh-refund-icon">💰</span>
+                                <div class="bh-refund-text">
+                                    คืนเงินค่ามัดจำ 5% — ฿@booking.DepositAmount.ToString("N2")
+                                    <div style="font-size:12px;opacity:0.8;margin-top:2px;">
+                                        คืนเงินผ่านช่องทางที่ชำระเงินภายใน 3–5 วันทำการ
+                                    </div>
+                                </div>
+                                <span class="bh-refund-status">
+                                    คืนเงินค่ามัดจำ 5% · @(booking.RefundStatus ?? "รอดำเนินการ")
+                                </span>
+                            </div>
+                        }
+
+                        @* Card Actions *@
+                        @if (booking.IsCancellable)
+                        {
+                            <div class="bh-card-actions">
+                                <button type="button"
+                                        class="btn-cancel-booking"
+                                        onclick="showCancelModal(@booking.BookingId, '@booking.BookingCode', @booking.DepositAmount.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture))">
+                                    ✕ ยกเลิกการจอง
+                                </button>
+                            </div>
+                        }
+                        else if (!booking.IsCancelled)
+                        {
+                            <div class="bh-card-actions">
+                                <span style="font-family:var(--font-roboto-mono);font-size:11px;color:var(--color-fog);">
+                                    @(booking.CheckInDate < DateOnly.FromDateTime(DateTime.Today)
+                                        ? "เลยวันเช็คอินแล้ว ไม่สามารถยกเลิกได้"
+                                        : "ไม่สามารถยกเลิกได้")
+                                </span>
+                            </div>
+                        }
+
+                    </div>
+                </div>
+            }
+        }
+
+    </div>
+</div>
+
+@* Cancel Confirmation Modal *@
+<div class="bh-modal-backdrop" id="cancelModalBackdrop" onclick="closeCancelModal(event)">
+    <div class="bh-modal">
+        <div class="bh-modal-title">ยืนยันการยกเลิก</div>
+        <div class="bh-modal-body" id="cancelModalBody">
+            คุณต้องการยกเลิกการจองนี้ใช่หรือไม่?
+        </div>
+        <form id="cancelForm" method="post" asp-controller="Account" asp-action="CancelBooking">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="bookingId" id="cancelBookingId" value="" />
+            <div class="bh-modal-actions">
+                <button type="button" class="btn-origin-ghost" style="font-size:14px;padding:10px 20px;" onclick="closeCancelModal()">
+                    ปิด
+                </button>
+                <button type="submit" class="btn-cancel-booking" style="font-size:14px;padding:10px 24px;">
+                    ✕ ยืนยันการยกเลิก
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function showCancelModal(bookingId, bookingCode, depositAmount) {
+            document.getElementById('cancelBookingId').value = bookingId;
+            document.getElementById('cancelModalBody').innerHTML =
+                `คุณต้องการยกเลิกการจอง <strong style="color:white;">${bookingCode}</strong> ใช่หรือไม่?<br><br>
+                 ระบบจะ<strong style="color:#fcd34d;">คืนเงินค่ามัดจำ 5%</strong> จำนวน
+                 <strong style="color:#fcd34d;">฿${Number(depositAmount).toLocaleString('th-TH', {minimumFractionDigits:2, maximumFractionDigits:2})}</strong>
+                 ภายใน 3–5 วันทำการ`;
+            document.getElementById('cancelModalBackdrop').classList.add('show');
+        }
+
+        function closeCancelModal(e) {
+            if (!e || e.target === document.getElementById('cancelModalBackdrop')) {
+                document.getElementById('cancelModalBackdrop').classList.remove('show');
+            }
+        }
+    </script>
+}
