@@ -1,0 +1,315 @@
+@model List<Nawarut_8250_L005.Entities.Ticket>
+@{
+    ViewData["Title"] = "ฝ่ายบริการลูกค้า (Customer Service)";
+    Layout = "_navbarlayout";
+    var customers = ViewBag.Customers as List<Nawarut_8250_L005.Entities.User> ?? new();
+    var bookings = ViewBag.Bookings as List<Nawarut_8250_L005.Entities.Booking> ?? new();
+}
+
+<style>
+    .cs-canvas {
+        background-color: var(--color-obsidian);
+        min-height: 100vh;
+        padding: 40px 0 80px 0;
+    }
+</style>
+
+<div class="cs-canvas">
+    <div class="container" style="max-width: 1240px;">
+
+        <!-- Alert Notification -->
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="origin-card-graphite p-3 mb-4 d-flex justify-content-between align-items-center" style="border: 1px solid rgba(0,179,221,0.4) !important;">
+                <div class="d-flex align-items-center gap-2">
+                    <span style="color: var(--color-cyan-signal);">&#x25CF;</span>
+                    <span class="small text-white">@TempData["SuccessMessage"]</span>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        <!-- Header -->
+        <div class="d-flex flex-wrap justify-content-between align-items-baseline mb-4">
+            <div>
+                <span class="origin-mono" style="color: var(--color-periwinkle); font-size: 11px; letter-spacing: 0.12em;">
+                    🎧 CUSTOMER CARE &amp; ESCALATION CONSOLE
+                </span>
+                <h1 class="origin-heading-lg mt-1 mb-0" style="font-size: 32px; color: var(--color-pure);">
+                    ฝ่ายบริการลูกค้า (Customer Service)
+                </h1>
+                <p class="origin-mono mt-1 mb-0" style="color: var(--color-ash); font-size: 11px;">
+                    ดูแลให้คำปรึกษา ตอบข้อซักถาม รับแจ้งปัญหา และคัดกรองส่งต่อเรื่องไปยังฝ่ายบัญชีหรือต้อนรับ
+                </p>
+            </div>
+            <div class="d-flex align-items-center gap-2 mt-3 mt-sm-0">
+                <button type="button" class="btn-origin-primary py-2 px-3" data-bs-toggle="modal" data-bs-target="#newTicketModal" style="font-size: 12px;">
+                    + บันทึกรับแจ้งปัญหาใหม่ &rarr;
+                </button>
+            </div>
+        </div>
+
+        <!-- Stat Cards Row -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="origin-card-graphite p-3 h-100">
+                    <span class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">เรื่องแจ้งทั้งหมด</span>
+                    <div class="origin-heading-lg mb-0" style="font-size: 32px; color: var(--color-pure);">@ViewBag.TotalTickets</div>
+                    <span class="origin-mono" style="color: var(--color-pure); font-size: 10px;">ALL TICKETS</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="origin-card-graphite p-3 h-100">
+                    <span class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">รอตอบกลับ / เปิดอยู่</span>
+                    <div class="origin-heading-lg mb-0" style="font-size: 32px; color: var(--color-cyan-signal);">@ViewBag.OpenTickets</div>
+                    <span class="origin-mono" style="color: var(--color-cyan-signal); font-size: 10px;">OPEN / IN PROGRESS</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="origin-card-graphite p-3 h-100">
+                    <span class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">ส่งต่อฝ่ายอื่นแล้ว</span>
+                    <div class="origin-heading-lg mb-0" style="font-size: 32px; color: #fcd34d;">@ViewBag.EscalatedTickets</div>
+                    <span class="origin-mono" style="color: #fcd34d; font-size: 10px;">ESCALATED</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="origin-card-graphite p-3 h-100">
+                    <span class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">แก้ไขเสร็จสิ้น</span>
+                    <div class="origin-heading-lg mb-0" style="font-size: 32px; color: #86efac;">@ViewBag.ResolvedTickets</div>
+                    <span class="origin-mono" style="color: #86efac; font-size: 10px;">RESOLVED</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Knowledge Base (สำหรับตอบข้อซักถามลูกค้า) -->
+        <div class="origin-card-graphite p-4 mb-4">
+            <span class="origin-mono" style="color: var(--color-periwinkle); font-size: 11px;">KNOWLEDGE BASE &middot; คลังข้อมูลสำหรับตอบข้อซักถามลูกค้า</span>
+            <div class="row g-3 mt-1">
+                <div class="col-12 col-md-4">
+                    <div class="p-3 rounded-3" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+                        <div class="fw-bold text-white small mb-1">⏰ เวลาเข้าพักและคืนห้อง</div>
+                        <div class="small text-muted">เช็คอิน: <strong>09:00 น.</strong> | เช็คเอาท์: <strong>12:00 น.</strong></div>
+                        <div class="origin-mono" style="font-size: 10px; color: var(--color-cyan-signal); margin-top: 4px;">ขอเช็คเอาท์สายประสานงานต้อนรับ</div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="p-3 rounded-3" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+                        <div class="fw-bold text-white small mb-1">💳 เงินมัดจำล่วงหน้า 5%</div>
+                        <div class="small text-muted">มัดจำ 5% ของยอดสุทธิหลังหักส่วนลด</div>
+                        <div class="origin-mono" style="font-size: 10px; color: var(--color-orchid-bloom); margin-top: 4px;">หากยกเลิก คืนมัดจำภายใน 3-5 วัน</div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="p-3 rounded-3" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+                        <div class="fw-bold text-white small mb-1">🏷️ 5 เงื่อนไขโปรโมชั่น</div>
+                        <div class="small text-muted">ใหม่ 10%, 2 คืน 15%, เกิน 5 พันลด 500</div>
+                        <div class="origin-mono" style="font-size: 10px; color: #86efac; margin-top: 4px;">กลุ่ม 4 คน 20%, ล่วงหน้า 30 วัน 25%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: รายการรับแจ้งปัญหาและการส่งต่อเรื่อง (Tickets & Escalation Table) -->
+        <div class="origin-card-graphite p-0 overflow-hidden mb-5">
+            <div class="p-4 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-2" style="border-color: rgba(255,255,255,0.08) !important;">
+                <div>
+                    <span class="origin-mono" style="color: var(--color-periwinkle); font-size: 11px;">SUPPORT TICKETS &middot; รายการแจ้งปัญหา</span>
+                    <h3 class="origin-heading-lg mb-0" style="font-size: 20px;">เรื่องแจ้งปัญหาและการประสานงานข้ามฝ่าย</h3>
+                </div>
+                <form method="get" asp-action="Index" class="d-flex gap-2">
+                    <input type="text" name="search" value="@ViewBag.Search" placeholder="ค้นหาตามรหัส หรือชื่อลูกค้า..." class="origin-input py-1 px-3" style="font-size: 12px; width: 220px;" />
+                    <button type="submit" class="btn-origin-primary py-1 px-3" style="font-size: 12px;">ค้นหา</button>
+                </form>
+            </div>
+
+            <div class="table-responsive" style="background-color: var(--color-abyss) !important;">
+                <table class="table origin-table mb-0" style="background-color: transparent !important; color: #ffffff !important;">
+                    <thead>
+                        <tr class="origin-mono border-bottom" style="border-color: rgba(255,255,255,0.08) !important; color: var(--color-ash); font-size: 11px;">
+                            <th class="p-3">รหัสเรื่อง</th>
+                            <th class="p-3">ลูกค้าผู้แจ้ง</th>
+                            <th class="p-3">หัวข้อ / ข้อซักถาม</th>
+                            <th class="p-3 text-center">ความเร่งด่วน</th>
+                            <th class="p-3 text-center">สถานะปัจจุบัน</th>
+                            <th class="p-3 text-end">การส่งต่อเรื่อง (Escalation) &amp; ปิดเรื่อง</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Any())
+                        {
+                            @foreach (var t in Model)
+                            {
+                                string pColor = (t.Priority ?? "").ToLowerInvariant() switch
+                                {
+                                    "urgent" or "high" => "#ef4444",
+                                    "normal" or "medium" => "#fcd34d",
+                                    _ => "var(--color-ash)"
+                                };
+                                string sBadge = (t.Status ?? "").ToLowerInvariant() switch
+                                {
+                                    "resolved" => "#86efac",
+                                    "escalated" => "var(--color-orchid-bloom)",
+                                    "in_progress" => "var(--color-cyan-signal)",
+                                    _ => "var(--color-iris-gleam)"
+                                };
+                                string sText = (t.Status ?? "").ToLowerInvariant() switch
+                                {
+                                    "resolved" => "แก้ไขเสร็จสิ้น",
+                                    "escalated" => "ส่งต่อเรื่องแล้ว",
+                                    "in_progress" => "กำลังดำเนินการ",
+                                    "closed" => "ปิดเรื่องแล้ว",
+                                    _ => "รอดำเนินการ"
+                                };
+
+                                <tr class="border-bottom" style="border-color: rgba(255,255,255,0.05) !important;">
+                                    <td class="p-3 align-middle origin-mono text-white fw-bold">
+                                        #@t.TicketCode
+                                        <div class="origin-mono text-muted" style="font-size: 10px;">@t.CreatedAt.ToString("dd/MM HH:mm")</div>
+                                    </td>
+                                    <td class="p-3 align-middle">
+                                        <div class="fw-bold text-white">@t.Customer?.FirstName @t.Customer?.LastName</div>
+                                        <div class="origin-mono" style="color: var(--color-ash); font-size: 11px;">📞 @(t.Customer?.Phone ?? "-")</div>
+                                    </td>
+                                    <td class="p-3 align-middle">
+                                        <div class="fw-bold text-white">@t.Subject</div>
+                                        @if (t.Booking != null)
+                                        {
+                                            <span class="origin-mono" style="color: var(--color-cyan-signal); font-size: 10px;">
+                                                การจองอ้างอิง: #@t.Booking.BookingCode
+                                            </span>
+                                        }
+                                    </td>
+                                    <td class="p-3 align-middle text-center">
+                                        <span class="badge border rounded-pill px-2 py-1"
+                                              style="border-color: @pColor; color: @pColor; background: @(pColor)1a; font-size: 10px;">
+                                            @t.Priority
+                                        </span>
+                                    </td>
+                                    <td class="p-3 align-middle text-center">
+                                        <span class="badge border rounded-pill px-3 py-1"
+                                              style="border-color: @sBadge; color: @sBadge; background: @(sBadge)1a; font-size: 10px;">
+                                            ● @sText
+                                        </span>
+                                    </td>
+                                    <td class="p-3 align-middle text-end">
+                                        <div class="d-inline-flex gap-1 justify-content-end">
+                                            @if ((t.Status ?? "").ToLower() != "resolved")
+                                            {
+                                                <!-- ปุ่มส่งต่อฝ่ายบัญชี -->
+                                                <form method="post" asp-action="EscalateTicket" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="ticketId" value="@t.TicketId" />
+                                                    <input type="hidden" name="targetDepartment" value="Accounting" />
+                                                    <button type="submit" class="btn-action-edit py-1 px-2" style="font-size: 11px;" title="ส่งเรื่องต่อให้ฝ่ายบัญชีตรวจสอบการชำระเงิน/คืนเงิน">
+                                                        💼 ส่งต่อฝ่ายบัญชี
+                                                    </button>
+                                                </form>
+
+                                                <!-- ปุ่มส่งต่อฝ่ายต้อนรับ -->
+                                                <form method="post" asp-action="EscalateTicket" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="ticketId" value="@t.TicketId" />
+                                                    <input type="hidden" name="targetDepartment" value="Reception" />
+                                                    <button type="submit" class="btn-action-edit py-1 px-2" style="font-size: 11px; color: var(--color-cyan-signal) !important; border-color: rgba(0,179,221,0.4) !important;" title="ส่งเรื่องต่อให้ฝ่ายต้อนรับประสานงานเรื่องห้องพัก">
+                                                        🛎️ ส่งต่อฝ่ายต้อนรับ
+                                                    </button>
+                                                </form>
+
+                                                <!-- ปุ่มปิดเรื่อง / แก้ไขเสร็จสิ้น -->
+                                                <form method="post" asp-action="ResolveTicket" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="ticketId" value="@t.TicketId" />
+                                                    <input type="hidden" name="resolution" value="ให้คำปรึกษาและแก้ไขปัญหาแก่ลูกค้าเรียบร้อยแล้ว" />
+                                                    <button type="submit" class="btn-action-edit py-1 px-2" style="font-size: 11px; color: #86efac !important; border-color: rgba(134,239,172,0.4) !important;">
+                                                        ✓ ปิดเรื่อง
+                                                    </button>
+                                                </form>
+                                            }
+                                            else
+                                            {
+                                                <span class="origin-mono" style="color: #86efac; font-size: 11px;">
+                                                    เสร็จสิ้น (@t.ResolvedAt?.ToString("dd/MM") ?? "-")
+                                                </span>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="p-5 text-center text-muted">
+                                    <div class="origin-mono">ยังไม่มีเรื่องแจ้งปัญหาในระบบ</div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal: บันทึกรับแจ้งปัญหาใหม่ -->
+<div class="modal fade" id="newTicketModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background-color: var(--color-graphite); border: 1px solid rgba(255,255,255,0.12); color: #fff; border-radius: 16px;">
+            <div class="modal-header" style="border-bottom-color: rgba(255,255,255,0.08);">
+                <h5 class="modal-title origin-heading-lg fs-5">บันทึกรับแจ้งปัญหาใหม่ (New Ticket)</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" asp-action="CreateTicket">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="origin-mono small text-muted d-block mb-1">เลือกลูกค้าผู้แจ้ง *</label>
+                        <select name="customerId" class="origin-input w-100" required>
+                            @foreach (var c in customers)
+                            {
+                                <option value="@c.UserId">@c.FirstName @c.LastName (@c.Email)</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="origin-mono small text-muted d-block mb-1">รหัสการจองที่เกี่ยวข้อง (ถ้ามี)</label>
+                        <select name="bookingId" class="origin-input w-100">
+                            <option value="">-- ไม่ระบุ / ปัญหาทั่วไป --</option>
+                            @foreach (var b in bookings)
+                            {
+                                <option value="@b.BookingId">#@b.BookingCode (@b.CheckInDate.ToString("dd/MM/yyyy"))</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="origin-mono small text-muted d-block mb-1">ความเร่งด่วน</label>
+                        <select name="priority" class="origin-input w-100">
+                            <option value="Medium">Medium (ปกติ)</option>
+                            <option value="High">High (ด่วน)</option>
+                            <option value="Urgent">Urgent (เร่งด่วนมาก)</option>
+                            <option value="Low">Low (ทั่วไป)</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="origin-mono small text-muted d-block mb-1">หัวข้อเรื่องแจ้ง *</label>
+                        <input type="text" name="subject" class="origin-input w-100" placeholder="เช่น ขอเปลี่ยนวันเข้าพัก หรือ สอบถามยอดชำระมัดจำ" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="origin-mono small text-muted d-block mb-1">รายละเอียดข้อซักถาม / ปัญหา</label>
+                        <textarea name="message" rows="3" class="origin-input w-100" placeholder="ระบุรายละเอียดเพิ่มเติม..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top-color: rgba(255,255,255,0.08);">
+                    <button type="button" class="btn-origin-ghost py-2 px-3" data-bs-dismiss="modal">ยกเลิก</button>
+                    <button type="submit" class="btn-origin-primary py-2 px-4">บันทึก Ticket &rarr;</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,346 @@
+@{
+    ViewData["Title"] = "ฝ่ายบัญชีและการเงิน (Accounting)";
+    Layout = "_navbarlayout";
+    var payments = ViewBag.Payments as List<Nawarut_8250_L005.Entities.Payment> ?? new();
+    var bookings = ViewBag.Bookings as List<Nawarut_8250_L005.Entities.Booking> ?? new();
+    var refundPayments = payments.Where(p => p.PaymentType == "refund").ToList();
+}
+
+<style>
+    .accounting-canvas {
+        background-color: var(--color-obsidian);
+        min-height: 100vh;
+        padding: 40px 0 80px 0;
+    }
+</style>
+
+<div class="accounting-canvas">
+    <div class="container" style="max-width: 1240px;">
+
+        <!-- Alert Notification -->
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="origin-card-graphite p-3 mb-4 d-flex justify-content-between align-items-center" style="border: 1px solid rgba(0,179,221,0.4) !important;">
+                <div class="d-flex align-items-center gap-2">
+                    <span style="color: var(--color-cyan-signal);">&#x25CF;</span>
+                    <span class="small text-white">@TempData["SuccessMessage"]</span>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        <!-- Header -->
+        <div class="d-flex flex-wrap justify-content-between align-items-baseline mb-4">
+            <div>
+                <span class="origin-mono" style="color: var(--color-orchid-bloom); font-size: 11px; letter-spacing: 0.12em;">
+                    💼 FINANCIAL &amp; REVENUE CONSOLE
+                </span>
+                <h1 class="origin-heading-lg mt-1 mb-0" style="font-size: 32px; color: var(--color-pure);">
+                    ฝ่ายบัญชีและการเงิน (Accounting &amp; Finance)
+                </h1>
+                <p class="origin-mono mt-1 mb-0" style="color: var(--color-ash); font-size: 11px;">
+                    ตรวจสอบหลักฐานการโอน ยืนยันยอดชำระ จัดการคืนเงินมัดจำ 5% และออกใบเสร็จรับเงิน
+                </p>
+            </div>
+            <div class="d-flex align-items-center gap-2 mt-3 mt-sm-0">
+                <span class="origin-pill-chip py-2 px-3" style="color: var(--color-orchid-bloom); border-color: rgba(221,144,216,0.3); font-size: 12px;">
+                    📊 ระบบการเงินและภาษี JoJo Hotel
+                </span>
+            </div>
+        </div>
+
+        <!-- Financial Stat Cards Row -->
+        <div class="row g-3 mb-5">
+            <!-- ยอดรายรับรวมสุทธิ -->
+            <div class="col-6 col-md-3">
+                <div class="origin-card-graphite p-4 h-100">
+                    <span class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">ยอดรายรับรวมสุทธิ</span>
+                    <div class="origin-heading-lg mb-0" style="font-size: 30px; color: var(--color-pure);">
+                        ฿@ViewBag.TotalNetRevenue.ToString("N0")
+                    </div>
+                    <span class="origin-mono" style="color: var(--color-cyan-signal); font-size: 10px;">TOTAL NET REVENUE</span>
+                </div>
+            </div>
+
+            <!-- ค่ามัดจำ 5% ที่ชำระแล้ว -->
+            <div class="col-6 col-md-3">
+                <div class="origin-card-graphite p-4 h-100">
+                    <span class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">ค่ามัดจำ 5% ที่รับชำระแล้ว</span>
+                    <div class="origin-heading-lg mb-0" style="font-size: 30px; color: var(--color-cyan-signal);">
+                        ฿@ViewBag.TotalDepositsCollected.ToString("N0")
+                    </div>
+                    <span class="origin-mono" style="color: var(--color-cyan-signal); font-size: 10px;">DEPOSITS COLLECTED</span>
+                </div>
+            </div>
+
+            <!-- ยอดคงเหลือรอชำระวันเช็คอิน -->
+            <div class="col-6 col-md-3">
+                <div class="origin-card-graphite p-4 h-100">
+                    <span class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">คงเหลือชำระวันเช็คอิน (95%)</span>
+                    <div class="origin-heading-lg mb-0" style="font-size: 30px; color: var(--color-periwinkle);">
+                        ฿@ViewBag.PendingBalanceAmount.ToString("N0")
+                    </div>
+                    <span class="origin-mono" style="color: var(--color-periwinkle); font-size: 10px;">OUTSTANDING BALANCE</span>
+                </div>
+            </div>
+
+            <!-- จัดการคืนเงินมัดจำ -->
+            <div class="col-6 col-md-3">
+                <div class="origin-card-graphite p-4 h-100">
+                    <span class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">คืนเงินมัดจำ 5% (รอดำเนินการ)</span>
+                    <div class="origin-heading-lg mb-0" style="font-size: 30px; color: #fcd34d;">
+                        ฿@ViewBag.PendingRefundsAmount.ToString("N0")
+                    </div>
+                    <span class="origin-mono" style="color: #fcd34d; font-size: 10px;">PENDING REFUNDS</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 1: ตรวจสอบหลักฐานการชำระเงินและยืนยันยอดเงินโอน -->
+        <div class="origin-card-graphite p-0 overflow-hidden mb-5">
+            <div class="p-4 border-bottom d-flex justify-content-between align-items-center" style="border-color: rgba(255,255,255,0.08) !important;">
+                <div>
+                    <span class="origin-mono" style="color: var(--color-orchid-bloom); font-size: 11px;">PAYMENT VERIFICATION</span>
+                    <h3 class="origin-heading-lg mb-0" style="font-size: 20px;">รายการชำระเงินและยอดเงินโอน (Payments)</h3>
+                </div>
+                <span class="origin-mono" style="color: var(--color-ash); font-size: 11px;">ทั้งหมด @payments.Count รายการ</span>
+            </div>
+
+            <div class="table-responsive" style="background-color: var(--color-abyss) !important;">
+                <table class="table origin-table mb-0" style="background-color: transparent !important; color: #ffffff !important;">
+                    <thead>
+                        <tr class="origin-mono border-bottom" style="border-color: rgba(255,255,255,0.08) !important; color: var(--color-ash); font-size: 11px;">
+                            <th class="p-3">รหัสธุรกรรม</th>
+                            <th class="p-3">รหัสการจอง</th>
+                            <th class="p-3">ผู้ชำระเงิน</th>
+                            <th class="p-3 text-center">ประเภทรายการ</th>
+                            <th class="p-3 text-center">ช่องทาง</th>
+                            <th class="p-3 text-end">ยอดเงิน</th>
+                            <th class="p-3 text-center">สถานะ</th>
+                            <th class="p-3 text-end">การยืนยัน</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (payments.Any())
+                        {
+                            @foreach (var p in payments)
+                            {
+                                string stBadge = p.Status switch
+                                {
+                                    "success" => "var(--color-cyan-signal)",
+                                    "pending" => "#fcd34d",
+                                    "refunded" => "var(--color-orchid-bloom)",
+                                    _ => "#ef4444"
+                                };
+                                string stText = p.Status switch
+                                {
+                                    "success" => "ชำระสำเร็จ",
+                                    "pending" => "รอยืนยันยอดโอน",
+                                    "refunded" => "คืนเงินแล้ว",
+                                    _ => p.Status
+                                };
+
+                                <tr class="border-bottom" style="border-color: rgba(255,255,255,0.05) !important;">
+                                    <td class="p-3 align-middle origin-mono text-white fw-bold">
+                                        #PAY-@p.PaymentId.ToString("D4")
+                                    </td>
+                                    <td class="p-3 align-middle origin-mono text-cyan">
+                                        <span style="color: var(--color-cyan-signal);">#@p.Booking?.BookingCode</span>
+                                    </td>
+                                    <td class="p-3 align-middle">
+                                        <div class="fw-bold text-white">@p.Booking?.User?.FirstName @p.Booking?.User?.LastName</div>
+                                        <div class="origin-mono" style="color: var(--color-ash); font-size: 11px;">@p.Booking?.User?.Email</div>
+                                    </td>
+                                    <td class="p-3 align-middle text-center">
+                                        <span class="badge border rounded-pill px-2 py-1" style="font-size: 10px; border-color: rgba(255,255,255,0.15); color: var(--color-cloud);">
+                                            @(p.PaymentType == "deposit" ? "มัดจำ 5%" : (p.PaymentType == "refund" ? "คืนเงินมัดจำ" : "ค่าห้อง"))
+                                        </span>
+                                    </td>
+                                    <td class="p-3 align-middle text-center origin-mono" style="font-size: 11px; color: var(--color-ash);">
+                                        @(p.Method == "bank_transfer" ? "โอนเงินผ่านธนาคาร" : p.Method)
+                                    </td>
+                                    <td class="p-3 align-middle text-end origin-mono fw-bold" style="font-size: 14px; color: var(--color-pure);">
+                                        ฿@p.Amount.ToString("N2")
+                                    </td>
+                                    <td class="p-3 align-middle text-center">
+                                        <span class="badge border rounded-pill px-3 py-1"
+                                              style="border-color: @stBadge; color: @stBadge; background: @(stBadge)1a; font-size: 10px;">
+                                            ● @stText
+                                        </span>
+                                    </td>
+                                    <td class="p-3 align-middle text-end">
+                                        @if (p.Status == "pending" && p.PaymentType != "refund")
+                                        {
+                                            <form method="post" asp-action="ConfirmPayment" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="paymentId" value="@p.PaymentId" />
+                                                <button type="submit" class="btn-action-edit" title="ยืนยันยอดเงินโอนเข้าบัญชี">
+                                                    ✓ ยืนยันยอดโอน
+                                                </button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <span class="origin-mono" style="color: var(--color-fog); font-size: 11px;">—</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="8" class="p-5 text-center text-muted">
+                                    <div class="origin-mono">ยังไม่มีรายการชำระเงินในระบบ</div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Section 2: การจัดการคืนเงินมัดจำ 5% (Refund Management) -->
+        <div class="origin-card-graphite p-0 overflow-hidden mb-5">
+            <div class="p-4 border-bottom d-flex justify-content-between align-items-center" style="border-color: rgba(255,255,255,0.08) !important;">
+                <div>
+                    <span class="origin-mono" style="color: #fcd34d; font-size: 11px;">DEPOSIT REFUND PORTFOLIO</span>
+                    <h3 class="origin-heading-lg mb-0" style="font-size: 20px;">รายการคืนเงินค่ามัดจำ 5% (กรณีลูกค้ายกเลิกการจอง)</h3>
+                </div>
+                <span class="origin-mono" style="color: var(--color-ash); font-size: 11px;">พบ @refundPayments.Count รายการ</span>
+            </div>
+
+            <div class="table-responsive" style="background-color: var(--color-abyss) !important;">
+                <table class="table origin-table mb-0" style="background-color: transparent !important; color: #ffffff !important;">
+                    <thead>
+                        <tr class="origin-mono border-bottom" style="border-color: rgba(255,255,255,0.08) !important; color: var(--color-ash); font-size: 11px;">
+                            <th class="p-3">รหัสการจอง</th>
+                            <th class="p-3">ผู้ขอคืนเงิน</th>
+                            <th class="p-3 text-end">ยอดมัดจำ 5% ที่ต้องคืน</th>
+                            <th class="p-3 text-center">สถานะการคืนเงิน</th>
+                            <th class="p-3 text-end">การดำเนินการ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (refundPayments.Any())
+                        {
+                            @foreach (var r in refundPayments)
+                            {
+                                <tr class="border-bottom" style="border-color: rgba(255,255,255,0.05) !important;">
+                                    <td class="p-3 align-middle origin-mono text-white fw-bold">
+                                        #@r.Booking?.BookingCode
+                                    </td>
+                                    <td class="p-3 align-middle">
+                                        <div class="fw-bold text-white">@r.Booking?.User?.FirstName @r.Booking?.User?.LastName</div>
+                                        <div class="origin-mono" style="color: var(--color-ash); font-size: 11px;">@r.Booking?.User?.Email</div>
+                                    </td>
+                                    <td class="p-3 align-middle text-end origin-mono fw-bold" style="color: #fcd34d; font-size: 14px;">
+                                        ฿@r.Amount.ToString("N2")
+                                    </td>
+                                    <td class="p-3 align-middle text-center">
+                                        @if (r.Status is "refunded" or "success")
+                                        {
+                                            <span class="badge border rounded-pill px-3 py-1" style="border-color: var(--color-cyan-signal); color: var(--color-cyan-signal); background: rgba(0,179,221,0.1); font-size: 11px;">
+                                                ✓ คืนเงินแล้ว (@r.PaidAt?.ToString("dd/MM/yyyy HH:mm") ?? "เรียบร้อย")
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge border rounded-pill px-3 py-1" style="border-color: #fcd34d; color: #fcd34d; background: rgba(245,158,11,0.1); font-size: 11px;">
+                                                ● อยู่ระหว่างดำเนินการคืนเงิน
+                                            </span>
+                                        }
+                                    </td>
+                                    <td class="p-3 align-middle text-end">
+                                        @if (r.Status == "pending")
+                                        {
+                                            <form method="post" asp-action="ProcessRefund" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="paymentId" value="@r.PaymentId" />
+                                                <button type="submit" class="btn-action-edit py-1 px-3" style="font-size: 11px;">
+                                                    💰 อนุมัติโอนคืนมัดจำ 5%
+                                                </button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <span class="origin-mono" style="color: var(--color-cyan-signal); font-size: 11px;">ทำรายการเสร็จสิ้น</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5" class="p-4 text-center text-muted">
+                                    <div class="origin-mono">ไม่มีรายการขอคืนเงินที่ค้างอยู่</div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Section 3: การออกใบเสร็จรับเงิน (Official Receipts) -->
+        <div class="origin-card-graphite p-0 overflow-hidden mb-5">
+            <div class="p-4 border-bottom d-flex justify-content-between align-items-center" style="border-color: rgba(255,255,255,0.08) !important;">
+                <div>
+                    <span class="origin-mono" style="color: var(--color-iris-gleam); font-size: 11px;">INVOICE &amp; RECEIPT GENERATION</span>
+                    <h3 class="origin-heading-lg mb-0" style="font-size: 20px;">ออกใบเสร็จรับเงิน (Receipts)</h3>
+                </div>
+                <span class="origin-mono" style="color: var(--color-ash); font-size: 11px;">รายการจองที่สามารถออกใบเสร็จได้</span>
+            </div>
+
+            <div class="table-responsive" style="background-color: var(--color-abyss) !important;">
+                <table class="table origin-table mb-0" style="background-color: transparent !important; color: #ffffff !important;">
+                    <thead>
+                        <tr class="origin-mono border-bottom" style="border-color: rgba(255,255,255,0.08) !important; color: var(--color-ash); font-size: 11px;">
+                            <th class="p-3">รหัสจอง</th>
+                            <th class="p-3">ลูกค้า / ผู้รับใบเสร็จ</th>
+                            <th class="p-3 text-center">วันที่เข้าพัก</th>
+                            <th class="p-3 text-end">ยอดรวมสุทธิ</th>
+                            <th class="p-3 text-end">มัดจำ 5%</th>
+                            <th class="p-3 text-center">สถานะการจอง</th>
+                            <th class="p-3 text-end">ใบเสร็จรับเงิน</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var b in bookings)
+                        {
+                            <tr class="border-bottom" style="border-color: rgba(255,255,255,0.05) !important;">
+                                <td class="p-3 align-middle origin-mono text-white fw-bold">#@b.BookingCode</td>
+                                <td class="p-3 align-middle">
+                                    <div class="fw-bold text-white">@b.User?.FirstName @b.User?.LastName</div>
+                                    <div class="origin-mono" style="color: var(--color-ash); font-size: 11px;">@b.User?.Email</div>
+                                </td>
+                                <td class="p-3 align-middle text-center origin-mono" style="color: var(--color-cloud);">
+                                    @b.CheckInDate.ToString("dd/MM/yyyy") &rarr; @b.CheckOutDate.ToString("dd/MM/yyyy")
+                                </td>
+                                <td class="p-3 align-middle text-end origin-mono fw-bold" style="color: var(--color-pure);">
+                                    ฿@b.NetAmount.ToString("N0")
+                                </td>
+                                <td class="p-3 align-middle text-end origin-mono fw-bold" style="color: var(--color-cyan-signal);">
+                                    ฿@b.DepositAmount.ToString("N0")
+                                </td>
+                                <td class="p-3 align-middle text-center">
+                                    <span class="badge border rounded-pill px-2 py-1" style="font-size: 10px; border-color: rgba(255,255,255,0.15);">
+                                        @b.Status
+                                    </span>
+                                </td>
+                                <td class="p-3 align-middle text-end">
+                                    <a asp-action="Receipt" asp-route-id="@b.BookingId" target="_blank" class="btn-origin-primary py-1 px-3 text-decoration-none" style="font-size: 11px;">
+                                        📄 ดู/พิมพ์ใบเสร็จ &rarr;
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+

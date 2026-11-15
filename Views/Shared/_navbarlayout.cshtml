@@ -343,6 +343,24 @@
                             👑 ADMIN PANEL
                         </a>
                     }
+                    else if (Context.Session.GetString("UserRole") == "Staff" || Context.Session.GetString("UserRole") == "Reception")
+                    {
+                        <a asp-controller="Reception" asp-action="Index" class="btn-origin-glass" style="font-size: 12px; padding: 6px 12px; color: var(--color-cyan-signal); border-color: rgba(0,179,221,0.3);">
+                            🛎️ RECEPTION
+                        </a>
+                    }
+                    else if (Context.Session.GetString("UserRole") == "Accountant" || Context.Session.GetString("UserRole") == "Accounting")
+                    {
+                        <a asp-controller="Accounting" asp-action="Index" class="btn-origin-glass" style="font-size: 12px; padding: 6px 12px; color: var(--color-orchid-bloom); border-color: rgba(221,144,216,0.3);">
+                            💼 ACCOUNTING
+                        </a>
+                    }
+                    else if (Context.Session.GetString("UserRole") == "CustomerService" || Context.Session.GetString("UserRole") == "Support")
+                    {
+                        <a asp-controller="CustomerService" asp-action="Index" class="btn-origin-glass" style="font-size: 12px; padding: 6px 12px; color: var(--color-periwinkle); border-color: rgba(144,184,240,0.3);">
+                            🎧 CUSTOMER SERVICE
+                        </a>
+                    }
                     <a asp-controller="Account" asp-action="Logout" class="btn-origin-ghost" style="font-size: 13px; padding: 7px 16px;">
                         ออกจากระบบ
                     </a>

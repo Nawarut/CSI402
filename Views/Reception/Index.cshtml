@@ -1,0 +1,288 @@
+@model List<Nawarut_8250_L005.Entities.Booking>
+@{
+    ViewData["Title"] = "แผนกต้อนรับและห้องพัก (Reception)";
+    Layout = "_navbarlayout";
+    var rooms = ViewBag.Rooms as List<Nawarut_8250_L005.Entities.Room> ?? new();
+}
+
+<style>
+    .reception-canvas {
+        background-color: var(--color-obsidian);
+        min-height: 100vh;
+        padding: 40px 0 80px 0;
+    }
+    .room-tile {
+        background: var(--color-graphite);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 12px;
+        padding: 16px;
+        transition: all 0.2s ease;
+    }
+    .room-tile:hover {
+        border-color: rgba(255,255,255,0.2);
+        transform: translateY(-2px);
+    }
+</style>
+
+<div class="reception-canvas">
+    <div class="container" style="max-width: 1240px;">
+
+        <!-- Alert Notification -->
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="origin-card-graphite p-3 mb-4 d-flex justify-content-between align-items-center" style="border: 1px solid rgba(0,179,221,0.4) !important;">
+                <div class="d-flex align-items-center gap-2">
+                    <span style="color: var(--color-cyan-signal);">&#x25CF;</span>
+                    <span class="small text-white">@TempData["SuccessMessage"]</span>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        <!-- Header -->
+        <div class="d-flex flex-wrap justify-content-between align-items-baseline mb-4">
+            <div>
+                <span class="origin-mono" style="color: var(--color-cyan-signal); font-size: 11px; letter-spacing: 0.12em;">
+                    🛎️ FRONT DESK &amp; RECEPTION CONSOLE
+                </span>
+                <h1 class="origin-heading-lg mt-1 mb-0" style="font-size: 32px; color: var(--color-pure);">
+                    พนักงานต้อนรับและจัดการห้องพัก (Reception / Staff)
+                </h1>
+                <p class="origin-mono mt-1 mb-0" style="color: var(--color-ash); font-size: 11px;">
+                    ตรวจสอบรายการจอง บันทึกเช็คอิน/เช็คเอาท์ และควบคุมสถานะห้องพักหน้างาน
+                </p>
+            </div>
+            <div class="d-flex align-items-center gap-2 mt-3 mt-sm-0">
+                <span class="origin-pill-chip py-2 px-3" style="color: var(--color-cyan-signal); border-color: rgba(0,179,221,0.3); font-size: 12px;">
+                    ⏰ เช็คอิน: <strong>09:00 น.</strong> | เช็คเอาท์: <strong>12:00 น.</strong>
+                </span>
+            </div>
+        </div>
+
+        <!-- Stat Cards Row -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="origin-card-graphite p-3 h-100">
+                    <span class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">เช็คอินวันนี้ (09:00)</span>
+                    <div class="origin-heading-lg mb-0" style="font-size: 32px; color: var(--color-cyan-signal);">@ViewBag.ArrivalsToday</div>
+                    <span class="origin-mono" style="color: var(--color-cyan-signal); font-size: 10px;">ARRIVALS TODAY</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="origin-card-graphite p-3 h-100">
+                    <span class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">เช็คเอาท์วันนี้ (12:00)</span>
+                    <div class="origin-heading-lg mb-0" style="font-size: 32px; color: var(--color-orchid-bloom);">@ViewBag.DeparturesToday</div>
+                    <span class="origin-mono" style="color: var(--color-orchid-bloom); font-size: 10px;">DEPARTURES TODAY</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="origin-card-graphite p-3 h-100">
+                    <span class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">ห้องว่างพร้อมเข้าพัก</span>
+                    <div class="origin-heading-lg mb-0" style="font-size: 32px; color: #86efac;">@ViewBag.AvailableRooms</div>
+                    <span class="origin-mono" style="color: #86efac; font-size: 10px;">AVAILABLE</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="origin-card-graphite p-3 h-100">
+                    <span class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">กำลังทำความสะอาด</span>
+                    <div class="origin-heading-lg mb-0" style="font-size: 32px; color: #fcd34d;">@ViewBag.CleaningRooms</div>
+                    <span class="origin-mono" style="color: #fcd34d; font-size: 10px;">CLEANING / HOUSEKEEPING</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 1: แผงสถานะห้องพักหน้างาน (Room Status Grid) -->
+        <div class="origin-card-graphite p-4 mb-5">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <span class="origin-mono" style="color: var(--color-iris-gleam); font-size: 11px;">ROOM MANAGEMENT &middot; ควบคุมสถานะห้องพัก</span>
+                    <h3 class="origin-heading-lg mb-0" style="font-size: 20px;">สถานะห้องพักทั้งหมด (@rooms.Count ห้อง)</h3>
+                </div>
+                <div class="d-flex gap-2">
+                    <span class="badge" style="background: rgba(0,179,221,0.2); color: var(--color-cyan-signal); font-size: 11px;">● ว่าง: @ViewBag.AvailableRooms</span>
+                    <span class="badge" style="background: rgba(221,144,216,0.2); color: var(--color-orchid-bloom); font-size: 11px;">● มีผู้พัก: @ViewBag.OccupiedRooms</span>
+                    <span class="badge" style="background: rgba(245,158,11,0.2); color: #fcd34d; font-size: 11px;">● ทำความสะอาด: @ViewBag.CleaningRooms</span>
+                </div>
+            </div>
+
+            <div class="row g-3">
+                @foreach (var rm in rooms)
+                {
+                    string st = (rm.Status ?? "").ToLowerInvariant();
+                    string badgeColor = st switch
+                    {
+                        "available" or "ว่าง" => "var(--color-cyan-signal)",
+                        "occupied" or "เข้าพักอยู่" or "booked" or "reserved" => "var(--color-orchid-bloom)",
+                        "cleaning" or "กำลังทำความสะอาด" => "#fcd34d",
+                        "maintenance" or "ซ่อมบำรุง" => "#ef4444",
+                        _ => "var(--color-ash)"
+                    };
+                    string label = st switch
+                    {
+                        "available" or "ว่าง" => "ว่างพร้อมพัก",
+                        "occupied" or "เข้าพักอยู่" or "booked" or "reserved" => "มีผู้เข้าพัก",
+                        "cleaning" or "กำลังทำความสะอาด" => "กำลังทำความสะอาด",
+                        "maintenance" or "ซ่อมบำรุง" => "ซ่อมบำรุง",
+                        _ => rm.Status
+                    };
+
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="room-tile">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="origin-mono fw-bold fs-5 text-white">#@rm.RoomNumber</span>
+                                <span class="origin-mono" style="font-size: 10px; color: var(--color-ash);">ชั้น @(rm.FloorNo ?? 1)</span>
+                            </div>
+                            <div class="text-truncate fw-bold text-white small mb-2">@rm.RoomType?.TypeName</div>
+                            <div class="mb-3">
+                                <span class="badge border rounded-pill px-2 py-1"
+                                      style="border-color: @badgeColor; color: @badgeColor; background: @(badgeColor)1a; font-size: 10px;">
+                                    ● @label
+                                </span>
+                            </div>
+                            <form method="post" asp-action="UpdateRoomStatus" class="d-flex gap-1">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="roomId" value="@rm.RoomId" />
+                                <select name="status" class="origin-input py-1 px-2 flex-grow-1" style="font-size: 11px;" onchange="this.form.submit()">
+                                    <option value="available" selected="@(st is "available" or "ว่าง" ? "selected" : null)">ว่าง (Available)</option>
+                                    <option value="occupied" selected="@(st is "occupied" or "reserved" or "booked" ? "selected" : null)">มีผู้พัก (Occupied)</option>
+                                    <option value="cleaning" selected="@(st is "cleaning" ? "selected" : null)">ทำความสะอาด (Cleaning)</option>
+                                    <option value="maintenance" selected="@(st is "maintenance" ? "selected" : null)">ซ่อมบำรุง (Maintenance)</option>
+                                </select>
+                            </form>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Section 2: รายการจองและการเช็คอิน/เช็คเอาท์ (Arrivals & Operations Table) -->
+        <div class="origin-card-graphite p-0 overflow-hidden mb-5">
+            <div class="p-4 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-2" style="border-color: rgba(255,255,255,0.08) !important;">
+                <div>
+                    <span class="origin-mono" style="color: var(--color-cyan-signal); font-size: 11px;">GUEST OPERATIONS &middot; ดำเนินการเช็คอิน/เช็คเอาท์</span>
+                    <h3 class="origin-heading-lg mb-0" style="font-size: 20px;">รายการจองและสถานะผู้เข้าพัก</h3>
+                </div>
+                <form method="get" asp-action="Index" class="d-flex gap-2">
+                    <input type="text" name="search" value="@ViewBag.Search" placeholder="ค้นหารหัสจอง หรือชื่อลูกค้า..." class="origin-input py-1 px-3" style="font-size: 12px; width: 220px;" />
+                    <button type="submit" class="btn-origin-primary py-1 px-3" style="font-size: 12px;">ค้นหา</button>
+                </form>
+            </div>
+
+            <div class="table-responsive" style="background-color: var(--color-abyss) !important;">
+                <table class="table origin-table mb-0" style="background-color: transparent !important; color: #ffffff !important;">
+                    <thead>
+                        <tr class="origin-mono border-bottom" style="border-color: rgba(255,255,255,0.08) !important; color: var(--color-ash); font-size: 11px;">
+                            <th class="p-3">รหัสจอง</th>
+                            <th class="p-3">ผู้เข้าพัก</th>
+                            <th class="p-3">ห้องพัก</th>
+                            <th class="p-3 text-center">วันที่เข้าพัก (เช็คอิน 09:00)</th>
+                            <th class="p-3 text-center">วันที่ออก (เช็คเอาท์ 12:00)</th>
+                            <th class="p-3 text-center">สถานะ</th>
+                            <th class="p-3 text-end">การปฏิบัติงาน</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Any())
+                        {
+                            @foreach (var b in Model)
+                            {
+                                string bStatus = (b.Status ?? "").ToLowerInvariant();
+                                string stColor = bStatus switch
+                                {
+                                    "confirmed" => "var(--color-cyan-signal)",
+                                    "checked_in" or "checkedin" => "var(--color-orchid-bloom)",
+                                    "checked_out" or "checkedout" or "completed" => "var(--color-ash)",
+                                    "cancelled" => "#ef4444",
+                                    _ => "var(--color-iris-gleam)"
+                                };
+                                string stText = bStatus switch
+                                {
+                                    "confirmed" => "ยืนยันแล้ว (รอเช็คอิน)",
+                                    "checked_in" or "checkedin" => "เช็คอินแล้ว (พักอยู่)",
+                                    "checked_out" or "checkedout" => "เช็คเอาท์แล้ว",
+                                    "completed" => "เสร็จสิ้น",
+                                    "cancelled" => "ยกเลิกแล้ว",
+                                    _ => "รอยืนยัน"
+                                };
+
+                                var roomsText = string.Join(", ", b.BookingRooms.Select(br => $"{br.Room?.RoomType?.TypeName} (#{br.Room?.RoomNumber})"));
+
+                                <tr class="border-bottom" style="border-color: rgba(255,255,255,0.05) !important;">
+                                    <td class="p-3 align-middle origin-mono fw-bold text-white fs-6">
+                                        #@b.BookingCode
+                                    </td>
+                                    <td class="p-3 align-middle">
+                                        <div class="fw-bold text-white">@b.User?.FirstName @b.User?.LastName</div>
+                                        <div class="origin-mono" style="color: var(--color-ash); font-size: 11px;">📞 @(b.User?.Phone ?? "-")</div>
+                                    </td>
+                                    <td class="p-3 align-middle">
+                                        <div class="fw-bold text-white text-truncate" style="max-width: 220px;">@roomsText</div>
+                                        <span class="origin-mono" style="color: var(--color-ash); font-size: 11px;">@b.Nights คืน &middot; @b.TotalGuests ท่าน</span>
+                                    </td>
+                                    <td class="p-3 align-middle text-center">
+                                        <div class="origin-mono fw-bold text-white">@b.CheckInDate.ToString("dd/MM/yyyy")</div>
+                                        <span class="origin-mono" style="color: var(--color-cyan-signal); font-size: 10px;">09:00 น.</span>
+                                    </td>
+                                    <td class="p-3 align-middle text-center">
+                                        <div class="origin-mono fw-bold text-white">@b.CheckOutDate.ToString("dd/MM/yyyy")</div>
+                                        <span class="origin-mono" style="color: var(--color-orchid-bloom); font-size: 10px;">12:00 น.</span>
+                                    </td>
+                                    <td class="p-3 align-middle text-center">
+                                        <span class="badge border rounded-pill px-3 py-1"
+                                              style="border-color: @stColor; color: @stColor; background: @(stColor)1a; font-size: 11px;">
+                                            ● @stText
+                                        </span>
+                                    </td>
+                                    <td class="p-3 align-middle text-end">
+                                        <div class="d-inline-flex gap-1 justify-content-end">
+                                            @if (bStatus == "pending")
+                                            {
+                                                <form method="post" asp-action="ConfirmBooking" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="bookingId" value="@b.BookingId" />
+                                                    <button type="submit" class="btn-origin-primary py-1 px-2" style="font-size: 11px;">
+                                                        ✓ ยืนยันการจอง
+                                                    </button>
+                                                </form>
+                                            }
+                                            @if (bStatus is "confirmed" or "pending")
+                                            {
+                                                <form method="post" asp-action="CheckIn" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="bookingId" value="@b.BookingId" />
+                                                    <button type="submit" class="btn-action-edit py-1 px-2" style="font-size: 11px;" title="บันทึกเช็คอินเข้าพัก">
+                                                        🔑 เช็คอิน (09:00)
+                                                    </button>
+                                                </form>
+                                            }
+                                            @if (bStatus is "checked_in" or "checkedin")
+                                            {
+                                                <form method="post" asp-action="CheckOut" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="bookingId" value="@b.BookingId" />
+                                                    <button type="submit" class="btn-action-delete py-1 px-2" style="font-size: 11px;" title="บันทึกคืนห้องและส่งทำความสะอาด">
+                                                        🚪 เช็คเอาท์ (12:00)
+                                                    </button>
+                                                </form>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7" class="p-5 text-center text-muted">
+                                    <div class="origin-mono mb-2" style="color: var(--color-ash);">ไม่พบรายการจอง</div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+

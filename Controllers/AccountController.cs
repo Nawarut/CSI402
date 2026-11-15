@@ -58,10 +58,22 @@ public class AccountController : Controller
 
         TempData["SuccessMessage"] = $"ยินดีต้อนรับคุณ {user.FullName} เข้าสู่ระบบ";
 
-        // Admin redirection
+        // Role-based redirection to dedicated portals
         if (user.Role.Equals("Admin", StringComparison.OrdinalIgnoreCase))
         {
-            return RedirectToAction("Users", "Admin");
+            return RedirectToAction("Index", "Admin");
+        }
+        if (user.Role.Equals("Staff", StringComparison.OrdinalIgnoreCase) || user.Role.Equals("Reception", StringComparison.OrdinalIgnoreCase))
+        {
+            return RedirectToAction("Index", "Reception");
+        }
+        if (user.Role.Equals("Accountant", StringComparison.OrdinalIgnoreCase) || user.Role.Equals("Accounting", StringComparison.OrdinalIgnoreCase))
+        {
+            return RedirectToAction("Index", "Accounting");
+        }
+        if (user.Role.Equals("CustomerService", StringComparison.OrdinalIgnoreCase) || user.Role.Equals("Support", StringComparison.OrdinalIgnoreCase))
+        {
+            return RedirectToAction("Index", "CustomerService");
         }
 
         // Regular User redirection
@@ -153,7 +165,7 @@ public class AccountController : Controller
             // หา refund payment ถ้ามี
             var refundPayment = b.Payments.FirstOrDefault(p => p.PaymentType == "refund");
             string? refundStatus = null;
-            if (b.Status == "Cancelled")
+            if (b.Status.Equals("cancelled", StringComparison.OrdinalIgnoreCase))
             {
                 refundStatus = refundPayment?.Status switch
                 {
@@ -229,7 +241,7 @@ public class AccountController : Controller
             return RedirectToAction("BookingHistory");
         }
 
-        if (booking.Status == "Cancelled")
+        if (booking.Status.Equals("cancelled", StringComparison.OrdinalIgnoreCase))
         {
             TempData["WarningMessage"] = "รายการจองนี้ถูกยกเลิกไปแล้ว";
             return RedirectToAction("BookingHistory");
@@ -241,8 +253,8 @@ public class AccountController : Controller
             return RedirectToAction("BookingHistory");
         }
 
-        // อัปเดตสถานะการจองเป็น Cancelled
-        booking.Status      = "Cancelled";
+        // อัปเดตสถานะการจองเป็น cancelled
+        booking.Status      = "cancelled";
         booking.CancelledAt = DateTime.Now;
         booking.RefundAmount = booking.DepositAmount;
 

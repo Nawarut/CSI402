@@ -109,7 +109,7 @@
                         </div>
                         <div class="origin-mono mb-2" style="color: var(--color-ash); font-size: 11px;">ราคาต่อคืน (รวมภาษี)</div>
                         @{
-                            var isAvail = Model.Room.Status == "available";
+                            var isAvail = (Model.Room.Status ?? "").ToLower() == "available" || Model.Room.Status == "ว่าง";
                         }
                         <span class="badge border rounded-pill px-3 py-1" style="border-color: var(--color-cyan-signal); color: var(--color-cyan-signal); font-size: 11px;">
                             @(isAvail ? "✓ ห้องว่างพร้อมจอง" : Model.Room.Status)
@@ -138,7 +138,7 @@
             <div class="mb-5">
                 <span class="origin-mono d-block mb-2" style="color: var(--color-iris-gleam);">SUITE OVERVIEW &middot; คำอธิบาย</span>
                 <p class="origin-body" style="font-size: 17px; line-height: 1.8;">
-                    @if (!string.IsNullOrEmpty(Model.Room.Description) && !Model.Room.Description.Contains('Ó') && !Model.Room.Description.Contains('©'))
+                    @if (!string.IsNullOrEmpty(Model.Room.Description) && !Model.Room.Description.Contains('Ó') && !Model.Room.Description.Contains('ó') && !Model.Room.Description.Contains('©'))
                     {
                         @Model.Room.Description
                     }
@@ -157,9 +157,9 @@
             <div class="mb-5">
                 <span class="origin-mono d-block mb-3" style="color: var(--color-iris-gleam);">AMENITIES &middot; สิ่งอำนวยความสะดวก</span>
                 <div class="row g-3">
-                    @if (Model.Room.Amenities.Any(a => !a.Name.Contains('Ó')))
+                    @if (Model.Room.Amenities.Any(a => !a.Name.Contains('Ó') && !a.Name.Contains('ó') && !a.Name.Contains('©')))
                     {
-                        @foreach (var amenity in Model.Room.Amenities.Where(a => !a.Name.Contains('Ó')))
+                        @foreach (var amenity in Model.Room.Amenities.Where(a => !a.Name.Contains('Ó') && !a.Name.Contains('ó') && !a.Name.Contains('©')))
                         {
                             <div class="col-6 col-md-4">
                                 <div class="origin-card-graphite p-3 d-flex align-items-center gap-2" style="border-radius: var(--radius-buttons); padding: 14px 18px !important;">

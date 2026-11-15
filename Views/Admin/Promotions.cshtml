@@ -1,0 +1,219 @@
+@model Nawarut_8250_L005.ViewModels.AdminPromotionListViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "โปรโมชั่น (Promotions)";
+}
+
+<div class="container-fluid px-0">
+
+    <!-- Alert Message -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="origin-card-graphite p-3 mb-4 d-flex justify-content-between align-items-center" role="alert" style="border: 1px solid rgba(0,179,221,0.4) !important;">
+            <div class="d-flex align-items-center gap-2">
+                <span style="color: var(--color-cyan-signal);">&#x25CF;</span>
+                <span class="small text-white">@TempData["SuccessMessage"]</span>
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="origin-card-graphite p-3 mb-4 d-flex justify-content-between align-items-center" role="alert" style="border: 1px solid rgba(239,68,68,0.4) !important;">
+            <div class="d-flex align-items-center gap-2">
+                <span style="color: #ef4444;">&#x25CF;</span>
+                <span class="small text-white">@TempData["ErrorMessage"]</span>
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-baseline mb-4">
+        <div>
+            <span class="origin-mono" style="color: var(--color-iris-gleam); font-size: 11px;">MARKETING &middot; ระบบส่งเสริมการขาย</span>
+            <h2 class="origin-heading-lg mt-1 mb-0" style="font-size: 30px;">โปรโมชั่นและส่วนลด (Promotions)</h2>
+            <p class="origin-mono mt-1 mb-0" style="color: var(--color-ash); font-size: 11px;">
+                จัดการและตรวจสอบเงื่อนไขโปรโมชั่นทั้ง 5 รายการ &middot; เชื่อมโยงระบบคำนวณราคาส่วนลดอัตโนมัติ
+            </p>
+        </div>
+        <div class="d-flex align-items-center gap-2 mt-3 mt-sm-0">
+            <span class="origin-mono" style="font-size: 11px; color: var(--color-cyan-signal);">
+                <i class="bi bi-shield-check me-1"></i> คำนวณมัดจำ 5% หลังหักส่วนลดสุทธิ
+            </span>
+        </div>
+    </div>
+
+    <!-- Stat Cards (Origin Graphite Cards, 16px radius) -->
+    <div class="row g-4 mb-4">
+        <!-- โปรโมชั่นทั้งหมด -->
+        <div class="col-6 col-md-3">
+            <div class="origin-card-graphite p-4 h-100">
+                <span class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">โปรโมชั่นทั้งหมด</span>
+                <div class="origin-heading-lg mb-0" style="font-size: 34px; color: var(--color-pure);">@Model.TotalPromotions</div>
+                <span class="origin-mono" style="color: var(--color-cyan-signal); font-size: 10px;">CAMPAIGNS</span>
+            </div>
+        </div>
+
+        <!-- เปิดใช้งานอยู่ -->
+        <div class="col-6 col-md-3">
+            <div class="origin-card-graphite p-4 h-100">
+                <span class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">เปิดใช้งานอยู่</span>
+                <div class="origin-heading-lg mb-0" style="font-size: 34px; color: var(--color-cyan-signal);">@Model.ActiveCount</div>
+                <span class="origin-mono" style="color: var(--color-cyan-signal); font-size: 10px;">ACTIVE NOW</span>
+            </div>
+        </div>
+
+        <!-- ปิดใช้งาน -->
+        <div class="col-6 col-md-3">
+            <div class="origin-card-graphite p-4 h-100">
+                <span class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">ปิดใช้งาน</span>
+                <div class="origin-heading-lg mb-0" style="font-size: 34px; color: var(--color-ash);">@Model.InactiveCount</div>
+                <span class="origin-mono" style="color: var(--color-ash); font-size: 10px;">DISABLED</span>
+            </div>
+        </div>
+
+        <!-- ยอดการใช้โปรโมชั่นจริง -->
+        <div class="col-6 col-md-3">
+            <div class="origin-card-graphite p-4 h-100">
+                <span class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">การใช้สิทธิ์สะสม</span>
+                <div class="origin-heading-lg mb-0" style="font-size: 34px; color: var(--color-orchid-bloom);">@Model.TotalUsage</div>
+                <span class="origin-mono" style="color: var(--color-orchid-bloom); font-size: 10px;">REDEEMED TIMES</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter & Search Toolbar -->
+    <div class="origin-card-graphite p-3 mb-4">
+        <form method="get" asp-action="Promotions" class="row g-2 align-items-center">
+            <div class="col-12 col-md-6">
+                <input type="text"
+                       name="search"
+                       value="@Model.Search"
+                       placeholder="ค้นหารหัสโปรโมชั่น หรือชื่อโปรโมชั่น..."
+                       class="origin-input w-100" />
+            </div>
+            <div class="col-6 col-md-3">
+                <select name="statusFilter" class="origin-input w-100">
+                    <option value="">-- ทุกสถานะ --</option>
+                    <option value="Active" selected="@(Model.StatusFilter == "Active" ? "selected" : null)">เปิดใช้งาน (Active)</option>
+                    <option value="Inactive" selected="@(Model.StatusFilter == "Inactive" ? "selected" : null)">ปิดใช้งาน (Inactive)</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-3 d-flex gap-2">
+                <button type="submit" class="btn-origin-primary py-2 px-3 flex-grow-1 justify-content-center">
+                    <i class="bi bi-search me-1"></i> ค้นหา
+                </button>
+                @if (!string.IsNullOrEmpty(Model.Search) || !string.IsNullOrEmpty(Model.StatusFilter))
+                {
+                    <a asp-action="Promotions" class="btn-origin-ghost py-2 px-3 text-decoration-none">
+                        รีเซ็ต
+                    </a>
+                }
+            </div>
+        </form>
+    </div>
+
+    <!-- Table Card -->
+    <div class="origin-card-graphite p-0 overflow-hidden mb-5">
+        <div class="p-4 border-bottom d-flex justify-content-between align-items-center" style="border-color: rgba(255,255,255,0.08) !important;">
+            <div>
+                <span class="origin-mono" style="color: var(--color-iris-gleam); font-size: 11px;">ACTIVE PROMOTIONS</span>
+                <h3 class="origin-heading-lg mb-0" style="font-size: 20px;">เงื่อนไขโปรโมชั่น 5 มาตรฐาน</h3>
+            </div>
+            <span class="origin-mono" style="color: var(--color-ash); font-size: 11px;">ทั้งหมด @Model.Promotions.Count แคมเปญ</span>
+        </div>
+
+        <div class="table-responsive" style="background-color: var(--color-abyss) !important;">
+            <table class="table origin-table mb-0" style="background-color: transparent !important; color: #ffffff !important;">
+                <thead>
+                    <tr class="origin-mono border-bottom" style="border-color: rgba(255,255,255,0.08) !important; color: var(--color-ash); font-size: 11px;">
+                        <th class="p-3">รหัสโค้ด</th>
+                        <th class="p-3">ชื่อแคมเปญและเงื่อนไข</th>
+                        <th class="p-3 text-center">ประเภทส่วนลด</th>
+                        <th class="p-3 text-center">สิทธิประโยชน์</th>
+                        <th class="p-3 text-center">ยอดใช้สิทธิ์จริง</th>
+                        <th class="p-3 text-center">สถานะ</th>
+                        <th class="p-3 text-end">การเปิด/ปิด</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Promotions.Any())
+                    {
+                        @foreach (var promo in Model.Promotions)
+                        {
+                            <tr class="border-bottom" style="border-color: rgba(255,255,255,0.05) !important;">
+                                <td class="p-3 align-middle">
+                                    <span class="origin-mono fw-bold" style="color: var(--color-pure); font-size: 13px; background: rgba(255,255,255,0.06); padding: 4px 8px; border-radius: 6px;">
+                                        @promo.PromoCode
+                                    </span>
+                                </td>
+                                <td class="p-3 align-middle">
+                                    <div class="fw-bold text-white fs-6">@promo.CleanPromoName</div>
+                                    <div class="origin-body" style="color: var(--color-ash); font-size: 13px;">@promo.CleanDescription</div>
+                                </td>
+                                <td class="p-3 align-middle text-center origin-mono" style="color: var(--color-cloud); font-size: 11px;">
+                                    @(promo.DiscountType == "fixed" ? "จำนวนเงินคงที่" : "เปอร์เซ็นต์ส่วนลด")
+                                </td>
+                                <td class="p-3 align-middle text-center">
+                                    <span class="badge border rounded-pill px-3 py-1 fw-bold"
+                                          style="border-color: var(--color-cyan-signal); color: var(--color-cyan-signal); background: rgba(0,179,221,0.15); font-size: 12px;">
+                                        @promo.DiscountDisplay
+                                    </span>
+                                </td>
+                                <td class="p-3 align-middle text-center origin-mono fw-bold" style="color: var(--color-orchid-bloom); font-size: 13px;">
+                                    @promo.UsageCount ครั้ง
+                                </td>
+                                <td class="p-3 align-middle text-center">
+                                    @if (promo.IsActive)
+                                    {
+                                        <span class="badge border rounded-pill px-3 py-1" style="border-color: var(--color-cyan-signal); color: var(--color-cyan-signal); background: rgba(0,179,221,0.1); font-size: 11px;">
+                                            ● เปิดใช้งาน
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge border rounded-pill px-3 py-1" style="border-color: var(--color-ash); color: var(--color-ash); background: rgba(255,255,255,0.05); font-size: 11px;">
+                                            ○ ปิดใช้งาน
+                                        </span>
+                                    }
+                                </td>
+                                <td class="p-3 align-middle text-end">
+                                    <form method="post" asp-action="TogglePromotionStatus" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="promotionId" value="@promo.PromotionId" />
+                                        @if (promo.IsActive)
+                                        {
+                                            <button type="submit" class="btn-action-delete" title="คลิกเพื่อปิดใช้งาน">
+                                                <i class="bi bi-toggle-on me-1"></i> ปิดใช้งาน
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button type="submit" class="btn-action-edit" title="คลิกเพื่อเปิดใช้งาน">
+                                                <i class="bi bi-toggle-off me-1"></i> เปิดใช้งาน
+                                            </button>
+                                        }
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="p-5 text-center text-muted">
+                                <div class="origin-mono mb-2" style="color: var(--color-ash);">ไม่พบโปรโมชั่นตามเงื่อนไข</div>
+                                <a asp-action="Promotions" class="btn-origin-ghost py-1 px-3 text-decoration-none" style="font-size: 12px;">
+                                    ล้างการค้นหา
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+

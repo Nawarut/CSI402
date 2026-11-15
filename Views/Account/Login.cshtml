@@ -77,20 +77,89 @@
                         </button>
                     </form>
 
-                    <!-- Test Credentials Helper -->
+                    <!-- Test Credentials Helper for All 5 Roles (Symmetrical, Equal Proportions) -->
+                    <style>
+                        .quick-role-box {
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: center;
+                            background: rgba(255, 255, 255, 0.03);
+                            border: 1px solid rgba(255, 255, 255, 0.1);
+                            border-radius: 8px;
+                            padding: 8px 12px;
+                            min-height: 52px;
+                            height: 100%;
+                            width: 100%;
+                            text-align: left;
+                            transition: all 0.2s ease;
+                            cursor: pointer;
+                        }
+                        .quick-role-box:hover {
+                            background: rgba(255, 255, 255, 0.07);
+                            border-color: rgba(255, 255, 255, 0.28);
+                            transform: translateY(-1px);
+                        }
+                        .quick-role-title {
+                            font-size: 11px;
+                            font-weight: 600;
+                            line-height: 1.2;
+                            letter-spacing: 0.02em;
+                        }
+                        .quick-role-email {
+                            font-family: var(--font-roboto-mono), monospace;
+                            font-size: 9px;
+                            color: var(--color-ash);
+                            margin-top: 3px;
+                            letter-spacing: 0.03em;
+                        }
+                    </style>
+
                     <div class="p-3 mb-4 rounded-3" style="background-color: rgba(15,16,17,0.7); border: 1px solid rgba(255,255,255,0.08);">
-                        <span class="origin-mono d-block mb-2" style="color: var(--color-cyan-signal); font-size: 10px;">บัญชีสำหรับทดสอบ:</span>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="origin-mono" style="color: var(--color-cyan-signal); font-size: 10px;">บัญชีสำหรับทดสอบ (คลิกเพื่อเข้าสู่ระบบ):</span>
+                            <span class="origin-mono" style="color: var(--color-ash); font-size: 9px;">5 ROLES</span>
+                        </div>
                         <div class="row g-2 align-items-stretch">
+                            <!-- 1. Admin -->
                             <div class="col-6">
-                                <button type="button" class="btn-origin-ghost w-100 h-100 px-2 py-2 text-start justify-content-center" style="font-size: 11px; gap: 6px;" onclick="fillCredentials('admin@jojo.com', 'admin123')">
-                                    <div class="fw-bold text-white text-nowrap">👑 ADMIN</div>
-                                    <div class="origin-mono text-truncate" style="color: var(--color-ash); font-size: 9px; letter-spacing: 0.03em; min-width: 0;">admin@jojo.com</div>
+                                <button type="button" class="quick-role-box" onclick="fillAndSubmit('admin@jojo.com', 'admin123')">
+                                    <div class="quick-role-title text-white">👑 ADMIN</div>
+                                    <div class="quick-role-email text-truncate">ADMIN@JOJO.COM</div>
                                 </button>
                             </div>
+
+                            <!-- 2. Reception / Staff -->
                             <div class="col-6">
-                                <button type="button" class="btn-origin-ghost w-100 h-100 px-2 py-2 text-start justify-content-center" style="font-size: 11px; gap: 6px;" onclick="fillCredentials('somchai@gmail.com', 'user123')">
-                                    <div class="fw-bold text-white text-nowrap">👤 USER</div>
-                                    <div class="origin-mono text-truncate" style="color: var(--color-ash); font-size: 9px; letter-spacing: 0.03em; min-width: 0;">somchai@gmail.com</div>
+                                <button type="button" class="quick-role-box" onclick="fillAndSubmit('reception@jojo.com', 'staff123')">
+                                    <div class="quick-role-title" style="color: var(--color-cyan-signal);">🛎️ RECEPTION</div>
+                                    <div class="quick-role-email text-truncate">RECEPTION@JOJO.COM</div>
+                                </button>
+                            </div>
+
+                            <!-- 3. Accounting -->
+                            <div class="col-6">
+                                <button type="button" class="quick-role-box" onclick="fillAndSubmit('accountant@jojo.com', 'acc123')">
+                                    <div class="quick-role-title" style="color: var(--color-orchid-bloom);">💼 ACCOUNTING</div>
+                                    <div class="quick-role-email text-truncate">ACCOUNTANT@JOJO.COM</div>
+                                </button>
+                            </div>
+
+                            <!-- 4. Customer Service -->
+                            <div class="col-6">
+                                <button type="button" class="quick-role-box" onclick="fillAndSubmit('support@jojo.com', 'support123')">
+                                    <div class="quick-role-title" style="color: var(--color-periwinkle);">🎧 C-SERVICE</div>
+                                    <div class="quick-role-email text-truncate">SUPPORT@JOJO.COM</div>
+                                </button>
+                            </div>
+
+                            <!-- 5. User / Customer (Full width, same sleek height & balanced alignment) -->
+                            <div class="col-12">
+                                <button type="button" class="quick-role-box flex-row align-items-center justify-content-between" onclick="fillAndSubmit('somchai@gmail.com', 'user123')">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="quick-role-title text-white">👤 CUSTOMER</span>
+                                        <span class="badge border rounded-pill px-2 py-0" style="font-size: 9px; color: var(--color-iris-gleam); border-color: rgba(132,125,255,0.4);">ลูกค้า</span>
+                                    </div>
+                                    <span class="quick-role-email mb-0 text-white-50">SOMCHAI@GMAIL.COM</span>
                                 </button>
                             </div>
                         </div>
@@ -114,5 +183,14 @@
     function fillCredentials(email, pass) {
         document.getElementById('emailInput').value = email;
         document.getElementById('passwordInput').value = pass;
+    }
+
+    function fillAndSubmit(email, pass) {
+        fillCredentials(email, pass);
+        // เล็กน้อยเพื่อให้ผู้ใช้เห็นว่าฟิลด์ถูกเติม แล้วส่งฟอร์มทันที
+        setTimeout(function() {
+            var form = document.getElementById('loginForm') || document.querySelector('form');
+            if (form) form.submit();
+        }, 150);
     }
 </script>

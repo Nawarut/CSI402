@@ -7,17 +7,19 @@ using LoginViewModel = Nawarut_8250_L005.ViewModels.LoginViewModel;
 using RegisterViewModel = Nawarut_8250_L005.ViewModels.RegisterViewModel;
 using Nawarut_8250_L005.Entities;
 using DbUser = Nawarut_8250_L005.Entities.User;
-
+using Nawarut_8250_L005.Services;
 
 namespace Nawarut_8250_L005.Controllers;
 
 public class HomeController : Controller
 {
     private readonly Csi402dbContext _db;
+    private readonly IUserService _userService;
 
-    public HomeController(Csi402dbContext db)
+    public HomeController(Csi402dbContext db, IUserService userService)
     {
         _db = db;
+        _userService = userService;
     }
 
     public IActionResult Lab9()
@@ -278,8 +280,7 @@ public class HomeController : Controller
     [HttpGet]
     public IActionResult Lab5()
     {
-        EnsureDefaultData();
-        return View();
+        return RedirectToAction("Login", "Account");
     }
 
     [HttpPost]
@@ -306,19 +307,41 @@ public class HomeController : Controller
                 return View(data);
             }
 
+            var modelUser = _userService.GetByEmail(user.Email);
+            var roleName = modelUser?.Role ?? "User";
+
             HttpContext.Session.SetInt32("UserId", (int)user.UserId);
             HttpContext.Session.SetString("UserName", $"{user.FirstName} {user.LastName}");
             HttpContext.Session.SetString("UserEmail", user.Email);
+            HttpContext.Session.SetString("UserRole", roleName);
 
             TempData["SuccessMessage"] = $"เข้าสู่ระบบสำเร็จ! ยินดีต้อนรับคุณ {user.FirstName} {user.LastName}";
-            return RedirectToAction("Lab5_3");
+
+            if (roleName.Equals("Admin", StringComparison.OrdinalIgnoreCase))
+            {
+                return RedirectToAction("Index", "Admin");
+            }
+            if (roleName.Equals("Staff", StringComparison.OrdinalIgnoreCase) || roleName.Equals("Reception", StringComparison.OrdinalIgnoreCase))
+            {
+                return RedirectToAction("Index", "Reception");
+            }
+            if (roleName.Equals("Accountant", StringComparison.OrdinalIgnoreCase) || roleName.Equals("Accounting", StringComparison.OrdinalIgnoreCase))
+            {
+                return RedirectToAction("Index", "Accounting");
+            }
+            if (roleName.Equals("CustomerService", StringComparison.OrdinalIgnoreCase) || roleName.Equals("Support", StringComparison.OrdinalIgnoreCase))
+            {
+                return RedirectToAction("Index", "CustomerService");
+            }
+
+            return RedirectToAction("Index", "Home");
         }
 
         ViewBag.Error = "อีเมลหรือรหัสผ่านไม่ถูกต้อง";
         return View(data);
     }
 
-    public IActionResult Login() => RedirectToAction("Lab5");
+    public IActionResult Login() => RedirectToAction("Login", "Account");
 
     // ==========================================
     // 2. Register or AddUser (Lab5_2) - [C] บันทึกข้อมูลลงฐานข้อมูล

@@ -3,9 +3,9 @@
     Layout = "_AdminLayout";
     ViewData["Title"] = "จัดการบัญชีผู้ใช้งาน (User List)";
     var allCount = Model?.Users?.Count ?? 0;
-    var renterCount = Model?.Users?.Count(u => u.Role == "Renter" || u.Role == "ผู้เช่า") ?? 0;
-    var staffCount = Model?.Users?.Count(u => u.Role == "Staff" || u.Role == "พนักงาน" || u.Role == "Accountant" || u.Role == "Admin" || u.Role == "ผู้ดูแลระบบ") ?? 0;
-    var suspendedCount = Model?.Users?.Count(u => u.Status == "Suspended" || u.Status == "ระงับการใช้งาน" || u.Status == "inactive" || u.Status == "locked") ?? 0;
+    var renterCount = Model?.Users?.Count(u => u.Role == "Renter" || u.Role == "ผู้เช่า" || u.Role == "User" || u.Role == "Guest" || u.Role == "ลูกค้า" || u.Role == "ผู้ใช้งานทั่วไป") ?? 0;
+    var staffCount = Model?.Users?.Count(u => u.Role == "Staff" || u.Role == "พนักงาน" || u.Role == "Accountant" || u.Role == "ฝ่ายบัญชี" || u.Role == "Admin" || u.Role == "ผู้ดูแลระบบ") ?? 0;
+    var suspendedCount = Model?.Users?.Count(u => u.Status == "Suspended" || u.Status == "ระงับการใช้งาน" || u.Status == "inactive" || u.Status == "locked" || u.Status == "Inactive") ?? 0;
 }
 
 <div class="container-fluid px-0">
@@ -107,7 +107,9 @@
                             }
                             if (string.IsNullOrWhiteSpace(rawName) || rawName == "-")
                             {
-                                rawName = user.Email.Contains('@') ? user.Email.Split('@')[0] : "ผู้ใช้งาน";
+                                rawName = !string.IsNullOrEmpty(user.Email) && user.Email.Contains('@') 
+                                    ? user.Email.Split('@')[0] 
+                                    : (!string.IsNullOrEmpty(user.Email) ? user.Email : "ผู้ใช้งาน");
                             }
 
                             <tr style="border-bottom: 1px solid rgba(255,255,255,0.06) !important; background-color: transparent !important;">
@@ -145,6 +147,12 @@
                                     {
                                         <span class="badge rounded-pill px-3 py-1" style="background: rgba(144,184,240,0.15); border: 1px solid rgba(144,184,240,0.4); color: var(--color-periwinkle); font-size: 11px;">
                                             📊 Accountant
+                                        </span>
+                                    }
+                                    else if (user.Role == "Customer Service" || user.Role == "CustomerService" || user.Role == "บริการลูกค้า")
+                                    {
+                                        <span class="badge rounded-pill px-3 py-1" style="background: rgba(0,179,221,0.15); border: 1px solid rgba(0,179,221,0.4); color: var(--color-cyan-signal); font-size: 11px;">
+                                            🎧 Service
                                         </span>
                                     }
                                     else

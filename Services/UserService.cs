@@ -92,21 +92,32 @@ public class UserService : IUserService
         }
 
         // Determine RoleId
-        byte roleId = 3; // Default User
-        if (string.Equals(user.Role, "Admin", StringComparison.OrdinalIgnoreCase))
+        byte roleId = 5; // Default User
+        string roleUpper = (user.Role ?? "").ToUpperInvariant();
+        if (roleUpper.Contains("ADMIN"))
         {
             var r = _db.Roles.FirstOrDefault(x => x.RoleCode == "ADMIN");
             roleId = r?.RoleId ?? 1;
         }
-        else if (string.Equals(user.Role, "Staff", StringComparison.OrdinalIgnoreCase))
+        else if (roleUpper.Contains("STAFF") || roleUpper.Contains("RECEPTION"))
         {
-            var r = _db.Roles.FirstOrDefault(x => x.RoleCode == "STAFF");
+            var r = _db.Roles.FirstOrDefault(x => x.RoleCode == "STAFF" || x.RoleCode == "RECEPTION");
             roleId = r?.RoleId ?? 2;
+        }
+        else if (roleUpper.Contains("ACCOUNT"))
+        {
+            var r = _db.Roles.FirstOrDefault(x => x.RoleCode == "ACCOUNTANT" || x.RoleCode == "ACCOUNTING");
+            roleId = r?.RoleId ?? 3;
+        }
+        else if (roleUpper.Contains("SUPPORT") || roleUpper.Contains("SERVICE"))
+        {
+            var r = _db.Roles.FirstOrDefault(x => x.RoleCode == "SUPPORT" || x.RoleCode == "CUSTOMERSERVICE");
+            roleId = r?.RoleId ?? 4;
         }
         else
         {
             var r = _db.Roles.FirstOrDefault(x => x.RoleCode == "USER" || x.RoleCode == "GUEST");
-            roleId = r?.RoleId ?? 3;
+            roleId = r?.RoleId ?? 5;
         }
 
         // Parse FullName into FirstName and LastName
@@ -150,13 +161,53 @@ public class UserService : IUserService
     private static UserModel MapToModel(User entity)
     {
         string roleName = "User";
-        if (entity.RoleId == 1 || (entity.Role != null && string.Equals(entity.Role.RoleCode, "ADMIN", StringComparison.OrdinalIgnoreCase)))
+        var code = (entity.Role?.RoleCode ?? "").ToUpperInvariant();
+        var name = (entity.Role?.RoleName ?? "").ToUpperInvariant();
+        var email = (entity.Email ?? "").Trim().ToLowerInvariant();
+
+        // 1. Explicit email checks for demo/seeded accounts
+        if (email == "admin@jojo.com")
         {
             roleName = "Admin";
         }
-        else if (entity.RoleId == 2 || (entity.Role != null && string.Equals(entity.Role.RoleCode, "STAFF", StringComparison.OrdinalIgnoreCase)))
+        else if (email == "reception@jojo.com")
         {
             roleName = "Staff";
+        }
+        else if (email == "accountant@jojo.com")
+        {
+            roleName = "Accountant";
+        }
+        else if (email == "support@jojo.com")
+        {
+            roleName = "CustomerService";
+        }
+        else if (email == "somchai@gmail.com" || email == "nawaroodinmeesri1@gmail.com")
+        {
+            roleName = "User";
+        }
+        // 2. Role code / Role name checks (Guest/User first to prevent accidental admin mapping)
+        else if (code.Contains("GUEST") || code.Contains("USER") || code.Contains("RENTER") ||
+                 name.Contains("ลูกค้า") || name.Contains("ผู้ใช้งาน") || name.Contains("ผู้เช่า") ||
+                 code == "GUEST" || code == "USER")
+        {
+            roleName = "User";
+        }
+        else if (code.Contains("ADMIN") || name.Contains("ADMIN") || name.Contains("ผู้ดูแลระบบ"))
+        {
+            roleName = "Admin";
+        }
+        else if (code.Contains("STAFF") || code.Contains("RECEPTION") || name.Contains("ต้อนรับ") || name.Contains("STAFF"))
+        {
+            roleName = "Staff";
+        }
+        else if (code.Contains("ACCOUNT") || name.Contains("บัญชี") || name.Contains("การเงิน"))
+        {
+            roleName = "Accountant";
+        }
+        else if (code.Contains("SUPPORT") || code.Contains("SERVICE") || name.Contains("บริการ") || name.Contains("ลูกค้า"))
+        {
+            roleName = "CustomerService";
         }
         else
         {
@@ -171,11 +222,11 @@ public class UserService : IUserService
         {
             Id = (int)entity.UserId,
             FullName = $"{entity.FirstName} {entity.LastName}".Trim(),
-            Email = entity.Email,
+            Email = entity.Email ?? string.Empty,
             PhoneNumber = entity.Phone ?? string.Empty,
             Role = roleName,
             Status = status,
-            Password = entity.PasswordHash,
+            Password = entity.PasswordHash ?? string.Empty,
             CreatedAt = entity.CreatedAt
         };
     }
@@ -189,84 +240,135 @@ public class UserService : IUserService
             {
                 _db.Roles.AddRange(
                     new Role { RoleId = 1, RoleCode = "ADMIN", RoleName = "ผู้ดูแลระบบ", Description = "สิทธิ์ระดับผู้ดูแลระบบทั้งหมด" },
-                    new Role { RoleId = 2, RoleCode = "STAFF", RoleName = "พนักงาน", Description = "สิทธิ์พนักงานปฏิบัติการ" },
-                    new Role { RoleId = 3, RoleCode = "USER", RoleName = "ผู้ใช้งานทั่วไป", Description = "สิทธิ์ลูกค้า/ผู้ใช้งานทั่วไป" }
+                    new Role { RoleId = 2, RoleCode = "STAFF", RoleName = "พนักงานต้อนรับ", Description = "พนักงานต้อนรับ / เจ้าหน้าที่ดูแลห้องพัก" },
+                    new Role { RoleId = 3, RoleCode = "ACCOUNTANT", RoleName = "ฝ่ายบัญชีและการเงิน", Description = "เจ้าหน้าที่ฝ่ายบัญชีและการเงิน" },
+                    new Role { RoleId = 4, RoleCode = "SUPPORT", RoleName = "ฝ่ายบริการลูกค้า", Description = "เจ้าหน้าที่บริการลูกค้าและประสานงาน" },
+                    new Role { RoleId = 5, RoleCode = "USER", RoleName = "ผู้ใช้งานทั่วไป", Description = "ลูกค้า / ผู้ใช้งานทั่วไป" }
                 );
                 _db.SaveChanges();
+            }
+            else
+            {
+                // Ensure all roles exist
+                if (!_db.Roles.Any(r => r.RoleCode == "ACCOUNTANT"))
+                {
+                    _db.Roles.Add(new Role { RoleCode = "ACCOUNTANT", RoleName = "ฝ่ายบัญชีและการเงิน", Description = "เจ้าหน้าที่ฝ่ายบัญชีและการเงิน" });
+                    _db.SaveChanges();
+                }
+                if (!_db.Roles.Any(r => r.RoleCode == "SUPPORT"))
+                {
+                    _db.Roles.Add(new Role { RoleCode = "SUPPORT", RoleName = "ฝ่ายบริการลูกค้า", Description = "เจ้าหน้าที่บริการลูกค้าและประสานงาน" });
+                    _db.SaveChanges();
+                }
             }
 
-            // Seed users if empty
-            if (!_db.Users.Any())
+            var adminRole = _db.Roles.FirstOrDefault(r => r.RoleCode == "ADMIN") ?? _db.Roles.First();
+            var staffRole = _db.Roles.FirstOrDefault(r => r.RoleCode == "STAFF" || r.RoleCode == "RECEPTION") ?? adminRole;
+            var accRole = _db.Roles.FirstOrDefault(r => r.RoleCode == "ACCOUNTANT" || r.RoleCode == "ACCOUNTING") ?? staffRole;
+            var supportRole = _db.Roles.FirstOrDefault(r => r.RoleCode == "SUPPORT" || r.RoleCode == "CUSTOMERSERVICE") ?? staffRole;
+            var userRole = _db.Roles.FirstOrDefault(r => r.RoleCode == "USER" || r.RoleCode == "GUEST") ?? staffRole;
+
+            // Ensure seed users for all 5 roles
+            if (!_db.Users.Any(u => u.Email == "admin@jojo.com"))
             {
-                _db.Users.AddRange(
-                    new User
-                    {
-                        RoleId = 1,
-                        Email = "admin@jojo.com",
-                        PasswordHash = "admin123",
-                        FirstName = "Administrator",
-                        LastName = "(ผู้ดูแลระบบ)",
-                        Phone = "081-234-5678",
-                        Status = "active",
-                        EmailVerified = true,
-                        CreatedAt = DateTime.Now.AddDays(-30),
-                        UpdatedAt = DateTime.Now.AddDays(-30)
-                    },
-                    new User
-                    {
-                        RoleId = 3,
-                        Email = "somchai@gmail.com",
-                        PasswordHash = "user123",
-                        FirstName = "สมชาย",
-                        LastName = "ใจดี",
-                        Phone = "089-876-5432",
-                        Status = "active",
-                        EmailVerified = true,
-                        CreatedAt = DateTime.Now.AddDays(-15),
-                        UpdatedAt = DateTime.Now.AddDays(-15)
-                    },
-                    new User
-                    {
-                        RoleId = 2,
-                        Email = "waraporn@hotel.com",
-                        PasswordHash = "staff123",
-                        FirstName = "วราภรณ์",
-                        LastName = "สุขสวัสดิ์",
-                        Phone = "082-111-2233",
-                        Status = "active",
-                        EmailVerified = true,
-                        CreatedAt = DateTime.Now.AddDays(-10),
-                        UpdatedAt = DateTime.Now.AddDays(-10)
-                    },
-                    new User
-                    {
-                        RoleId = 3,
-                        Email = "kittisak@example.com",
-                        PasswordHash = "user123",
-                        FirstName = "กิตติศักดิ์",
-                        LastName = "มั่งมี",
-                        Phone = "085-444-9988",
-                        Status = "inactive",
-                        EmailVerified = true,
-                        CreatedAt = DateTime.Now.AddDays(-5),
-                        UpdatedAt = DateTime.Now.AddDays(-5)
-                    },
-                    new User
-                    {
-                        RoleId = 1,
-                        Email = "nawarut@jojo.com",
-                        PasswordHash = "password123",
-                        FirstName = "ณวรัตน์",
-                        LastName = "อินมีศรี",
-                        Phone = "086-555-7789",
-                        Status = "active",
-                        EmailVerified = true,
-                        CreatedAt = DateTime.Now.AddDays(-2),
-                        UpdatedAt = DateTime.Now.AddDays(-2)
-                    }
-                );
-                _db.SaveChanges();
+                _db.Users.Add(new User
+                {
+                    RoleId = adminRole.RoleId,
+                    Email = "admin@jojo.com",
+                    PasswordHash = "admin123",
+                    FirstName = "Administrator",
+                    LastName = "(ผู้ดูแลระบบ)",
+                    Phone = "081-234-5678",
+                    Status = "active",
+                    EmailVerified = true,
+                    CreatedAt = DateTime.Now.AddDays(-30),
+                    UpdatedAt = DateTime.Now.AddDays(-30)
+                });
             }
+
+            if (!_db.Users.Any(u => u.Email == "reception@jojo.com"))
+            {
+                _db.Users.Add(new User
+                {
+                    RoleId = staffRole.RoleId,
+                    Email = "reception@jojo.com",
+                    PasswordHash = "staff123",
+                    FirstName = "วราภรณ์",
+                    LastName = "พนักงานต้อนรับ",
+                    Phone = "082-111-2233",
+                    Status = "active",
+                    EmailVerified = true,
+                    CreatedAt = DateTime.Now.AddDays(-14),
+                    UpdatedAt = DateTime.Now.AddDays(-14)
+                });
+            }
+
+            if (!_db.Users.Any(u => u.Email == "accountant@jojo.com"))
+            {
+                _db.Users.Add(new User
+                {
+                    RoleId = accRole.RoleId,
+                    Email = "accountant@jojo.com",
+                    PasswordHash = "acc123",
+                    FirstName = "กิตติศักดิ์",
+                    LastName = "ฝ่ายการเงิน",
+                    Phone = "085-444-9988",
+                    Status = "active",
+                    EmailVerified = true,
+                    CreatedAt = DateTime.Now.AddDays(-12),
+                    UpdatedAt = DateTime.Now.AddDays(-12)
+                });
+            }
+
+            if (!_db.Users.Any(u => u.Email == "support@jojo.com"))
+            {
+                _db.Users.Add(new User
+                {
+                    RoleId = supportRole.RoleId,
+                    Email = "support@jojo.com",
+                    PasswordHash = "support123",
+                    FirstName = "ศศิธร",
+                    LastName = "บริการลูกค้า",
+                    Phone = "087-333-4455",
+                    Status = "active",
+                    EmailVerified = true,
+                    CreatedAt = DateTime.Now.AddDays(-10),
+                    UpdatedAt = DateTime.Now.AddDays(-10)
+                });
+            }
+
+            if (!_db.Users.Any(u => u.Email == "somchai@gmail.com"))
+            {
+                _db.Users.Add(new User
+                {
+                    RoleId = userRole.RoleId,
+                    Email = "somchai@gmail.com",
+                    PasswordHash = "user123",
+                    FirstName = "สมชาย",
+                    LastName = "ใจดี",
+                    Phone = "089-876-5432",
+                    Status = "active",
+                    EmailVerified = true,
+                    CreatedAt = DateTime.Now.AddDays(-15),
+                    UpdatedAt = DateTime.Now.AddDays(-15)
+                });
+            }
+            else
+            {
+                var somchaiUser = _db.Users.FirstOrDefault(u => u.Email == "somchai@gmail.com");
+                if (somchaiUser != null && somchaiUser.RoleId != userRole.RoleId)
+                {
+                    somchaiUser.RoleId = userRole.RoleId;
+                }
+            }
+
+            var jojoUser = _db.Users.FirstOrDefault(u => u.Email == "nawaroodinmeesri1@gmail.com");
+            if (jojoUser != null && jojoUser.RoleId != userRole.RoleId)
+            {
+                jojoUser.RoleId = userRole.RoleId;
+            }
+
+            _db.SaveChanges();
         }
         catch
         {

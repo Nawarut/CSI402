@@ -340,17 +340,20 @@
                         <span>เพิ่มผู้ใช้ใหม่ (Add User)</span>
                     </a>
 
-                    <a asp-controller="Home" asp-action="Index" fragment="recommended-rooms" class="origin-menu-item">
+                    <a asp-controller="Admin" asp-action="Rooms"
+                       class="origin-menu-item @(currentController == "Admin" && currentAction == "Rooms" ? "active" : "")">
                         <span class="origin-menu-icon"><i class="bi bi-door-open"></i></span>
                         <span>จัดการห้องพัก (Rooms)</span>
                     </a>
 
-                    <a href="#" class="origin-menu-item" onclick="alert('ระบบจัดการโปรโมชั่น (Seasonal Offers)'); return false;">
+                    <a asp-controller="Admin" asp-action="Promotions"
+                       class="origin-menu-item @(currentController == "Admin" && currentAction == "Promotions" ? "active" : "")">
                         <span class="origin-menu-icon"><i class="bi bi-tag"></i></span>
                         <span>โปรโมชั่น (Promotions)</span>
                     </a>
 
-                    <a href="#" class="origin-menu-item" onclick="alert('ระบบจัดการการจอง (Reservation Portfolio)'); return false;">
+                    <a asp-controller="Admin" asp-action="Bookings"
+                       class="origin-menu-item @(currentController == "Admin" && currentAction == "Bookings" ? "active" : "")">
                         <span class="origin-menu-icon"><i class="bi bi-calendar-check"></i></span>
                         <span>รายการจอง (Bookings)</span>
                     </a>
@@ -402,7 +405,9 @@
                         </div>
                         <div class="d-none d-sm-block text-start">
                             <div class="fw-bold" style="font-size: 13px; line-height: 1.1;">@adminName</div>
-                            <span class="origin-mono" style="font-size: 9px; color: var(--color-ash); letter-spacing: 0.08em;">ADMINISTRATOR</span>
+                            <span class="origin-mono" style="font-size: 9px; color: var(--color-iris-gleam); letter-spacing: 0.08em;">
+                                @(Context.Session.GetString("UserRole")?.ToUpper() ?? "ADMINISTRATOR")
+                            </span>
                         </div>
                     </div>
 

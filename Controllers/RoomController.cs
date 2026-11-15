@@ -369,7 +369,7 @@ public class RoomController : Controller
                 CheckOutDate = DateOnly.FromDateTime(coDate),
                 Nights = (ushort)nights,
                 TotalGuests = (ushort)pricing.TotalGuests,
-                Status = "Confirmed",
+                Status = "confirmed",
                 SubtotalAmount = pricing.RoomSubtotal,
                 ExtraBedAmount = pricing.ExtraBedTotal,
                 DiscountAmount = pricing.TotalDiscountAmount,
@@ -398,12 +398,31 @@ public class RoomController : Controller
                     LineTotal = item.LineTotal
                 };
                 _db.BookingRooms.Add(br);
+
+                var r = _db.Rooms.Find(item.RoomId);
+                if (r != null)
+                {
+                    r.Status = "reserved";
+                    r.UpdatedAt = DateTime.Now;
+                }
             }
+
+            // บันทึก Payment สำหรับค่ามัดจำ 5% ที่ชำระแล้ว
+            _db.Payments.Add(new Payment
+            {
+                BookingId = booking.BookingId,
+                PaymentType = "deposit",
+                Amount = pricing.DepositAmount,
+                Status = "success",
+                Method = "promptpay",
+                PaidAt = DateTime.Now
+            });
+
             _db.SaveChanges();
         }
         catch
         {
-            // หากเกิดปัญหาการเขียน DB ให้ดำเนินการต่อเพื่อแสดงสรุปการจองสำเร็จ
+            // ป้องกัน exception
         }
 
         // ล้างตะกร้าห้องพัก
@@ -421,11 +440,20 @@ public class RoomController : Controller
     // ==========================================
     // Helper Methods
     // ==========================================
+    private static bool ContainsMojibake(string? text)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return false;
+        // If it contains valid Thai characters, it's valid Thai!
+        if (text.Any(c => c >= '\u0E01' && c <= '\u0E5B')) return false;
+        // If it contains characters from CP874 misinterpreted as Latin-1
+        return text.Any(c => (c >= 0x00A0 && c <= 0x00FF) || c == '╣' || c == '┤' || c == '¿' || c == 'ó' || c == 'Ó' || c == '©');
+    }
+
     private RoomDetailItemViewModel MapRoomToViewModel(Room room)
     {
         string typeName = room.RoomType?.TypeName ?? "Deluxe Suite";
         string? desc = room.RoomType?.Description;
-        if (string.IsNullOrWhiteSpace(desc) || desc.Contains('Ó') || desc.Contains('©') || desc.Contains('¿'))
+        if (string.IsNullOrWhiteSpace(desc) || ContainsMojibake(desc))
         {
             desc = CleanDescription(typeName);
         }
@@ -483,7 +511,7 @@ public class RoomController : Controller
 
     private static string CleanAmenityName(ushort id, string? name)
     {
-        if (!string.IsNullOrWhiteSpace(name) && !name.Contains('Ó') && !name.Contains('©') && !name.Contains('╣') && !name.Contains('┤') && !name.Contains('¿'))
+        if (!string.IsNullOrWhiteSpace(name) && !ContainsMojibake(name) && !name.Contains('ó') && !name.Contains('Ó') && !name.Contains('©'))
         {
             return name;
         }

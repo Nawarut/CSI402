@@ -1,0 +1,233 @@
+@model Nawarut_8250_L005.ViewModels.AdminBookingListViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "รายการจอง (Bookings)";
+}
+
+<div class="container-fluid px-0">
+
+    <!-- Alert Message -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="origin-card-graphite p-3 mb-4 d-flex justify-content-between align-items-center" role="alert" style="border: 1px solid rgba(0,179,221,0.4) !important;">
+            <div class="d-flex align-items-center gap-2">
+                <span style="color: var(--color-cyan-signal);">&#x25CF;</span>
+                <span class="small text-white">@TempData["SuccessMessage"]</span>
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="origin-card-graphite p-3 mb-4 d-flex justify-content-between align-items-center" role="alert" style="border: 1px solid rgba(239,68,68,0.4) !important;">
+            <div class="d-flex align-items-center gap-2">
+                <span style="color: #ef4444;">&#x25CF;</span>
+                <span class="small text-white">@TempData["ErrorMessage"]</span>
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-baseline mb-4">
+        <div>
+            <span class="origin-mono" style="color: var(--color-iris-gleam); font-size: 11px;">RESERVATIONS &middot; ระบบจัดการการจอง</span>
+            <h2 class="origin-heading-lg mt-1 mb-0" style="font-size: 30px;">รายการจองห้องพักทั้งหมด (Bookings)</h2>
+            <p class="origin-mono mt-1 mb-0" style="color: var(--color-ash); font-size: 11px;">
+                รายการจองจริงทั้งหมด @Model.TotalBookings รายการ &middot; จัดการสถานะและตรวจสอบค่ามัดจำ 5%
+            </p>
+        </div>
+        <div class="d-flex align-items-center gap-2 mt-3 mt-sm-0">
+            <span class="origin-pill-chip py-2 px-3" style="color: var(--color-cyan-signal); border-color: rgba(0,179,221,0.3); font-size: 12px;">
+                💳 ยอดมัดจำรับแล้ว: <strong>฿@Model.TotalDepositCollected.ToString("N0")</strong>
+            </span>
+        </div>
+    </div>
+
+    <!-- Stat Cards (Origin Graphite Cards, 16px radius) -->
+    <div class="row g-4 mb-4">
+        <!-- รายการจองทั้งหมด -->
+        <div class="col-6 col-md-3">
+            <div class="origin-card-graphite p-4 h-100">
+                <span class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">รายการจองทั้งหมด</span>
+                <div class="origin-heading-lg mb-0" style="font-size: 34px; color: var(--color-pure);">@Model.TotalBookings</div>
+                <span class="origin-mono" style="color: var(--color-cyan-signal); font-size: 10px;">ALL RESERVATIONS</span>
+            </div>
+        </div>
+
+        <!-- ยืนยันแล้ว -->
+        <div class="col-6 col-md-3">
+            <div class="origin-card-graphite p-4 h-100">
+                <span class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">ยืนยันแล้ว / เข้าพัก</span>
+                <div class="origin-heading-lg mb-0" style="font-size: 34px; color: var(--color-cyan-signal);">@Model.ConfirmedCount</div>
+                <span class="origin-mono" style="color: var(--color-cyan-signal); font-size: 10px;">CONFIRMED</span>
+            </div>
+        </div>
+
+        <!-- รอดำเนินการ -->
+        <div class="col-6 col-md-3">
+            <div class="origin-card-graphite p-4 h-100">
+                <span class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">รอดำเนินการ</span>
+                <div class="origin-heading-lg mb-0" style="font-size: 34px; color: var(--color-iris-gleam);">@Model.PendingCount</div>
+                <span class="origin-mono" style="color: var(--color-iris-gleam); font-size: 10px;">PENDING</span>
+            </div>
+        </div>
+
+        <!-- ยกเลิกแล้ว (คืนมัดจำ) -->
+        <div class="col-6 col-md-3">
+            <div class="origin-card-graphite p-4 h-100">
+                <span class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">ยกเลิกแล้ว (คืนเงินมัดจำ)</span>
+                <div class="origin-heading-lg mb-0" style="font-size: 34px; color: #ef4444;">@Model.CancelledCount</div>
+                <span class="origin-mono" style="color: #ef4444; font-size: 10px;">CANCELLED &amp; REFUNDED</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter & Search Toolbar -->
+    <div class="origin-card-graphite p-3 mb-4">
+        <form method="get" asp-action="Bookings" class="row g-2 align-items-center">
+            <div class="col-12 col-md-5">
+                <input type="text"
+                       name="search"
+                       value="@Model.Search"
+                       placeholder="ค้นหารหัสการจอง, ชื่อผู้เข้าพัก หรืออีเมล..."
+                       class="origin-input w-100" />
+            </div>
+            <div class="col-6 col-md-3">
+                <select name="statusFilter" class="origin-input w-100">
+                    <option value="">-- ทุกสถานะการจอง --</option>
+                    <option value="confirmed" selected="@(Model.StatusFilter?.ToLower() == "confirmed" ? "selected" : null)">ยืนยันแล้ว (Confirmed)</option>
+                    <option value="pending" selected="@(Model.StatusFilter?.ToLower() == "pending" ? "selected" : null)">รอดำเนินการ (Pending)</option>
+                    <option value="checked_in" selected="@(Model.StatusFilter?.ToLower() is "checked_in" or "checkedin" ? "selected" : null)">เช็คอินแล้ว (Checked In)</option>
+                    <option value="completed" selected="@(Model.StatusFilter?.ToLower() == "completed" ? "selected" : null)">เสร็จสิ้น (Completed)</option>
+                    <option value="cancelled" selected="@(Model.StatusFilter?.ToLower() == "cancelled" ? "selected" : null)">ยกเลิกแล้ว (Cancelled)</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-4 d-flex gap-2">
+                <button type="submit" class="btn-origin-primary py-2 px-3 flex-grow-1 justify-content-center">
+                    <i class="bi bi-search me-1"></i> ค้นหา
+                </button>
+                @if (!string.IsNullOrEmpty(Model.Search) || !string.IsNullOrEmpty(Model.StatusFilter))
+                {
+                    <a asp-action="Bookings" class="btn-origin-ghost py-2 px-3 text-decoration-none">
+                        รีเซ็ต
+                    </a>
+                }
+            </div>
+        </form>
+    </div>
+
+    <!-- Table Card -->
+    <div class="origin-card-graphite p-0 overflow-hidden mb-5">
+        <div class="p-4 border-bottom d-flex justify-content-between align-items-center" style="border-color: rgba(255,255,255,0.08) !important;">
+            <div>
+                <span class="origin-mono" style="color: var(--color-iris-gleam); font-size: 11px;">TRANSACTIONS</span>
+                <h3 class="origin-heading-lg mb-0" style="font-size: 20px;">รายการจองห้องพัก</h3>
+            </div>
+            <span class="origin-mono" style="color: var(--color-ash); font-size: 11px;">ทั้งหมด @Model.Bookings.Count รายการ</span>
+        </div>
+
+        <div class="table-responsive" style="background-color: var(--color-abyss) !important;">
+            <table class="table origin-table mb-0" style="background-color: transparent !important; color: #ffffff !important;">
+                <thead>
+                    <tr class="origin-mono border-bottom" style="border-color: rgba(255,255,255,0.08) !important; color: var(--color-ash); font-size: 11px;">
+                        <th class="p-3">รหัสจอง</th>
+                        <th class="p-3">ผู้เข้าพัก</th>
+                        <th class="p-3">ห้องพักที่จอง</th>
+                        <th class="p-3 text-center">วันที่เข้าพัก</th>
+                        <th class="p-3 text-end">ยอดสุทธิ</th>
+                        <th class="p-3 text-end">มัดจำ 5%</th>
+                        <th class="p-3 text-center">สถานะ</th>
+                        <th class="p-3 text-end">จัดการสถานะ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Bookings.Any())
+                    {
+                        @foreach (var b in Model.Bookings)
+                        {
+                            <tr class="border-bottom" style="border-color: rgba(255,255,255,0.05) !important;">
+                                <td class="p-3 align-middle">
+                                    <div class="origin-mono fw-bold text-white fs-6">#@b.BookingCode</div>
+                                    <span class="origin-mono" style="color: var(--color-ash); font-size: 10px;">
+                                        @b.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                                    </span>
+                                </td>
+                                <td class="p-3 align-middle">
+                                    <div class="fw-bold text-white">@b.GuestName</div>
+                                    <div class="origin-mono" style="color: var(--color-ash); font-size: 11px;">@b.GuestEmail</div>
+                                    @if (!string.IsNullOrEmpty(b.GuestPhone) && b.GuestPhone != "-")
+                                    {
+                                        <div class="origin-mono" style="color: var(--color-cloud); font-size: 10px;">📞 @b.GuestPhone</div>
+                                    }
+                                </td>
+                                <td class="p-3 align-middle">
+                                    <div class="fw-bold text-truncate" style="max-width: 200px;">@b.RoomSummary</div>
+                                    <span class="origin-mono" style="color: var(--color-ash); font-size: 11px;">
+                                        @b.Nights คืน &middot; @b.TotalGuests ผู้เข้าพัก
+                                    </span>
+                                </td>
+                                <td class="p-3 align-middle text-center">
+                                    <div class="origin-mono text-white fw-bold" style="font-size: 12px;">
+                                        @b.CheckInDate.ToString("dd/MM/yyyy") &rarr; @b.CheckOutDate.ToString("dd/MM/yyyy")
+                                    </div>
+                                    <span class="origin-mono" style="color: var(--color-cyan-signal); font-size: 10px;">
+                                        เช็คอิน 09:00 | เช็คเอาท์ 12:00
+                                    </span>
+                                </td>
+                                <td class="p-3 align-middle text-end origin-mono fw-bold" style="color: var(--color-pure); font-size: 13px;">
+                                    ฿@b.NetAmount.ToString("N0")
+                                    @if (b.DiscountAmount > 0)
+                                    {
+                                        <div class="small" style="color: #86efac; font-size: 10px;">(ลด ฿@b.DiscountAmount.ToString("N0"))</div>
+                                    }
+                                </td>
+                                <td class="p-3 align-middle text-end origin-mono fw-bold" style="color: var(--color-cyan-signal); font-size: 13px;">
+                                    ฿@b.DepositAmount.ToString("N0")
+                                    @if (b.Status == "Cancelled")
+                                    {
+                                        <div style="color: #fcd34d; font-size: 10px;">คืนมัดจำแล้ว</div>
+                                    }
+                                </td>
+                                <td class="p-3 align-middle text-center">
+                                    <span class="badge border rounded-pill px-3 py-1"
+                                          style="border-color: @b.StatusColor; color: @b.StatusColor; background: @(b.StatusColor)1a; font-size: 11px;">
+                                        ● @b.StatusLabel
+                                    </span>
+                                </td>
+                                <td class="p-3 align-middle text-end">
+                                    <!-- Form เปลี่ยนสถานะการจอง -->
+                                    <form method="post" asp-action="UpdateBookingStatus" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="bookingId" value="@b.BookingId" />
+                                        <select name="status" class="origin-input py-1 px-2" style="font-size: 11px; width: auto;" onchange="this.form.submit()">
+                                            <option value="confirmed" selected="@(b.Status?.ToLower() == "confirmed" ? "selected" : null)">ยืนยัน (Confirmed)</option>
+                                            <option value="pending" selected="@(b.Status?.ToLower() == "pending" ? "selected" : null)">รอดำเนินการ (Pending)</option>
+                                            <option value="checked_in" selected="@(b.Status?.ToLower() is "checked_in" or "checkedin" ? "selected" : null)">เช็คอิน (Checked In)</option>
+                                            <option value="checked_out" selected="@(b.Status?.ToLower() is "checked_out" or "checkedout" ? "selected" : null)">เช็คเอาท์ (Checked Out)</option>
+                                            <option value="completed" selected="@(b.Status?.ToLower() == "completed" ? "selected" : null)">เสร็จสิ้น (Completed)</option>
+                                            <option value="cancelled" selected="@(b.Status?.ToLower() == "cancelled" ? "selected" : null)">ยกเลิก (Cancelled)</option>
+                                        </select>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="8" class="p-5 text-center text-muted">
+                                <div class="origin-mono mb-2" style="color: var(--color-ash);">ไม่พบรายการจองตามเงื่อนไขที่ค้นหา</div>
+                                <a asp-action="Bookings" class="btn-origin-ghost py-1 px-3 text-decoration-none" style="font-size: 12px;">
+                                    ล้างการค้นหา
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+

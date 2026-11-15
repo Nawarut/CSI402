@@ -45,30 +45,30 @@ public class BookingHistoryItemViewModel
 
     // Computed properties
     public bool IsCancellable =>
-        (Status == "Confirmed" || Status == "Pending") &&
+        (Status.ToLower() is "confirmed" or "pending") &&
         CheckInDate >= DateOnly.FromDateTime(DateTime.Today);
 
-    public bool IsCancelled => Status == "Cancelled";
+    public bool IsCancelled => Status.ToLower() == "cancelled";
 
-    public string StatusLabel => Status switch
+    public string StatusLabel => Status.ToLower() switch
     {
-        "Confirmed" => "ยืนยันแล้ว",
-        "Pending"   => "รอดำเนินการ",
-        "Cancelled" => "ยกเลิกแล้ว",
-        "CheckedIn" => "เช็คอินแล้ว",
-        "CheckedOut"=> "เช็คเอาท์แล้ว",
-        "Completed" => "เสร็จสิ้น",
+        "confirmed" => "ยืนยันแล้ว",
+        "pending"   => "รอดำเนินการ",
+        "cancelled" => "ยกเลิกแล้ว",
+        "checked_in" or "checkedin" => "เช็คอินแล้ว",
+        "checked_out" or "checkedout" => "เช็คเอาท์แล้ว",
+        "completed" => "เสร็จสิ้น",
         _ => Status
     };
 
-    public string StatusColor => Status switch
+    public string StatusColor => Status.ToLower() switch
     {
-        "Confirmed"  => "var(--color-cyan-signal)",
-        "Pending"    => "var(--color-iris-gleam)",
-        "Cancelled"  => "#ef4444",
-        "CheckedIn"  => "var(--color-orchid-bloom)",
-        "CheckedOut" => "var(--color-ash)",
-        "Completed"  => "var(--color-periwinkle)",
+        "confirmed"  => "var(--color-cyan-signal)",
+        "pending"    => "var(--color-iris-gleam)",
+        "cancelled"  => "#ef4444",
+        "checked_in" or "checkedin"  => "var(--color-orchid-bloom)",
+        "checked_out" or "checkedout" => "var(--color-ash)",
+        "completed"  => "var(--color-periwinkle)",
         _ => "var(--color-ash)"
     };
 }
@@ -80,8 +80,8 @@ public class BookingHistoryViewModel
 {
     public List<BookingHistoryItemViewModel> Bookings { get; set; } = new();
     public int TotalBookings => Bookings.Count;
-    public int ActiveBookings => Bookings.Count(b => b.Status is "Confirmed" or "Pending" or "CheckedIn");
+    public int ActiveBookings => Bookings.Count(b => b.Status.ToLower() is "confirmed" or "pending" or "checked_in" or "checkedin");
     public int CancelledBookings => Bookings.Count(b => b.IsCancelled);
-    public int CompletedBookings => Bookings.Count(b => b.Status is "Completed" or "CheckedOut");
+    public int CompletedBookings => Bookings.Count(b => b.Status.ToLower() is "completed" or "checked_out" or "checkedout");
 }
 

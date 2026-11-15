@@ -1,0 +1,215 @@
+@model Nawarut_8250_L005.ViewModels.AdminRoomListViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "จัดการห้องพัก (Rooms)";
+}
+
+<div class="container-fluid px-0">
+
+    <!-- Alert Message -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="origin-card-graphite p-3 mb-4 d-flex justify-content-between align-items-center" role="alert" style="border: 1px solid rgba(0,179,221,0.4) !important;">
+            <div class="d-flex align-items-center gap-2">
+                <span style="color: var(--color-cyan-signal);">&#x25CF;</span>
+                <span class="small text-white">@TempData["SuccessMessage"]</span>
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="origin-card-graphite p-3 mb-4 d-flex justify-content-between align-items-center" role="alert" style="border: 1px solid rgba(239,68,68,0.4) !important;">
+            <div class="d-flex align-items-center gap-2">
+                <span style="color: #ef4444;">&#x25CF;</span>
+                <span class="small text-white">@TempData["ErrorMessage"]</span>
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-baseline mb-4">
+        <div>
+            <span class="origin-mono" style="color: var(--color-iris-gleam); font-size: 11px;">ACCOMMODATIONS &middot; ระบบห้องพัก</span>
+            <h2 class="origin-heading-lg mt-1 mb-0" style="font-size: 30px;">จัดการห้องพักและสถานะ (Rooms)</h2>
+            <p class="origin-mono mt-1 mb-0" style="color: var(--color-ash); font-size: 11px;">
+                ห้องพักทั้งหมด @Model.TotalRooms ห้อง &middot; ข้อมูลจริงจากฐานข้อมูลระบบ JoJo Hotel
+            </p>
+        </div>
+        <div class="d-flex align-items-center gap-2 mt-3 mt-sm-0">
+            <span class="origin-mono" style="font-size: 11px; color: var(--color-cyan-signal);">
+                <i class="bi bi-clock me-1"></i> เช็คอิน: 09:00 น. | เช็คเอาท์: 12:00 น.
+            </span>
+        </div>
+    </div>
+
+    <!-- Stat Cards (Origin Graphite Cards, 16px radius) -->
+    <div class="row g-4 mb-4">
+        <!-- ห้องพักทั้งหมด -->
+        <div class="col-6 col-md-3">
+            <div class="origin-card-graphite p-4 h-100">
+                <span class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">ห้องพักทั้งหมด</span>
+                <div class="origin-heading-lg mb-0" style="font-size: 34px; color: var(--color-pure);">@Model.TotalRooms</div>
+                <span class="origin-mono" style="color: var(--color-cyan-signal); font-size: 10px;">TOTAL CAPACITY</span>
+            </div>
+        </div>
+
+        <!-- ว่างพร้อมเข้าพัก -->
+        <div class="col-6 col-md-3">
+            <div class="origin-card-graphite p-4 h-100">
+                <span class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">ว่างพร้อมเข้าพัก</span>
+                <div class="origin-heading-lg mb-0" style="font-size: 34px; color: var(--color-cyan-signal);">@Model.AvailableCount</div>
+                <span class="origin-mono" style="color: var(--color-cyan-signal); font-size: 10px;">AVAILABLE NOW</span>
+            </div>
+        </div>
+
+        <!-- ถูกจอง / มีผู้เข้าพัก -->
+        <div class="col-6 col-md-3">
+            <div class="origin-card-graphite p-4 h-100">
+                <span class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">ถูกจอง / มีผู้พัก</span>
+                <div class="origin-heading-lg mb-0" style="font-size: 34px; color: var(--color-orchid-bloom);">@Model.BookedCount</div>
+                <span class="origin-mono" style="color: var(--color-orchid-bloom); font-size: 10px;">OCCUPIED / BOOKED</span>
+            </div>
+        </div>
+
+        <!-- ซ่อมบำรุง -->
+        <div class="col-6 col-md-3">
+            <div class="origin-card-graphite p-4 h-100">
+                <span class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">ซ่อมบำรุง / ปิดปรับปรุง</span>
+                <div class="origin-heading-lg mb-0" style="font-size: 34px; color: #f59e0b;">@Model.MaintenanceCount</div>
+                <span class="origin-mono" style="color: #f59e0b; font-size: 10px;">MAINTENANCE</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter & Search Toolbar -->
+    <div class="origin-card-graphite p-3 mb-4">
+        <form method="get" asp-action="Rooms" class="row g-2 align-items-center">
+            <div class="col-12 col-md-5">
+                <input type="text"
+                       name="search"
+                       value="@Model.Search"
+                       placeholder="ค้นหาเลขห้องพัก หรือประเภทห้อง..."
+                       class="origin-input w-100" />
+            </div>
+            <div class="col-6 col-md-3">
+                <select name="statusFilter" class="origin-input w-100">
+                    <option value="">-- ทุกสถานะห้อง --</option>
+                    <option value="available" selected="@(Model.StatusFilter?.ToLower() == "available" ? "selected" : null)">ว่าง (Available)</option>
+                    <option value="reserved" selected="@(Model.StatusFilter?.ToLower() is "reserved" or "booked" ? "selected" : null)">จองแล้ว (Reserved)</option>
+                    <option value="occupied" selected="@(Model.StatusFilter?.ToLower() == "occupied" ? "selected" : null)">มีผู้พัก (Occupied)</option>
+                    <option value="cleaning" selected="@(Model.StatusFilter?.ToLower() == "cleaning" ? "selected" : null)">ทำความสะอาด (Cleaning)</option>
+                    <option value="maintenance" selected="@(Model.StatusFilter?.ToLower() == "maintenance" ? "selected" : null)">ซ่อมบำรุง (Maintenance)</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-4 d-flex gap-2">
+                <button type="submit" class="btn-origin-primary py-2 px-3 flex-grow-1 justify-content-center">
+                    <i class="bi bi-search me-1"></i> ค้นหา
+                </button>
+                @if (!string.IsNullOrEmpty(Model.Search) || !string.IsNullOrEmpty(Model.StatusFilter))
+                {
+                    <a asp-action="Rooms" class="btn-origin-ghost py-2 px-3 text-decoration-none">
+                        รีเซ็ต
+                    </a>
+                }
+            </div>
+        </form>
+    </div>
+
+    <!-- Table Card -->
+    <div class="origin-card-graphite p-0 overflow-hidden mb-5">
+        <div class="p-4 border-bottom d-flex justify-content-between align-items-center" style="border-color: rgba(255,255,255,0.08) !important;">
+            <div>
+                <span class="origin-mono" style="color: var(--color-iris-gleam); font-size: 11px;">PORTFOLIO</span>
+                <h3 class="origin-heading-lg mb-0" style="font-size: 20px;">รายการห้องพักทั้งหมด</h3>
+            </div>
+            <span class="origin-mono" style="color: var(--color-ash); font-size: 11px;">พบทั้งหมด @Model.Rooms.Count ห้อง</span>
+        </div>
+
+        <div class="table-responsive" style="background-color: var(--color-abyss) !important;">
+            <table class="table origin-table mb-0" style="background-color: transparent !important; color: #ffffff !important;">
+                <thead>
+                    <tr class="origin-mono border-bottom" style="border-color: rgba(255,255,255,0.08) !important; color: var(--color-ash); font-size: 11px;">
+                        <th class="p-3">หมายเลขห้อง</th>
+                        <th class="p-3">ประเภทห้องพัก</th>
+                        <th class="p-3 text-center">ชั้น</th>
+                        <th class="p-3">เตียง / พื้นที่</th>
+                        <th class="p-3 text-end">ราคา/คืน</th>
+                        <th class="p-3 text-center">สถานะห้อง</th>
+                        <th class="p-3 text-end">เปลี่ยนสถานะ / จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Rooms.Any())
+                    {
+                        @foreach (var room in Model.Rooms)
+                        {
+                            <tr class="border-bottom" style="border-color: rgba(255,255,255,0.05) !important;">
+                                <td class="p-3 align-middle">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="origin-mono fs-5 fw-bold text-white">#@room.RoomNumber</div>
+                                    </div>
+                                </td>
+                                <td class="p-3 align-middle">
+                                    <div class="fw-bold text-white">@room.TypeName</div>
+                                    <span class="origin-mono" style="color: var(--color-ash); font-size: 11px;">พักได้สูงสุด @room.MaxGuests ท่าน</span>
+                                </td>
+                                <td class="p-3 align-middle text-center origin-mono" style="color: var(--color-cloud);">
+                                    @(room.FloorNo.HasValue ? $"ชั้น {room.FloorNo}" : "-")
+                                </td>
+                                <td class="p-3 align-middle">
+                                    <div style="font-size: 13px;">@room.BedType</div>
+                                    <span class="origin-mono" style="color: var(--color-ash); font-size: 11px;">@(room.SizeSqm.HasValue ? $"{room.SizeSqm} ตร.ม." : "-")</span>
+                                </td>
+                                <td class="p-3 align-middle text-end origin-mono fw-bold" style="color: var(--color-pure); font-size: 14px;">
+                                    ฿@room.PricePerNight.ToString("N0")
+                                </td>
+                                <td class="p-3 align-middle text-center">
+                                    <span class="badge border rounded-pill px-3 py-1"
+                                          style="border-color: @room.StatusBadgeColor; color: @room.StatusBadgeColor; background: @(room.StatusBadgeColor)1a; font-size: 11px;">
+                                        ● @room.StatusLabel
+                                    </span>
+                                </td>
+                                <td class="p-3 align-middle text-end">
+                                    <div class="d-inline-flex gap-1 align-items-center">
+                                        <!-- Form เปลี่ยนสถานะห้อง -->
+                                        <form method="post" asp-action="UpdateRoomStatus" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="roomId" value="@room.RoomId" />
+                                            <select name="status" class="origin-input py-1 px-2" style="font-size: 11px; width: auto;" onchange="this.form.submit()">
+                                                <option value="available" selected="@(room.Status?.ToLower() is "available" or "ว่าง" ? "selected" : null)">ว่าง (Available)</option>
+                                                <option value="reserved" selected="@(room.Status?.ToLower() is "reserved" or "booked" or "จองแล้ว" ? "selected" : null)">จองแล้ว (Reserved)</option>
+                                                <option value="occupied" selected="@(room.Status?.ToLower() is "occupied" or "เข้าพักอยู่" ? "selected" : null)">มีผู้พัก (Occupied)</option>
+                                                <option value="cleaning" selected="@(room.Status?.ToLower() is "cleaning" ? "selected" : null)">ทำความสะอาด (Cleaning)</option>
+                                                <option value="maintenance" selected="@(room.Status?.ToLower() is "maintenance" ? "selected" : null)">ซ่อมบำรุง (Maintenance)</option>
+                                            </select>
+                                        </form>
+
+                                        <a asp-controller="Room" asp-action="Details" asp-route-id="@room.RoomId" target="_blank"
+                                           class="btn-action-edit" title="ดูหน้าห้องพัก">
+                                            <i class="bi bi-box-arrow-up-right"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="p-5 text-center text-muted">
+                                <div class="origin-mono mb-2" style="color: var(--color-ash);">ไม่พบห้องพักตามเงื่อนไขที่ค้นหา</div>
+                                <a asp-action="Rooms" class="btn-origin-ghost py-1 px-3 text-decoration-none" style="font-size: 12px;">
+                                    ล้างการค้นหา
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
