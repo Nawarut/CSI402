@@ -1,0 +1,46 @@
+@model Nawarut_8250_L005.Entities.Payment
+@{
+    Layout = null;
+    var booking = Model.Booking;
+    var paymentLabel = Model.PaymentType == "deposit" ? "ค่ามัดจำการจอง" : Model.PaymentType == "balance" ? "ยอดค่าห้องคงเหลือ" : "รายการชำระเงิน";
+}
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>สลิปชำระเงิน @booking.BookingCode</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body { background:#eef2f7; color:#172033; font-family:Prompt,sans-serif; padding:32px 16px; }
+        .slip { max-width:620px; margin:auto; background:white; border-radius:20px; padding:36px; box-shadow:0 14px 40px #0f172a18; }
+        .slip-row { display:flex; justify-content:space-between; gap:16px; padding:12px 0; border-bottom:1px solid #e2e8f0; }
+        .mono { font-family:'Roboto Mono',monospace; }
+        @@media print { body { padding:0; background:#fff; } .slip { box-shadow:none; } .no-print { display:none!important; } }
+    </style>
+</head>
+<body>
+    <main class="slip">
+        <div class="d-flex justify-content-between align-items-center mb-4 no-print">
+            <a asp-controller="Account" asp-action="BookingHistory" class="btn btn-outline-secondary">ประวัติการจอง</a>
+            <button class="btn btn-dark" onclick="window.print()">พิมพ์ / บันทึก PDF</button>
+        </div>
+        <div class="text-center mb-4">
+            <div class="text-uppercase text-primary fw-semibold">JoJo Hotel · Payment Slip</div>
+            <h1 class="h3 mt-2">สลิปการชำระเงิน</h1>
+            <span class="badge text-bg-success">ชำระสำเร็จ · MOCK</span>
+        </div>
+        <div class="slip-row"><span>เลขที่สลิป</span><strong class="mono">@Model.TransactionRef</strong></div>
+        <div class="slip-row"><span>วันที่ชำระ</span><strong>@Model.PaidAt?.ToString("dd/MM/yyyy HH:mm:ss")</strong></div>
+        <div class="slip-row"><span>การจอง</span><strong class="mono">@booking.BookingCode</strong></div>
+        <div class="slip-row"><span>ลูกค้า</span><strong>@booking.User?.FirstName @booking.User?.LastName</strong></div>
+        <div class="slip-row"><span>รายการ</span><strong>@paymentLabel</strong></div>
+        <div class="slip-row"><span>ช่องทาง</span><strong>@(Model.Method == "promptpay" ? "PromptPay QR (จำลอง)" : "บัตรเครดิต (จำลอง)")</strong></div>
+        <div class="d-flex justify-content-between align-items-baseline mt-4 p-3 rounded-3" style="background:#ecfeff">
+            <strong>ยอดชำระ</strong><strong class="fs-3 text-primary">฿@Model.Amount.ToString("N2")</strong>
+        </div>
+        <p class="text-secondary small mt-4 mb-0">เอกสารนี้เป็นหลักฐานจากระบบจำลองเพื่อการทดสอบ ไม่มีการตัดเงินจริง</p>
+    </main>
+</body>
+</html>

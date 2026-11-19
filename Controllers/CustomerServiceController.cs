@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Nawarut_8250_L005.Entities;
+using Nawarut_8250_L005.Services;
 
 namespace Nawarut_8250_L005.Controllers;
 
@@ -14,6 +15,21 @@ public class CustomerServiceController : Controller
         EnsureDefaultTickets();
     }
 
+    private IActionResult? ValidateCustomerServiceAccess()
+    {
+        var role = HttpContext.Session.GetString("UserRole");
+        if (string.IsNullOrWhiteSpace(role))
+            return RedirectToAction("Login", "Account", new { returnUrl = "/CustomerService" });
+
+        if (role.Equals("CustomerService", StringComparison.OrdinalIgnoreCase) ||
+            role.Equals("Support", StringComparison.OrdinalIgnoreCase) ||
+            role.Equals("Admin", StringComparison.OrdinalIgnoreCase))
+            return null;
+
+        TempData["ErrorMessage"] = "คุณไม่มีสิทธิ์ดำเนินการในหน้าฝ่ายบริการลูกค้า";
+        return RedirectToAction("Index", "Home");
+    }
+
     // ==========================================
     // GET: /CustomerService/Index
     // แดชบอร์ดฝ่ายบริการลูกค้าและรับแจ้งปัญหา/ส่งต่อเรื่อง
@@ -21,18 +37,8 @@ public class CustomerServiceController : Controller
     [HttpGet]
     public async Task<IActionResult> Index(string? search = null, string? statusFilter = null)
     {
-        var role = HttpContext.Session.GetString("UserRole");
-        if (string.IsNullOrEmpty(role))
-        {
-            return RedirectToAction("Login", "Account", new { returnUrl = "/CustomerService" });
-        }
-        if (!role.Equals("CustomerService", StringComparison.OrdinalIgnoreCase) &&
-            !role.Equals("Support", StringComparison.OrdinalIgnoreCase) &&
-            !role.Equals("Admin", StringComparison.OrdinalIgnoreCase))
-        {
-            TempData["ErrorMessage"] = "คุณไม่มีสิทธิ์เข้าถึงหน้าฝ่ายบริการลูกค้า (เฉพาะเจ้าหน้าที่เท่านั้น)";
-            return RedirectToAction("Index", "Home");
-        }
+        var accessCheck = ValidateCustomerServiceAccess();
+        if (accessCheck != null) return accessCheck;
 
         var ticketsQuery = _db.Tickets
             .Include(t => t.Customer)
@@ -85,6 +91,9 @@ public class CustomerServiceController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> CreateTicket(uint customerId, uint? bookingId, string subject, string priority, string message)
     {
+        var accessCheck = ValidateCustomerServiceAccess();
+        if (accessCheck != null) return accessCheck;
+
         string ticketCode = $"TK{DateTime.Now:yyyyMMdd}{DateTime.Now.Ticks % 1000:D3}";
 
         string cleanPriority = (priority ?? "normal").Trim().ToLowerInvariant() switch
@@ -134,9 +143,18 @@ public class CustomerServiceController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> EscalateTicket(uint ticketId, string targetDepartment, string? note)
     {
+        var accessCheck = ValidateCustomerServiceAccess();
+        if (accessCheck != null) return accessCheck;
+
+        if (targetDepartment is not ("Accounting" or "Reception"))
+            return BadRequest();
+
         var ticket = await _db.Tickets.FindAsync(ticketId);
         if (ticket != null)
         {
+            var department = await DepartmentTicketService.GetOrCreateAsync(_db, targetDepartment);
+            ticket.DepartmentId = department.DepartmentId;
+            ticket.AssignedTo = null;
             ticket.Status = "escalated";
             ticket.UpdatedAt = DateTime.Now;
 
@@ -158,6 +176,28 @@ public class CustomerServiceController : Controller
                 CreatedAt = DateTime.Now
             });
 
+            var activeUsers = await _db.Users.Include(u => u.Role)
+                .Where(u => u.Status.ToLower() == "active")
+                .ToListAsync();
+            var recipients = activeUsers.Where(u => u.DepartmentId == department.DepartmentId ||
+                (targetDepartment == "Accounting" &&
+                    (u.Role.RoleCode.Equals("ACCOUNTANT", StringComparison.OrdinalIgnoreCase) ||
+                     u.Role.RoleName.Contains("บัญชี", StringComparison.OrdinalIgnoreCase) ||
+                     u.Role.RoleName.Contains("account", StringComparison.OrdinalIgnoreCase))) ||
+                (targetDepartment == "Reception" &&
+                    (u.Role.RoleCode.Equals("RECEPTION", StringComparison.OrdinalIgnoreCase) ||
+                     u.Role.RoleCode.Equals("STAFF", StringComparison.OrdinalIgnoreCase) ||
+                     u.Role.RoleName.Contains("ต้อนรับ", StringComparison.OrdinalIgnoreCase) ||
+                     u.Role.RoleName.Contains("reception", StringComparison.OrdinalIgnoreCase) ||
+                     u.Role.RoleName.Contains("staff", StringComparison.OrdinalIgnoreCase))));
+
+            foreach (var recipient in recipients)
+            {
+                NotificationHelper.Add(_db, recipient.UserId,
+                    $"มี Ticket ใหม่ส่งถึง{(targetDepartment == "Accounting" ? "ฝ่ายบัญชี" : "ฝ่ายต้อนรับ")}",
+                    $"{ticket.TicketCode} · {ticket.Subject}", "department_ticket", ticket.TicketId);
+            }
+
             await _db.SaveChangesAsync();
             TempData["SuccessMessage"] = $"คัดกรองและส่งต่อเรื่อง #{ticket.TicketCode} ไปยัง {targetName} เรียบร้อยแล้ว";
         }
@@ -172,6 +212,9 @@ public class CustomerServiceController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ResolveTicket(uint ticketId, string? resolution)
     {
+        var accessCheck = ValidateCustomerServiceAccess();
+        if (accessCheck != null) return accessCheck;
+
         var ticket = await _db.Tickets.FindAsync(ticketId);
         if (ticket != null)
         {
@@ -192,6 +235,8 @@ public class CustomerServiceController : Controller
                 });
             }
 
+            NotificationHelper.Add(_db, ticket.CustomerId, "มีคำตอบจาก Customer Service",
+                $"Ticket {ticket.TicketCode} ได้รับการอัปเดตแล้ว", "ticket", ticket.TicketId);
             await _db.SaveChangesAsync();
             TempData["SuccessMessage"] = $"บันทึกคำตอบและปิดเรื่อง #{ticket.TicketCode} เรียบร้อยแล้ว";
         }

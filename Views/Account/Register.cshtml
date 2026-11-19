@@ -47,7 +47,7 @@
                         <!-- Phone Number -->
                         <div class="mb-4">
                             <label asp-for="PhoneNumber" class="origin-mono d-block mb-2" style="color: var(--color-ash); font-size: 11px;">เบอร์โทรศัพท์ติดต่อ (PHONE NUMBER) *</label>
-                            <input asp-for="PhoneNumber" class="origin-input w-100" placeholder="08x-xxx-xxxx" />
+                            <input asp-for="PhoneNumber" type="tel" inputmode="tel" maxlength="15" class="origin-input w-100" placeholder="08x-xxx-xxxx (9–10 หลัก)" />
                             <span asp-validation-for="PhoneNumber" class="small text-danger"></span>
                         </div>
 
@@ -55,14 +55,14 @@
                             <!-- Password -->
                             <div class="col-12 col-md-6">
                                 <label asp-for="Password" class="origin-mono d-block mb-2" style="color: var(--color-ash); font-size: 11px;">รหัสผ่าน (PASSWORD) *</label>
-                                <input asp-for="Password" type="password" class="origin-input w-100" placeholder="••••••••" />
+                                <input asp-for="Password" type="password" minlength="8" maxlength="100" class="origin-input w-100" placeholder="อย่างน้อย 8 ตัวอักษร" />
                                 <span asp-validation-for="Password" class="small text-danger"></span>
                             </div>
 
                             <!-- Confirm Password -->
                             <div class="col-12 col-md-6">
                                 <label asp-for="ConfirmPassword" class="origin-mono d-block mb-2" style="color: var(--color-ash); font-size: 11px;">ยืนยันรหัสผ่าน (CONFIRM) *</label>
-                                <input asp-for="ConfirmPassword" type="password" class="origin-input w-100" placeholder="••••••••" />
+                            <input asp-for="ConfirmPassword" type="password" minlength="8" maxlength="100" class="origin-input w-100" placeholder="อย่างน้อย 8 ตัวอักษร" />
                                 <span asp-validation-for="ConfirmPassword" class="small text-danger"></span>
                             </div>
                         </div>

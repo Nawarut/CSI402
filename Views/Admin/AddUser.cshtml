@@ -24,7 +24,7 @@
                 <!-- Header -->
                 <div class="d-flex align-items-center gap-3 pb-4 mb-4 border-bottom" style="border-color: rgba(255,255,255,0.08) !important;">
                     <div class="origin-pill-chip p-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; font-size: 20px; border-radius: var(--radius-buttons);">
-                        ➕
+                        <i class="bi bi-person-plus"></i>
                     </div>
                     <div>
                         <span class="origin-mono" style="color: var(--color-iris-gleam); font-size: 11px;">NEW ACCOUNT CREATION</span>
@@ -67,7 +67,7 @@
                         <!-- Phone Number -->
                         <div class="col-12 col-md-6">
                             <label asp-for="PhoneNumber" class="origin-mono d-block mb-2" style="color: var(--color-ash); font-size: 11px;">เบอร์โทรศัพท์ (TELEPHONE) *</label>
-                            <input asp-for="PhoneNumber" class="origin-input w-100" placeholder="08x-xxx-xxxx" />
+                            <input asp-for="PhoneNumber" type="tel" inputmode="tel" maxlength="15" class="origin-input w-100" placeholder="08x-xxx-xxxx (9–10 หลัก)" />
                             <span asp-validation-for="PhoneNumber" class="small text-danger"></span>
                         </div>
                     </div>
@@ -82,9 +82,9 @@
                         <div class="col-12 col-md-6">
                             <label asp-for="Role" class="origin-mono d-block mb-2" style="color: var(--color-ash); font-size: 11px;">สิทธิ์ผู้ใช้งาน (ROLE) *</label>
                             <select asp-for="Role" class="origin-input w-100">
-                                <option value="User">👤 User (ลูกค้าทั่วไป)</option>
-                                <option value="Staff">💼 Staff (เจ้าหน้าที่)</option>
-                                <option value="Admin">👑 Admin (ผู้ดูแลระบบ)</option>
+                                <option value="User">○ User (ลูกค้าทั่วไป)</option>
+                                <option value="Staff">◆ Staff (เจ้าหน้าที่)</option>
+                                <option value="Admin">★ Admin (ผู้ดูแลระบบ)</option>
                             </select>
                             <span asp-validation-for="Role" class="small text-danger"></span>
                         </div>
@@ -93,8 +93,8 @@
                         <div class="col-12 col-md-6">
                             <label asp-for="Status" class="origin-mono d-block mb-2" style="color: var(--color-ash); font-size: 11px;">สถานะการใช้งาน (STATUS) *</label>
                             <select asp-for="Status" class="origin-input w-100">
-                                <option value="Active">🟢 ใช้งานอยู่ (Active)</option>
-                                <option value="Inactive">🔴 ระงับการใช้งาน (Inactive)</option>
+                                <option value="Active">● ใช้งานอยู่ (Active)</option>
+                                <option value="Inactive">× ระงับการใช้งาน (Inactive)</option>
                             </select>
                             <span asp-validation-for="Status" class="small text-danger"></span>
                         </div>
@@ -103,7 +103,7 @@
                     <!-- Password -->
                     <div class="mb-5">
                         <label asp-for="Password" class="origin-mono d-block mb-2" style="color: var(--color-ash); font-size: 11px;">รหัสผ่านเริ่มต้น (PASSWORD) *</label>
-                        <input asp-for="Password" type="password" class="origin-input w-100" placeholder="อย่างน้อย 6 ตัวอักษร" />
+                        <input asp-for="Password" type="password" minlength="8" maxlength="100" class="origin-input w-100" placeholder="อย่างน้อย 8 ตัวอักษร" />
                         <span asp-validation-for="Password" class="small text-danger"></span>
                         <div class="origin-mono mt-1" style="color: var(--color-ash); font-size: 10px;">ผู้ใช้สามารถนำรหัสผ่านนี้ไปใช้ล็อกอินเข้าสู่ระบบได้ทันที</div>
                     </div>

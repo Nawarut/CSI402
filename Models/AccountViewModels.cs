@@ -31,11 +31,12 @@ public class RegisterViewModel
 
     [Required(ErrorMessage = "กรุณากรอกเบอร์โทรศัพท์")]
     [Phone(ErrorMessage = "รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง")]
+    [RegularExpression(@"^(?=(?:\D*\d){9,10}\D*$)[0-9()+\-\s]+$", ErrorMessage = "เบอร์โทรศัพท์ต้องมีตัวเลข 9–10 หลัก")]
     [Display(Name = "เบอร์โทรศัพท์")]
     public string PhoneNumber { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "กรุณากรอกรหัสผ่าน")]
-    [StringLength(100, MinimumLength = 6, ErrorMessage = "รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร")]
+    [StringLength(100, MinimumLength = 8, ErrorMessage = "รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร")]
     [DataType(DataType.Password)]
     [Display(Name = "รหัสผ่าน")]
     public string Password { get; set; } = string.Empty;
@@ -59,6 +60,7 @@ public class AddUserViewModel
 
     [Required(ErrorMessage = "กรุณากรอกเบอร์โทรศัพท์")]
     [Phone(ErrorMessage = "รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง")]
+    [RegularExpression(@"^(?=(?:\D*\d){9,10}\D*$)[0-9()+\-\s]+$", ErrorMessage = "เบอร์โทรศัพท์ต้องมีตัวเลข 9–10 หลัก")]
     [Display(Name = "เบอร์โทรศัพท์")]
     public string PhoneNumber { get; set; } = string.Empty;
 
@@ -71,7 +73,7 @@ public class AddUserViewModel
     public string Status { get; set; } = "Active";
 
     [Required(ErrorMessage = "กรุณากรอกรหัสผ่านเริ่มต้น")]
-    [StringLength(100, MinimumLength = 6, ErrorMessage = "รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร")]
+    [StringLength(100, MinimumLength = 8, ErrorMessage = "รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร")]
     [DataType(DataType.Password)]
     [Display(Name = "รหัสผ่าน")]
     public string Password { get; set; } = string.Empty;

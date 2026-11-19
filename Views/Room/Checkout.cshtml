@@ -23,6 +23,23 @@
     </div>
 </div>
 
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const checkIn = document.getElementById('checkInDate');
+        const checkOut = document.getElementById('checkOutDate');
+        const syncCheckoutMinimum = () => {
+            if (!checkIn.value) return;
+            const minDate = new Date(`${checkIn.value}T00:00:00`);
+            minDate.setDate(minDate.getDate() + 1);
+            const min = `${minDate.getFullYear()}-${String(minDate.getMonth() + 1).padStart(2, '0')}-${String(minDate.getDate()).padStart(2, '0')}`;
+            checkOut.min = min;
+            if (checkOut.value < min) checkOut.value = min;
+        };
+        checkIn.addEventListener('change', syncCheckoutMinimum);
+        syncCheckoutMinimum();
+    });
+</script>
+
 <div class="container py-5" style="max-width: 1050px;">
 
     <!-- Heading -->
@@ -33,6 +50,24 @@
         </div>
         <span class="origin-mono" style="color: var(--color-cyan-signal); font-size: 12px;">@Model.Cart.Count ห้องที่เลือก &middot; @nights คืน</span>
     </div>
+
+    <form method="get" asp-action="Checkout" asp-controller="Room" class="origin-card-graphite p-4 mb-4">
+        <h3 class="origin-heading-lg text-white fs-5 mb-3">เปลี่ยนวันเข้าพัก</h3>
+        <div class="row g-3 align-items-end">
+            <div class="col-sm-5">
+                <label for="checkInDate" class="form-label text-light">วันเช็กอิน</label>
+                <input id="checkInDate" type="date" name="checkIn" class="origin-input w-100" value="@checkIn" min="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+            </div>
+            <div class="col-sm-5">
+                <label for="checkOutDate" class="form-label text-light">วันเช็กเอาท์</label>
+                <input id="checkOutDate" type="date" name="checkOut" class="origin-input w-100" value="@checkOut" min="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")" required />
+            </div>
+            <input type="hidden" name="adults" value="@Model.Adults" />
+            <input type="hidden" name="children" value="@Model.Children" />
+            <div class="col-sm-2"><button class="btn-origin-primary w-100 justify-content-center py-2" type="submit">อัปเดตวัน</button></div>
+        </div>
+        <div class="small text-secondary mt-2">เมื่ออัปเดต ระบบจะคำนวณจำนวนคืน ราคา และส่วนลดใหม่</div>
+    </form>
 
     <!-- 1. Itinerary Card: 09:00 Check-in & 12:00 Check-out -->
     <div class="origin-card-graphite p-4 mb-4">
@@ -62,19 +97,19 @@
     </div>
 
     <!-- 2. Table of Selected Rooms -->
-    <div class="origin-card-graphite p-0 mb-4 overflow-hidden">
-        <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="border-color: rgba(255,255,255,0.08) !important;">
+    <div class="origin-card-graphite p-0 mb-4 overflow-hidden" style="border: 1px solid rgba(255,255,255,0.1) !important;">
+        <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="border-color: rgba(255,255,255,0.08) !important; background-color: rgba(15,16,17,0.85);">
             <span class="origin-mono" style="color: var(--color-iris-gleam); font-size: 11px;">รายการห้องพักในตะกร้า</span>
             <span class="origin-mono" style="color: var(--color-ash); font-size: 11px;">สกุลเงิน: บาท (THB)</span>
         </div>
-        <div class="table-responsive">
-            <table class="table table-borderless mb-0 text-white">
+        <div class="table-responsive" style="background-color: var(--color-abyss) !important;">
+            <table class="table origin-table table-borderless mb-0" style="background-color: transparent !important; --bs-table-bg: transparent !important; color: #ffffff !important;">
                 <thead>
-                    <tr class="origin-mono border-bottom" style="border-color: rgba(255,255,255,0.08) !important; color: var(--color-ash); font-size: 11px;">
-                        <th class="p-3">ห้องพัก</th>
-                        <th class="p-3 text-center">ผู้เข้าพัก</th>
-                        <th class="p-3 text-center">เตียงเสริม</th>
-                        <th class="p-3 text-end">ราคารวม</th>
+                    <tr class="origin-mono border-bottom" style="border-color: rgba(255,255,255,0.08) !important; color: var(--color-ash); font-size: 11px; background-color: rgba(15,16,17,0.95);">
+                        <th class="p-3" style="color: var(--color-ash) !important;">ห้องพัก</th>
+                        <th class="p-3 text-center" style="color: var(--color-ash) !important;">ผู้เข้าพัก</th>
+                        <th class="p-3 text-center" style="color: var(--color-ash) !important;">เตียงเสริม</th>
+                        <th class="p-3 text-end" style="color: var(--color-ash) !important;">ราคารวม</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -82,10 +117,10 @@
                     {
                         <tr class="border-bottom" style="border-color: rgba(255,255,255,0.05) !important;">
                             <td class="p-3">
-                                <div class="fw-bold">ห้อง @item.RoomNumber &mdash; @item.TypeName</div>
+                                <div class="fw-bold text-white fs-6">ห้อง @item.RoomNumber &mdash; @item.TypeName</div>
                                 <div class="origin-body" style="font-size: 12px; color: var(--color-ash);">เตียง @item.BedType &middot; ฿@item.PricePerNight.ToString("N0") &times; @nights คืน</div>
                             </td>
-                            <td class="p-3 text-center align-middle origin-mono">
+                            <td class="p-3 text-center align-middle origin-mono text-white">
                                 @item.Guests ท่าน
                             </td>
                             <td class="p-3 text-center align-middle origin-mono">
@@ -98,16 +133,16 @@
                                     <span style="color: var(--color-fog);">&mdash;</span>
                                 }
                             </td>
-                            <td class="p-3 text-end align-middle fw-bold" style="color: var(--color-pure); font-size: 15px;">
+                            <td class="p-3 text-end align-middle fw-bold" style="color: var(--color-cyan-signal) !important; font-size: 16px;">
                                 ฿@item.LineTotal.ToString("N0")
                             </td>
                         </tr>
                     }
                 </tbody>
                 <tfoot>
-                    <tr style="background: rgba(15,16,17,0.7);">
-                        <td colspan="3" class="p-3 origin-mono fw-bold text-end" style="color: var(--color-ash);">ยอดรวมห้องพักและเตียงเสริม (ก่อนหักส่วนลด)</td>
-                        <td class="p-3 fw-bold text-end" style="color: var(--color-pure); font-size: 18px;">฿@pricing.SubtotalAmount.ToString("N0")</td>
+                    <tr style="background-color: rgba(15,16,17,0.95) !important; border-top: 1px solid rgba(255,255,255,0.12) !important;">
+                        <td colspan="3" class="p-3 origin-mono fw-bold text-end" style="color: var(--color-ash) !important;">ยอดรวมห้องพักและเตียงเสริม (ก่อนหักส่วนลด)</td>
+                        <td class="p-3 fw-bold text-end" style="color: var(--color-cyan-signal) !important; font-size: 18px;">฿@pricing.SubtotalAmount.ToString("N0")</td>
                     </tr>
                 </tfoot>
             </table>
@@ -135,7 +170,7 @@
                         
                         <div class="d-flex align-items-center gap-3">
                             <span class="fs-4">
-                                @(promo.IsEligible ? "🎉" : "⚪")
+                                @(promo.IsEligible ? "★" : "○")
                             </span>
                             <div>
                                 <div class="d-flex align-items-center gap-2">
@@ -180,7 +215,7 @@
         {
             <div class="mt-4 p-3 rounded-3 d-flex justify-content-between align-items-center" style="background: rgba(132,125,255,0.12); border: 1px solid rgba(132,125,255,0.3);">
                 <div class="origin-mono text-white fw-bold" style="font-size: 12px;">
-                    ✨ รวมส่วนลดโปรโมชั่นทั้งหมดที่ได้รับ:
+                    <i class="bi bi-stars me-1"></i> รวมส่วนลดโปรโมชั่นทั้งหมดที่ได้รับ:
                 </div>
                 <div class="origin-heading-lg mb-0" style="color: var(--color-iris-gleam); font-size: 26px;">
                     -฿@pricing.TotalDiscountAmount.ToString("N0")
@@ -311,8 +346,8 @@
             </a>
             <button type="submit"
                     class="btn-origin-primary py-3 text-center justify-content-center flex-fill"
-                    onclick="return confirm('ยืนยันการจองและชำระค่ามัดจำล่วงหน้า 5% จำนวน ฿@pricing.DepositAmount.ToString("N2") หรือไม่?');">
-                ชำระมัดจำ ฿@pricing.DepositAmount.ToString("N2") และยืนยันการจอง &rarr;
+                    >
+                ไปหน้าชำระค่ามัดจำ ฿@pricing.DepositAmount.ToString("N2") &rarr;
             </button>
         </div>
     </form>

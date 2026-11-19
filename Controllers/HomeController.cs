@@ -25,7 +25,7 @@ public class HomeController : Controller
     public IActionResult Lab9()
     {
         //Create || Insert Value in SQL
-        return View();
+        return View("StudentCreate");
     }
 
     [HttpPost]
@@ -50,24 +50,24 @@ public class HomeController : Controller
                     _db.Add(s);
                     // _db.Add(a);
                     _db.SaveChanges();
-                    return View(data);
+                    return View("StudentCreate", data);
                 }
                 else
                 {
                     ViewBag.Status = "StdCode ซ้ำ";
-                    return View(data);
+                    return View("StudentCreate", data);
                 }
             }
             else
             {
                 ViewBag.Status = "Error";
-                return View(data);
+                return View("StudentCreate", data);
             }
         }
         else
         {
             ViewBag.Status = "Password Null";
-            return View(data);
+            return View("StudentCreate", data);
         }
     }
 
@@ -76,12 +76,38 @@ public class HomeController : Controller
         ViewBag.status = status;
         var Student = (from s in _db.Labstudents select s).ToList();
         // Select * From Labstudent
-        return View(Student);
+        return View("StudentList", Student);
     }
 
-    public IActionResult Index()
+    public async Task<IActionResult> Index(string? destination, string? checkIn, string? checkOut, int adults = 2, int children = 0)
     {
-        return View();
+        var ciStr = checkIn ?? DateTime.Today.ToString("yyyy-MM-dd");
+        var coStr = checkOut ?? DateTime.Today.AddDays(1).ToString("yyyy-MM-dd");
+
+        var query = _db.Rooms
+            .Include(r => r.RoomType)
+                .ThenInclude(rt => rt.RoomImages)
+            .Include(r => r.RoomType)
+                .ThenInclude(rt => rt.Amenities)
+            .Where(r => r.IsActive == true);
+
+        if (!string.IsNullOrWhiteSpace(destination))
+        {
+            var dest = destination.Trim().ToLower();
+            query = query.Where(r => r.RoomNumber.ToLower().Contains(dest) ||
+                                     (r.RoomType != null && r.RoomType.TypeName.ToLower().Contains(dest)) ||
+                                     (r.RoomType != null && r.RoomType.Description != null && r.RoomType.Description.ToLower().Contains(dest)));
+        }
+
+        var rooms = await query.OrderBy(r => r.RoomNumber).ToListAsync();
+
+        ViewBag.Destination = destination;
+        ViewBag.CheckIn = ciStr;
+        ViewBag.CheckOut = coStr;
+        ViewBag.Adults = adults;
+        ViewBag.Children = children;
+
+        return View(rooms);
     }
 
     public IActionResult Privacy()
@@ -98,7 +124,7 @@ public class HomeController : Controller
     public IActionResult Lab10(string? StdId)
     {
         var User = (from s in _db.Labstudents where s.StdId == StdId select s).FirstOrDefault();
-        return View(User);
+        return View("StudentEdit", User);
     }
 
     [HttpPost]
@@ -112,7 +138,7 @@ public class HomeController : Controller
             User.StdLastname = data.StdLastname;
             _db.SaveChanges();
         }
-        return View(data);
+        return View("StudentEdit", data);
     }
 
     public IActionResult Lab10_1(string? StdId)
@@ -199,7 +225,7 @@ public class HomeController : Controller
             ViewBag.Result = "F";
         }
 
-        return View();
+        return View("StudentProfileDemo");
     }
 
     // ==========================================
@@ -288,7 +314,7 @@ public class HomeController : Controller
     {
         if (!ModelState.IsValid)
         {
-            return View(data);
+            return View("LegacyLogin", data);
         }
 
         EnsureDefaultData();
@@ -304,7 +330,7 @@ public class HomeController : Controller
             if (user.Status == "inactive" || user.Status == "locked")
             {
                 ViewBag.Error = "บัญชีนี้ถูกระงับการใช้งาน กรุณาติดต่อผู้ดูแลระบบ";
-                return View(data);
+                return View("LegacyLogin", data);
             }
 
             var modelUser = _userService.GetByEmail(user.Email);
@@ -338,7 +364,7 @@ public class HomeController : Controller
         }
 
         ViewBag.Error = "อีเมลหรือรหัสผ่านไม่ถูกต้อง";
-        return View(data);
+        return View("LegacyLogin", data);
     }
 
     public IActionResult Login() => RedirectToAction("Login", "Account");
@@ -350,7 +376,7 @@ public class HomeController : Controller
     public IActionResult Lab5_2()
     {
         EnsureDefaultData();
-        return View();
+        return View("LegacyRegistration");
     }
 
     [HttpPost]
@@ -359,12 +385,12 @@ public class HomeController : Controller
         if (data.Password != data.ConfirmPassword)
         {
             ViewBag.Error = "รหัสผ่านไม่ตรงกัน";
-            return View(data);
+            return View("LegacyRegistration", data);
         }
 
         if (!ModelState.IsValid)
         {
-            return View(data);
+            return View("LegacyRegistration", data);
         }
 
         EnsureDefaultData();
@@ -378,7 +404,7 @@ public class HomeController : Controller
         if (checkUser != null)
         {
             ViewBag.Error = "อีเมลนี้มีผู้ใช้งานแล้วในระบบ";
-            return View(data);
+            return View("LegacyRegistration", data);
         }
 
         // ค้นหา Role จากตาราง roles
@@ -457,7 +483,7 @@ public class HomeController : Controller
             }).ToList()
         };
 
-        return View(model);
+        return View("UserManagement", model);
     }
 
     public IActionResult UserList() => RedirectToAction("Lab5_3");

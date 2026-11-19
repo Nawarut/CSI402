@@ -120,6 +120,8 @@ public class AdminController : Controller
             };
         }).ToList();
 
+        var totalPromotions = await _db.Promotions.CountAsync();
+
         var model = new AdminDashboardViewModel
         {
             TotalRooms = totalRooms,
@@ -136,6 +138,7 @@ public class AdminController : Controller
             PendingBookings = pendingBookings,
             CancelledBookings = cancelledBookings,
             TotalDepositAmount = totalDeposit,
+            TotalPromotions = totalPromotions,
             RecentBookings = recentBookings
         };
 
@@ -152,6 +155,7 @@ public class AdminController : Controller
         ViewBag.RenterUsers = renterUsers;
         ViewBag.TotalBookings = totalBookings;
         ViewBag.TotalDeposit = totalDeposit;
+        ViewBag.TotalPromotions = totalPromotions;
 
         return View(model);
     }
@@ -268,12 +272,47 @@ public class AdminController : Controller
 
         var promoEntities = await query.OrderBy(p => p.PromotionId).ToListAsync();
 
-        // ดึงยอดการใช้งานโปรโมชั่นจริงจากการจอง
-        var promoUsageCounts = await _db.Bookings
-            .Where(b => b.PromotionId != null)
-            .GroupBy(b => b.PromotionId!.Value)
-            .Select(g => new { PromotionId = g.Key, Count = g.Count() })
-            .ToDictionaryAsync(x => x.PromotionId, x => x.Count);
+        // PromotionId is not populated by the legacy booking flow. Count redeemed
+        // offers from the same booking facts used by BookingPricingService instead.
+        var usageBookings = await _db.Bookings
+            .Select(b => new
+            {
+                b.BookingId,
+                b.UserId,
+                b.PromotionId,
+                b.CheckInDate,
+                b.Nights,
+                b.TotalGuests,
+                b.SubtotalAmount,
+                b.ExtraBedAmount,
+                b.CreatedAt,
+                b.Status
+            })
+            .ToListAsync();
+        var redeemedBookings = usageBookings
+            .Where(b => !string.Equals(b.Status, "cancelled", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+        var firstBookingIds = usageBookings
+            .GroupBy(b => b.UserId)
+            .Select(g => g.OrderBy(b => b.CreatedAt).ThenBy(b => b.BookingId).First().BookingId)
+            .ToHashSet();
+
+        var promoUsageCounts = promoEntities.ToDictionary(
+            p => p.PromotionId,
+            p => redeemedBookings.Count(b =>
+            {
+                if (b.PromotionId == p.PromotionId) return true;
+
+                return (p.ConditionType ?? string.Empty).ToLowerInvariant() switch
+                {
+                    "first_booking" => firstBookingIds.Contains(b.BookingId),
+                    "min_nights" => b.Nights >= p.ConditionValue,
+                    "min_amount" => b.SubtotalAmount + b.ExtraBedAmount > p.ConditionValue,
+                    "min_guests" => b.TotalGuests >= p.ConditionValue,
+                    "advance_days" => (b.CheckInDate.ToDateTime(TimeOnly.MinValue).Date - b.CreatedAt.Date).TotalDays >= (double)p.ConditionValue,
+                    _ => false
+                };
+            }));
 
         var list = promoEntities.Select(p =>
         {

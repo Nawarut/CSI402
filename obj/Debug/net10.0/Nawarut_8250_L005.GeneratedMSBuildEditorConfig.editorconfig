@@ -51,6 +51,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxSZWdpc3Rlci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Account/Support.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxTdXBwb3J0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Admin/AddUser.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRkVXNlci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
@@ -87,36 +91,44 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Home/Lab10.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxMYWIxMC5jc2h0bWw=
+[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Home/LegacyLogin.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxMZWdhY3lMb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Home/Lab2.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxMYWIyLmNzaHRtbA==
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Home/Lab5.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxMYWI1LmNzaHRtbA==
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Home/Lab5_2.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxMYWI1XzIuY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Home/Lab5_3.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxMYWI1XzMuY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Home/Lab9.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxMYWI5LmNzaHRtbA==
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Home/Lab9_1.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxMYWI5XzEuY3NodG1s
+[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Home/LegacyRegistration.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxMZWdhY3lSZWdpc3RyYXRpb24uY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Home/StudentCreate.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxTdHVkZW50Q3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Home/StudentEdit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxTdHVkZW50RWRpdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Home/StudentList.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxTdHVkZW50TGlzdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Home/StudentProfileDemo.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxTdHVkZW50UHJvZmlsZURlbW8uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Home/UserManagement.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxVc2VyTWFuYWdlbWVudC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Payments/Checkout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGF5bWVudHNcQ2hlY2tvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Payments/PaymentSlip.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGF5bWVudHNcUGF5bWVudFNsaXAuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Reception/Index.cshtml]
@@ -129,6 +141,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Room/Details.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUm9vbVxEZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Shared/Components/NotificationBell/Default.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXENvbXBvbmVudHNcTm90aWZpY2F0aW9uQmVsbFxEZWZhdWx0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Game Of Cpu/Documents/GitHub/CSI402/Views/Shared/Error.cshtml]

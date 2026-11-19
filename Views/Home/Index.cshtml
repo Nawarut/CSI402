@@ -1,8 +1,14 @@
+@model List<Nawarut_8250_L005.Entities.Room>
 @{
     ViewData["Title"] = "หน้าหลัก";
     Layout = "_navbarlayout";
     var userName = Context.Session.GetString("UserName");
     var userRole = Context.Session.GetString("UserRole");
+    var checkInVal = ViewBag.CheckIn as string ?? DateTime.Today.ToString("yyyy-MM-dd");
+    var checkOutVal = ViewBag.CheckOut as string ?? DateTime.Today.AddDays(1).ToString("yyyy-MM-dd");
+    var destVal = ViewBag.Destination as string ?? "";
+    int adultsVal = ViewBag.Adults is int a ? a : 2;
+    int childrenVal = ViewBag.Children is int c ? c : 0;
 }
 
 <!-- ==========================================
@@ -43,7 +49,7 @@
                     </div>
                     <div class="mt-3 pt-2 border-top d-flex justify-content-end" style="border-color: rgba(255,255,255,0.08) !important;">
                         <a asp-controller="Account" asp-action="BookingHistory" class="btn-origin-glass" style="font-size: 13px; padding: 7px 16px;">
-                            📋 ดูประวัติการจอง &rarr;
+                            <i class="bi bi-clipboard-check me-1" aria-hidden="true"></i> ดูประวัติการจอง &rarr;
                         </a>
                     </div>
                 }
@@ -72,7 +78,7 @@
         {
             <div class="origin-card-graphite text-start mx-auto mb-5 p-4 d-flex flex-wrap justify-content-between align-items-center gap-3" style="max-width: 700px;">
                 <div class="d-flex align-items-center gap-3">
-                    <span class="fs-2">👋</span>
+                    <i class="bi bi-hand-thumbs-up fs-2" aria-hidden="true"></i>
                     <div>
                         <div class="fw-bold mb-0 text-white">สวัสดีคุณ @userName</div>
                         <span class="origin-mono" style="color: var(--color-iris-gleam); font-size: 11px;">
@@ -101,81 +107,69 @@
         
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
             <span class="origin-mono" style="color: var(--color-cloud);">
-                🔍 ค้นหาห้องพักและจุดหมายปลายทาง
+                <i class="bi bi-search me-1" aria-hidden="true"></i> ค้นหาห้องพักและจุดหมายปลายทาง
             </span>
             <span class="origin-mono" style="color: var(--color-cyan-signal); font-size: 11px;">
                 เวลาเช็คอิน 09:00 น. &middot; เช็คเอาท์ 12:00 น.
             </span>
         </div>
 
-        <form method="get" action="#">
+        <form method="get" asp-controller="Home" asp-action="Index">
             <div class="row g-3 align-items-end">
 
-                <!-- 1. ชื่อที่พัก / จังหวัด -->
+                <!-- 1. ค้นหาห้อง / ชั้น / ประเภทห้อง -->
                 <div class="col-12 col-md-3">
-                    <label class="origin-mono d-block mb-2" style="color: var(--color-ash); font-size: 11px;">📍 จุดหมาย / จังหวัด</label>
+                    <label class="origin-mono d-block mb-2" style="color: var(--color-ash); font-size: 11px;"><i class="bi bi-geo-alt me-1" aria-hidden="true"></i> ค้นหาห้องพัก / เลขห้อง / ชั้น</label>
                     <input type="text"
                            name="destination"
+                           value="@destVal"
                            class="origin-input w-100"
-                           placeholder="เช่น ภูเก็ต, เชียงใหม่, พัทยา" />
+                           placeholder="เช่น 1101, Deluxe, Suite, ชั้น 12" />
                 </div>
 
                 <!-- 2. วันที่เช็คอิน (09:00 น.) -->
                 <div class="col-6 col-md-2">
-                    <label class="origin-mono d-block mb-2" style="color: var(--color-ash); font-size: 11px;">📅 เช็คอิน (09:00)</label>
+                    <label class="origin-mono d-block mb-2" style="color: var(--color-ash); font-size: 11px;"><i class="bi bi-calendar3 me-1" aria-hidden="true"></i> เช็คอิน (09:00)</label>
                     <input type="date"
                            name="checkIn"
                            class="origin-input w-100"
-                           value="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                           value="@checkInVal" />
                 </div>
 
                 <!-- 3. วันที่เช็คเอาท์ (12:00 น.) -->
                 <div class="col-6 col-md-2">
-                    <label class="origin-mono d-block mb-2" style="color: var(--color-ash); font-size: 11px;">📅 เช็คเอาท์ (12:00)</label>
+                    <label class="origin-mono d-block mb-2" style="color: var(--color-ash); font-size: 11px;"><i class="bi bi-calendar3 me-1" aria-hidden="true"></i> เช็คเอาท์ (12:00)</label>
                     <input type="date"
                            name="checkOut"
                            class="origin-input w-100"
-                           value="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")" />
+                           value="@checkOutVal" />
                 </div>
 
-                <!-- 4. จำนวนห้อง -->
-                <div class="col-4 col-md-1">
-                    <label class="origin-mono d-block mb-2" style="color: var(--color-ash); font-size: 11px;">🛏 ห้อง</label>
-                    <select name="rooms" class="origin-input w-100">
-                        @for (int i = 1; i <= 6; i++)
-                        {
-                            <option value="@i">@i</option>
-                        }
-                    </select>
-                </div>
-
-                <!-- 5. จำนวนผู้ใหญ่ -->
-                <div class="col-4 col-md-1">
-                    <label class="origin-mono d-block mb-2" style="color: var(--color-ash); font-size: 11px;">👨‍👩 ผู้ใหญ่</label>
+                <!-- 4. จำนวนผู้ใหญ่ -->
+                <div class="col-6 col-md-2">
+                    <label class="origin-mono d-block mb-2" style="color: var(--color-ash); font-size: 11px;"><i class="bi bi-people me-1" aria-hidden="true"></i> ผู้ใหญ่</label>
                     <select name="adults" class="origin-input w-100">
                         @for (int i = 1; i <= 8; i++)
                         {
-                            <option value="@i" selected="@(i == 2 ? "selected" : null)">@i</option>
+                            <option value="@i" selected="@(adultsVal == i ? "selected" : null)">@i ท่าน</option>
                         }
                     </select>
                 </div>
 
-                <!-- 6. จำนวนเด็ก -->
-                <div class="col-4 col-md-1">
-                    <label class="origin-mono d-block mb-2" style="color: var(--color-ash); font-size: 11px;">👶 เด็ก</label>
+                <!-- 5. จำนวนเด็ก -->
+                <div class="col-6 col-md-1">
+                    <label class="origin-mono d-block mb-2" style="color: var(--color-ash); font-size: 11px;"><i class="bi bi-person me-1" aria-hidden="true"></i> เด็ก</label>
                     <select name="children" class="origin-input w-100">
                         @for (int i = 0; i <= 4; i++)
                         {
-                            <option value="@i">@i</option>
+                            <option value="@i" selected="@(childrenVal == i ? "selected" : null)">@i ท่าน</option>
                         }
                     </select>
                 </div>
 
-                <!-- 7. ปุ่มค้นหา (White-on-Black Primary CTA Button with →) -->
+                <!-- 6. ปุ่มค้นหา -->
                 <div class="col-12 col-md-2">
-                    <button type="button"
-                            class="btn-origin-primary w-100 justify-content-center"
-                            onclick="document.getElementById('recommended-rooms').scrollIntoView({ behavior: 'smooth' });">
+                    <button type="submit" class="btn-origin-primary w-100 justify-content-center">
                         ค้นหาห้องพัก &rarr;
                     </button>
                 </div>
@@ -209,13 +203,13 @@
                 <div>
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <span class="badge bg-white text-dark rounded-pill px-3 py-1 fw-bold" style="font-size: 11px;">
-                            🔥 ลด 20%
+                            <i class="bi bi-lightning-charge me-1" aria-hidden="true"></i> ลด 25%
                         </span>
-                        <span class="origin-mono text-white-50" style="font-size: 11px;">CODE: EARLY20</span>
+                        <span class="origin-mono text-white-50" style="font-size: 11px;">CODE: ADVANCE30</span>
                     </div>
-                    <h3 class="origin-heading-lg mb-2" style="font-size: 32px;">Early Bird Special</h3>
+                    <h3 class="origin-heading-lg mb-2" style="font-size: 32px;">จองล่วงหน้า 30 วัน</h3>
                     <p class="mb-4" style="color: rgba(255,255,255,0.85); font-size: 15px; line-height: 1.6;">
-                        จองห้องพักล่วงหน้า 30 วัน รับส่วนลดพิเศษทันที 20% สำหรับห้องพักและพูลวิลลาทุกรายการ
+                        จองห้องพักล่วงหน้าอย่างน้อย 30 วัน รับส่วนลดพิเศษทันที 25% สำหรับห้องพักทุกประเภท
                     </p>
                 </div>
                 <div class="pt-3 border-top border-white-50 d-flex justify-content-between align-items-center">
@@ -231,13 +225,13 @@
                 <div>
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <span class="badge bg-white text-dark rounded-pill px-3 py-1 fw-bold" style="font-size: 11px;">
-                            🎉 สมาชิกใหม่
+                            <i class="bi bi-stars me-1" aria-hidden="true"></i> สมาชิกใหม่
                         </span>
                         <span class="origin-mono text-white-50" style="font-size: 11px;">CODE: NEWMEMBER10</span>
                     </div>
-                    <h3 class="origin-heading-lg mb-2" style="font-size: 32px;">New Resident Welcome</h3>
+                    <h3 class="origin-heading-lg mb-2" style="font-size: 32px;">สมาชิกใหม่จองครั้งแรก</h3>
                     <p class="mb-4" style="color: rgba(255,255,255,0.85); font-size: 15px; line-height: 1.6;">
-                        สมัครสมาชิกวันนี้ รับส่วนลด 10% สำหรับการจองครั้งแรก พร้อมสิทธิประโยชน์เช็คเอาท์สาย
+                        สมัครสมาชิกวันนี้ รับส่วนลด 10% สำหรับการจองครั้งแรก พร้อมการันตีชำระมัดจำล่วงหน้าเพียง 5%
                     </p>
                 </div>
                 <div class="pt-3 border-top border-white-50 d-flex justify-content-between align-items-center">
@@ -253,13 +247,13 @@
                 <div>
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <span class="badge bg-white text-dark rounded-pill px-3 py-1 fw-bold" style="font-size: 11px;">
-                            🌙 พักผ่อนยาว
+                            <i class="bi bi-moon-stars me-1" aria-hidden="true"></i> พักผ่อนยาว
                         </span>
-                        <span class="origin-mono text-white-50" style="font-size: 11px;">CODE: STAY5FREE</span>
+                        <span class="origin-mono text-white-50" style="font-size: 11px;">CODE: STAY2NIGHTS15</span>
                     </div>
-                    <h3 class="origin-heading-lg mb-2" style="font-size: 32px;">Long Stay Solitude</h3>
+                    <h3 class="origin-heading-lg mb-2" style="font-size: 32px;">เข้าพัก 2 คืนขึ้นไป</h3>
                     <p class="mb-4" style="color: rgba(255,255,255,0.85); font-size: 15px; line-height: 1.6;">
-                        เข้าพักต่อเนื่องตั้งแต่ 5 คืนขึ้นไป รับฟรีอาหารเช้ากูร์เมต์สำหรับ 2 ท่านตลอดระยะเวลาเข้าพัก
+                        เข้าพักต่อเนื่องตั้งแต่ 2 คืนขึ้นไป รับส่วนลดพิเศษ 15% พร้อมเช็คอิน 09:00 น. และเช็คเอาท์ 12:00 น.
                     </p>
                 </div>
                 <div class="pt-3 border-top border-white-50 d-flex justify-content-between align-items-center">
@@ -282,231 +276,109 @@
     <div class="d-flex justify-content-between align-items-baseline mb-4">
         <div>
             <span class="origin-mono d-block" style="color: var(--color-cyan-signal);">CURATED SUITES</span>
-            <h2 class="origin-heading-lg mt-1 mb-0">รายการโรงแรมและห้องพักแนะนำ</h2>
+            <h2 class="origin-heading-lg mt-1 mb-0">รายการห้องพักของโรงแรม (ข้อมูลจริง)</h2>
         </div>
-        <a href="#" class="origin-mono text-decoration-none" style="color: var(--color-cloud);">
-            ดูห้องพักทั้งหมด &rarr;
-        </a>
+        <span class="origin-mono" style="color: var(--color-cloud);">
+            ทั้งหมด @(Model?.Count ?? 0) ห้องพัก &middot; เช็คอิน 09:00 น. | เช็คเอาท์ 12:00 น.
+        </span>
     </div>
 
     <div class="row g-4">
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var room in Model)
+            {
+                var typeName = room.RoomType?.TypeName ?? "Luxury Suite";
+                var price = room.PricePerNight ?? room.RoomType?.BasePrice ?? 3500m;
+                var isAvailable = (room.Status ?? "").ToLower() is "available" or "ว่าง";
+                var statusText = room.Status?.ToLower() switch
+                {
+                    "available" or "ว่าง" => "ว่างพร้อมพัก",
+                    "reserved" or "จองแล้ว" => "จองแล้ว",
+                    "occupied" or "มีผู้เข้าพัก" => "มีผู้เข้าพัก",
+                    "cleaning" or "กำลังทำความสะอาด" => "กำลังทำความสะอาด",
+                    "maintenance" or "ซ่อมบำรุง" => "ซ่อมบำรุง",
+                    _ => room.Status ?? "ว่าง"
+                };
+                var statusBadgeStyle = room.Status?.ToLower() switch
+                {
+                    "available" or "ว่าง" => "border-color: var(--color-cyan-signal); color: var(--color-cyan-signal); background: rgba(0,179,221,0.15);",
+                    "reserved" or "จองแล้ว" => "border-color: #fcd34d; color: #fcd34d; background: rgba(252,211,77,0.15);",
+                    "occupied" or "มีผู้เข้าพัก" => "border-color: #ef4444; color: #ef4444; background: rgba(239,68,68,0.15);",
+                    "cleaning" or "กำลังทำความสะอาด" => "border-color: #f59e0b; color: #f59e0b; background: rgba(245,158,11,0.15);",
+                    _ => "border-color: var(--color-ash); color: var(--color-ash); background: rgba(255,255,255,0.08);"
+                };
 
-        <!-- Room 1 -->
-        <div class="col-12 col-md-6 col-lg-4">
-            <div class="origin-card-graphite h-100 p-0 overflow-hidden d-flex flex-column justify-content-between">
-                <div>
-                    <div class="position-relative overflow-hidden" style="height: 250px;">
-                        <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80"
-                             alt="Grand Deluxe Suite"
-                             style="width: 100%; height: 100%; object-fit: cover;" />
-                        <span class="position-absolute top-0 start-0 m-3 origin-pill-chip" style="background: rgba(15,16,17,0.85);">
-                            📍 กรุงเทพมหานคร
-                        </span>
-                        <span class="position-absolute bottom-0 end-0 m-3 badge bg-white text-dark rounded-pill px-3 py-1 fw-bold" style="font-size: 11px;">
-                            KING BED
-                        </span>
-                    </div>
-                    <div class="p-4">
-                        <div class="d-flex justify-content-between align-items-baseline mb-2">
-                            <h3 class="origin-heading-lg mb-0" style="font-size: 24px;">Grand Deluxe Suite</h3>
-                            <span class="origin-mono fw-bold" style="color: var(--color-cyan-signal); font-size: 15px;">
-                                ฿4,500 <span style="font-size:10px; color:var(--color-ash);">/ คืน</span>
-                            </span>
+                // เลือกรูปภาพห้องพัก
+                string imgUrl = room.RoomType?.RoomImages?.FirstOrDefault()?.ImageUrl ?? "";
+                if (string.IsNullOrWhiteSpace(imgUrl))
+                {
+                    if (typeName.Contains("Executive", StringComparison.OrdinalIgnoreCase) || (room.FloorNo == 11))
+                        imgUrl = "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80";
+                    else if (typeName.Contains("Deluxe", StringComparison.OrdinalIgnoreCase) || (room.FloorNo == 12))
+                        imgUrl = "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80";
+                    else if (typeName.Contains("Ocean", StringComparison.OrdinalIgnoreCase) || (room.FloorNo == 13))
+                        imgUrl = "https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=800&q=80";
+                    else if (typeName.Contains("Family", StringComparison.OrdinalIgnoreCase) || (room.FloorNo == 14))
+                        imgUrl = "https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=800&q=80";
+                    else
+                        imgUrl = "https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=800&q=80";
+                }
+
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="origin-card-graphite h-100 p-0 overflow-hidden d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="position-relative overflow-hidden" style="height: 240px;">
+                                <img src="@imgUrl"
+                                     alt="ห้อง @room.RoomNumber"
+                                     style="width: 100%; height: 100%; object-fit: cover;" />
+                                <span class="position-absolute top-0 start-0 m-3 origin-pill-chip" style="background: rgba(15,16,17,0.88);">
+                                    ห้อง #@room.RoomNumber &middot; ชั้น @(room.FloorNo ?? 1)
+                                </span>
+                                <span class="position-absolute bottom-0 end-0 m-3 badge rounded-pill px-3 py-1 fw-bold border" style="@statusBadgeStyle font-size: 11px;">
+                                    ● @statusText
+                                </span>
+                            </div>
+                            <div class="p-4">
+                                <div class="d-flex justify-content-between align-items-baseline mb-2">
+                                    <h3 class="origin-heading-lg mb-0" style="font-size: 22px;">@typeName</h3>
+                                    <span class="origin-mono fw-bold" style="color: var(--color-cyan-signal); font-size: 15px;">
+                                        ฿@price.ToString("N0") <span style="font-size:10px; color:var(--color-ash);">/ คืน</span>
+                                    </span>
+                                </div>
+                                <p class="origin-body mb-3" style="font-size: 13px; color: var(--color-ash);">
+                                    เตียง @(room.RoomType?.BedType ?? "King Bed") &middot; @(room.RoomType?.SizeSqm ?? 45) ตร.ม. &middot; สูงสุด @(room.RoomType?.MaxGuests ?? 2) ท่าน &middot; มัดจำ 5% (฿@((price * 0.05m).ToString("N0")))
+                                </p>
+                            </div>
                         </div>
-                        <p class="origin-body mb-3" style="font-size: 13.5px;">
-                            อ่างอาบน้ำ &middot; วิวเมืองพาโนรามา &middot; Wi-Fi ความเร็วสูง &middot; 45 ตร.ม.
-                        </p>
+                        <div class="px-4 pb-4 pt-2 border-top d-flex justify-content-between align-items-center" style="border-color: rgba(255,255,255,0.08) !important;">
+                            <span class="origin-mono" style="font-size: 11px; color: var(--color-ash);">เช็คอิน 09:00 | เช็คเอาท์ 12:00</span>
+                            <a asp-controller="Room" asp-action="Details"
+                               asp-route-id="@room.RoomId"
+                               asp-route-checkIn="@checkInVal"
+                               asp-route-checkOut="@checkOutVal"
+                               asp-route-adults="@adultsVal"
+                               asp-route-children="@childrenVal"
+                               class="@(isAvailable ? "btn-origin-primary" : "btn-origin-ghost")"
+                               style="padding: 8px 16px; font-size: 13px;">
+                                @(isAvailable ? "จองเลย →" : "ดูห้องพัก →")
+                            </a>
+                        </div>
                     </div>
                 </div>
-                <div class="px-4 pb-4 pt-2 border-top d-flex justify-content-between align-items-center" style="border-color: rgba(255,255,255,0.08) !important;">
-                    <span class="origin-mono" style="font-size: 11px; color: var(--color-ash);">เช็คอิน 09:00</span>
-                    <a asp-controller="Room" asp-action="Details" asp-route-id="1" class="btn-origin-primary" style="padding: 8px 16px; font-size: 13px;">
-                        จองเลย &rarr;
-                    </a>
+            }
+        }
+        else
+        {
+            <div class="col-12 py-5 text-center">
+                <div class="origin-card-graphite p-5 mx-auto" style="max-width: 600px;">
+                    <i class="bi bi-search fs-1 mb-3" aria-hidden="true"></i>
+                    <h3 class="origin-heading-lg mb-2">ไม่พบห้องพักตามเงื่อนไขที่ค้นหา</h3>
+                    <p class="origin-body text-muted mb-4">ลองปรับเปลี่ยนคำค้นหา หรือกดรีเซ็ตเพื่อแสดงห้องพักทั้งหมด</p>
+                    <a asp-action="Index" class="btn-origin-primary py-2 px-4 text-decoration-none">แสดงห้องพักทั้งหมด &rarr;</a>
                 </div>
             </div>
-        </div>
-
-        <!-- Room 2 -->
-        <div class="col-12 col-md-6 col-lg-4">
-            <div class="origin-card-graphite h-100 p-0 overflow-hidden d-flex flex-column justify-content-between">
-                <div>
-                    <div class="position-relative overflow-hidden" style="height: 250px;">
-                        <img src="https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=800&q=80"
-                             alt="Private Pool Villa"
-                             style="width: 100%; height: 100%; object-fit: cover;" />
-                        <span class="position-absolute top-0 start-0 m-3 origin-pill-chip" style="background: rgba(15,16,17,0.85);">
-                            📍 ภูเก็ต
-                        </span>
-                        <span class="position-absolute bottom-0 end-0 m-3 badge bg-white text-dark rounded-pill px-3 py-1 fw-bold" style="font-size: 11px;">
-                            POOL VILLA
-                        </span>
-                    </div>
-                    <div class="p-4">
-                        <div class="d-flex justify-content-between align-items-baseline mb-2">
-                            <h3 class="origin-heading-lg mb-0" style="font-size: 24px;">Private Pool Villa</h3>
-                            <span class="origin-mono fw-bold" style="color: var(--color-cyan-signal); font-size: 15px;">
-                                ฿12,000 <span style="font-size:10px; color:var(--color-ash);">/ คืน</span>
-                            </span>
-                        </div>
-                        <p class="origin-body mb-3" style="font-size: 13.5px;">
-                            สระส่วนตัว &middot; วิวทะเลเปิดกว้าง &middot; อาหารเช้ากูร์เมต์ &middot; 120 ตร.ม.
-                        </p>
-                    </div>
-                </div>
-                <div class="px-4 pb-4 pt-2 border-top d-flex justify-content-between align-items-center" style="border-color: rgba(255,255,255,0.08) !important;">
-                    <span class="origin-mono" style="font-size: 11px; color: var(--color-ash);">เช็คอิน 09:00</span>
-                    <a asp-controller="Room" asp-action="Details" asp-route-id="2" class="btn-origin-primary" style="padding: 8px 16px; font-size: 13px;">
-                        จองเลย &rarr;
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Room 3 -->
-        <div class="col-12 col-md-6 col-lg-4">
-            <div class="origin-card-graphite h-100 p-0 overflow-hidden d-flex flex-column justify-content-between">
-                <div>
-                    <div class="position-relative overflow-hidden" style="height: 250px;">
-                        <img src="https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=800&q=80"
-                             alt="Lanna Heritage Room"
-                             style="width: 100%; height: 100%; object-fit: cover;" />
-                        <span class="position-absolute top-0 start-0 m-3 origin-pill-chip" style="background: rgba(15,16,17,0.85);">
-                            📍 เชียงใหม่
-                        </span>
-                        <span class="position-absolute bottom-0 end-0 m-3 badge bg-white text-dark rounded-pill px-3 py-1 fw-bold" style="font-size: 11px;">
-                            TWIN BED
-                        </span>
-                    </div>
-                    <div class="p-4">
-                        <div class="d-flex justify-content-between align-items-baseline mb-2">
-                            <h3 class="origin-heading-lg mb-0" style="font-size: 24px;">Lanna Heritage Room</h3>
-                            <span class="origin-mono fw-bold" style="color: var(--color-cyan-signal); font-size: 15px;">
-                                ฿2,800 <span style="font-size:10px; color:var(--color-ash);">/ คืน</span>
-                            </span>
-                        </div>
-                        <p class="origin-body mb-3" style="font-size: 13.5px;">
-                            วิวสวนธรรมชาติ &middot; สถาปัตยกรรมไม้สัก &middot; อากาศบริสุทธิ์ &middot; 32 ตร.ม.
-                        </p>
-                    </div>
-                </div>
-                <div class="px-4 pb-4 pt-2 border-top d-flex justify-content-between align-items-center" style="border-color: rgba(255,255,255,0.08) !important;">
-                    <span class="origin-mono" style="font-size: 11px; color: var(--color-ash);">เช็คอิน 09:00</span>
-                    <a asp-controller="Room" asp-action="Details" asp-route-id="3" class="btn-origin-primary" style="padding: 8px 16px; font-size: 13px;">
-                        จองเลย &rarr;
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Room 4 -->
-        <div class="col-12 col-md-6 col-lg-4">
-            <div class="origin-card-graphite h-100 p-0 overflow-hidden d-flex flex-column justify-content-between">
-                <div>
-                    <div class="position-relative overflow-hidden" style="height: 250px;">
-                        <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80"
-                             alt="Ocean Breeze Suite"
-                             style="width: 100%; height: 100%; object-fit: cover;" />
-                        <span class="position-absolute top-0 start-0 m-3 origin-pill-chip" style="background: rgba(15,16,17,0.85);">
-                            📍 พัทยา (ชลบุรี)
-                        </span>
-                        <span class="position-absolute bottom-0 end-0 m-3 badge bg-white text-dark rounded-pill px-3 py-1 fw-bold" style="font-size: 11px;">
-                            FAMILY SUITE
-                        </span>
-                    </div>
-                    <div class="p-4">
-                        <div class="d-flex justify-content-between align-items-baseline mb-2">
-                            <h3 class="origin-heading-lg mb-0" style="font-size: 24px;">Ocean Breeze Suite</h3>
-                            <span class="origin-mono fw-bold" style="color: var(--color-cyan-signal); font-size: 15px;">
-                                ฿6,500 <span style="font-size:10px; color:var(--color-ash);">/ คืน</span>
-                            </span>
-                        </div>
-                        <p class="origin-body mb-3" style="font-size: 13.5px;">
-                            ระเบียงวิวทะเลกว้าง &middot; รองรับ 4 ท่าน &middot; อ่างสปาส่วนตัว &middot; 75 ตร.ม.
-                        </p>
-                    </div>
-                </div>
-                <div class="px-4 pb-4 pt-2 border-top d-flex justify-content-between align-items-center" style="border-color: rgba(255,255,255,0.08) !important;">
-                    <span class="origin-mono" style="font-size: 11px; color: var(--color-ash);">เช็คอิน 09:00</span>
-                    <a asp-controller="Room" asp-action="Details" asp-route-id="4" class="btn-origin-primary" style="padding: 8px 16px; font-size: 13px;">
-                        จองเลย &rarr;
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Room 5 -->
-        <div class="col-12 col-md-6 col-lg-4">
-            <div class="origin-card-graphite h-100 p-0 overflow-hidden d-flex flex-column justify-content-between">
-                <div>
-                    <div class="position-relative overflow-hidden" style="height: 250px;">
-                        <img src="https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=800&q=80"
-                             alt="Seaside Deluxe Room"
-                             style="width: 100%; height: 100%; object-fit: cover;" />
-                        <span class="position-absolute top-0 start-0 m-3 origin-pill-chip" style="background: rgba(15,16,17,0.85);">
-                            📍 หัวหิน (ประจวบฯ)
-                        </span>
-                        <span class="position-absolute bottom-0 end-0 m-3 badge bg-white text-dark rounded-pill px-3 py-1 fw-bold" style="font-size: 11px;">
-                            SEASIDE
-                        </span>
-                    </div>
-                    <div class="p-4">
-                        <div class="d-flex justify-content-between align-items-baseline mb-2">
-                            <h3 class="origin-heading-lg mb-0" style="font-size: 24px;">Seaside Deluxe Room</h3>
-                            <span class="origin-mono fw-bold" style="color: var(--color-cyan-signal); font-size: 15px;">
-                                ฿3,200 <span style="font-size:10px; color:var(--color-ash);">/ คืน</span>
-                            </span>
-                        </div>
-                        <p class="origin-body mb-3" style="font-size: 13.5px;">
-                            เดินสู่ชายหาดเพียง 2 นาที &middot; ชมพระอาทิตย์ตกดิน &middot; เตียงคิงไซส์ &middot; 38 ตร.ม.
-                        </p>
-                    </div>
-                </div>
-                <div class="px-4 pb-4 pt-2 border-top d-flex justify-content-between align-items-center" style="border-color: rgba(255,255,255,0.08) !important;">
-                    <span class="origin-mono" style="font-size: 11px; color: var(--color-ash);">เช็คอิน 09:00</span>
-                    <a asp-controller="Room" asp-action="Details" asp-route-id="5" class="btn-origin-primary" style="padding: 8px 16px; font-size: 13px;">
-                        จองเลย &rarr;
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Room 6 -->
-        <div class="col-12 col-md-6 col-lg-4">
-            <div class="origin-card-graphite h-100 p-0 overflow-hidden d-flex flex-column justify-content-between">
-                <div>
-                    <div class="position-relative overflow-hidden" style="height: 250px;">
-                        <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=800&q=80"
-                             alt="Tropical Pool Villa"
-                             style="width: 100%; height: 100%; object-fit: cover;" />
-                        <span class="position-absolute top-0 start-0 m-3 origin-pill-chip" style="background: rgba(15,16,17,0.85);">
-                            📍 เกาะสมุย (สุราษฎร์ฯ)
-                        </span>
-                        <span class="position-absolute bottom-0 end-0 m-3 badge bg-white text-dark rounded-pill px-3 py-1 fw-bold" style="font-size: 11px;">
-                            ISLAND VILLA
-                        </span>
-                    </div>
-                    <div class="p-4">
-                        <div class="d-flex justify-content-between align-items-baseline mb-2">
-                            <h3 class="origin-heading-lg mb-0" style="font-size: 24px;">Tropical Pool Villa</h3>
-                            <span class="origin-mono fw-bold" style="color: var(--color-cyan-signal); font-size: 15px;">
-                                ฿9,800 <span style="font-size:10px; color:var(--color-ash);">/ คืน</span>
-                            </span>
-                        </div>
-                        <p class="origin-body mb-3" style="font-size: 13.5px;">
-                            วิลลาส่วนตัวกลางแมกไม้เขตร้อน &middot; สระว่ายน้ำส่วนตัว &middot; อาหารเช้า &middot; 90 ตร.ม.
-                        </p>
-                    </div>
-                </div>
-                <div class="px-4 pb-4 pt-2 border-top d-flex justify-content-between align-items-center" style="border-color: rgba(255,255,255,0.08) !important;">
-                    <span class="origin-mono" style="font-size: 11px; color: var(--color-ash);">เช็คอิน 09:00</span>
-                    <a asp-controller="Room" asp-action="Details" asp-route-id="6" class="btn-origin-primary" style="padding: 8px 16px; font-size: 13px;">
-                        จองเลย &rarr;
-                    </a>
-                </div>
-            </div>
-        </div>
-
+        }
     </div>
 
 </section>

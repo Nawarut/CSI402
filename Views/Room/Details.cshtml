@@ -66,7 +66,7 @@
                             ห้อง @Model.Room.RoomNumber &middot; @Model.Room.TypeName
                         </span>
                         <span class="position-absolute bottom-0 end-0 m-3 badge bg-white text-dark rounded-pill px-3 py-2 fw-bold" style="font-size: 11px;">
-                            📷 @Model.Room.Images.Count รูปภาพ
+                            <i class="bi bi-camera me-1"></i> @Model.Room.Images.Count รูปภาพ
                         </span>
                     </div>
                 }
@@ -235,7 +235,7 @@
                             <div class="col-6">
                                 <label class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">เช็คเอาท์ (12:00)</label>
                                 <input type="date" id="checkOutInput" class="origin-input w-100"
-                                       value="@checkOut"
+                                       value="@checkOut" min="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")"
                                        onchange="updateDates()" />
                             </div>
                         </div>
@@ -263,7 +263,7 @@
                         {
                             <div class="mb-4">
                                 <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <label class="origin-mono mb-0" style="color: var(--color-ash); font-size: 11px;">🛏 เพิ่มเตียงเสริม (EXTRA BED)</label>
+                                    <label class="origin-mono mb-0" style="color: var(--color-ash); font-size: 11px;"><i class="bi bi-plus-square me-1"></i> เพิ่มเตียงเสริม (EXTRA BED)</label>
                                     <span class="origin-mono" style="color: var(--color-cyan-signal); font-size: 10px;">+฿@Model.ExtraBedPricePerNight.ToString("N0") / คืน</span>
                                 </div>
                                 <div class="d-flex align-items-center gap-2">
@@ -439,7 +439,9 @@
 
         function getNights() {
             const ci = document.getElementById('checkInInput').value;
-            const co = document.getElementById('checkOutInput').value;
+            const checkOutInput = document.getElementById('checkOutInput');
+            checkOutInput.min = ci;
+            const co = checkOutInput.value;
             if (!ci || !co) return 1;
             const diff = (new Date(co) - new Date(ci)) / (1000 * 60 * 60 * 24);
             return Math.max(1, Math.round(diff));
@@ -452,7 +454,7 @@
             if (ci && co && new Date(co) <= new Date(ci)) {
                 const nextDay = new Date(ci);
                 nextDay.setDate(nextDay.getDate() + 1);
-                document.getElementById('checkOutInput').value = nextDay.toISOString().split('T')[0];
+                checkOutInput.value = nextDay.toISOString().split('T')[0];
             }
 
             document.getElementById('formCheckIn').value = document.getElementById('checkInInput').value;

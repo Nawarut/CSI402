@@ -40,6 +40,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 8px;
         }
 
         /* Brand Logo: JoJo Hotel in refined typography */
@@ -47,12 +48,13 @@
             text-decoration: none;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 7px;
+            flex: 0 0 auto;
         }
 
         .origin-brand-title {
             font-family: var(--font-serif-display);
-            font-size: 24px;
+            font-size: 21px;
             font-weight: 400;
             color: var(--color-pure);
             letter-spacing: -0.01em;
@@ -61,13 +63,13 @@
 
         .origin-brand-badge {
             font-family: var(--font-roboto-mono);
-            font-size: 9px;
+            font-size: 8px;
             font-weight: 500;
             background: rgba(132, 125, 255, 0.15);
             color: var(--color-iris-gleam);
             border: 1px solid rgba(132, 125, 255, 0.3);
             border-radius: var(--radius-pill);
-            padding: 2px 8px;
+            padding: 2px 5px;
             letter-spacing: 0.1em;
             text-transform: uppercase;
         }
@@ -75,17 +77,25 @@
         /* Nav links */
         .origin-nav-menu {
             display: flex;
+            flex: 1 1 auto;
+            min-width: 0;
+            flex-wrap: nowrap;
             align-items: center;
-            gap: 18px;
+            justify-content: space-evenly;
+            gap: 2px;
+        }
+
+        .origin-nav-menu > * {
+            flex: 0 0 auto;
         }
 
         .origin-nav-link {
             font-family: var(--font-sans-ui);
-            font-size: 15px;
+            font-size: 13px;
             font-weight: 400;
             color: var(--color-ash);
             text-decoration: none;
-            padding: 8px 12px;
+            padding: 6px 5px;
             border-radius: var(--radius-buttons);
             transition: all 0.2s ease;
             background: transparent;
@@ -94,6 +104,7 @@
             align-items: center;
             gap: 5px;
             cursor: pointer;
+            white-space: nowrap;
         }
 
         .origin-nav-link:hover {
@@ -166,7 +177,29 @@
         .origin-nav-right {
             display: flex;
             align-items: center;
-            gap: 14px;
+            flex: 0 1 auto;
+            min-width: 0;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .origin-nav-right > .origin-mono {
+            display: inline-block;
+            max-width: 90px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .origin-nav-right > a {
+            flex: 0 0 auto;
+            white-space: nowrap;
+        }
+
+        .origin-nav-right .btn-origin-glass,
+        .origin-nav-right .btn-origin-ghost {
+            font-size: 10px !important;
+            padding: 6px 9px !important;
         }
 
         /* Footer */
@@ -177,18 +210,40 @@
             margin-top: 100px;
         }
 
+        .notification-bell { position: relative; }
+        .notification-bell-button {
+            position: relative; width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center;
+            color: var(--color-cloud); background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.14);
+            border-radius: 50%; font-size: 17px;
+        }
+        .notification-bell-button:hover { color: var(--color-cyan-signal); border-color: rgba(0,179,221,.5); }
+        .notification-bell-count {
+            position: absolute; top: -5px; right: -5px; min-width: 17px; height: 17px; padding: 0 4px;
+            border-radius: 99px; background: #ef4444; color: white; font: 10px/17px var(--font-roboto-mono); text-align: center;
+        }
+        .notification-bell-menu { width: min(360px, calc(100vw - 24px)); background: var(--color-graphite); border: 1px solid rgba(255,255,255,.12); box-shadow: 0 18px 50px rgba(0,0,0,.4); }
+        .notification-bell-list { max-height: 380px; overflow-y: auto; }
+        .notification-bell-item { display: flex; gap: 10px; padding: 12px 14px; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,.06); }
+        .notification-bell-item:hover { background: rgba(255,255,255,.05); }
+        .notification-bell-item.is-read { opacity: .68; }
+        .notification-bell-dot { flex: 0 0 8px; width: 8px; height: 8px; margin-top: 6px; border-radius: 50%; background: var(--color-cyan-signal); }
+        .notification-bell-item.is-read .notification-bell-dot { background: #64748b; }
+
         @@media (max-width: 992px) {
             .origin-navbar-inner {
+                display: flex;
                 height: auto;
                 padding: 16px 20px;
                 flex-wrap: wrap;
             }
             .origin-nav-menu {
                 width: 100%;
+                flex: 0 0 100%;
                 order: 3;
                 margin-top: 14px;
                 flex-direction: column;
                 align-items: flex-start;
+                flex-wrap: wrap;
                 gap: 8px;
             }
             .origin-dropdown-menu {
@@ -221,108 +276,80 @@
                     หน้าหลัก
                 </a>
 
-                <!-- Dropdown ห้องพัก แยกตามจังหวัด -->
+                <!-- Dropdown ห้องพัก แยกตามประเภทห้องและชั้น -->
                 <div class="origin-dropdown">
                     <span class="origin-nav-link">
                         ห้องพัก <span style="font-size: 11px;">&#x25BE;</span>
                     </span>
-                    <div class="origin-dropdown-menu">
+                    <div class="origin-dropdown-menu" style="min-width: 600px;">
                         <div class="row g-4">
-                            <!-- กรุงเทพฯ -->
-                            <div class="col-4">
-                                <div class="origin-dropdown-col-title">📍 BANGKOK &middot; กรุงเทพฯ</div>
-                                <a asp-controller="Room" asp-action="Details" asp-route-id="1" class="origin-dropdown-room">
-                                    <span>Grand Deluxe Suite</span>
-                                    <span class="origin-tag-mini">KING</span>
+                            <!-- ชั้น 11: Executive Business Suite -->
+                            <div class="col-6">
+                                <div class="origin-dropdown-col-title"><i class="bi bi-building me-1" aria-hidden="true"></i> EXECUTIVE BUSINESS SUITE (ชั้น 11)</div>
+                                <a asp-controller="Room" asp-action="Details" asp-route-id="1101" class="origin-dropdown-room">
+                                    <span>ห้อง #1101 (King Bed)</span>
+                                    <span class="origin-tag-mini">฿3,900 / คืน</span>
                                 </a>
-                                <a asp-controller="Room" asp-action="Details" asp-route-id="1" class="origin-dropdown-room">
-                                    <span>Superior City View</span>
-                                    <span class="origin-tag-mini">TWIN</span>
-                                </a>
-                                <a asp-controller="Room" asp-action="Details" asp-route-id="1" class="origin-dropdown-room">
-                                    <span>Executive Suite</span>
-                                    <span class="origin-tag-mini">SUITE</span>
+                                <a asp-controller="Room" asp-action="Details" asp-route-id="1102" class="origin-dropdown-room">
+                                    <span>ห้อง #1102 (King Bed)</span>
+                                    <span class="origin-tag-mini">฿3,900 / คืน</span>
                                 </a>
                             </div>
 
-                            <!-- เชียงใหม่ -->
-                            <div class="col-4">
-                                <div class="origin-dropdown-col-title" style="color: var(--color-cyan-signal);">📍 CHIANG MAI &middot; เชียงใหม่</div>
-                                <a asp-controller="Room" asp-action="Details" asp-route-id="3" class="origin-dropdown-room">
-                                    <span>Lanna Heritage</span>
-                                    <span class="origin-tag-mini">KING</span>
+                            <!-- ชั้น 12: Deluxe King Suite -->
+                            <div class="col-6">
+                                <div class="origin-dropdown-col-title" style="color: var(--color-cyan-signal);"><i class="bi bi-gem me-1" aria-hidden="true"></i> DELUXE KING SUITE (ชั้น 12)</div>
+                                <a asp-controller="Room" asp-action="Details" asp-route-id="1201" class="origin-dropdown-room">
+                                    <span>ห้อง #1201 (King Bed)</span>
+                                    <span class="origin-tag-mini">฿4,200 / คืน</span>
                                 </a>
-                                <a asp-controller="Room" asp-action="Details" asp-route-id="3" class="origin-dropdown-room">
-                                    <span>Mountain Serenity</span>
-                                    <span class="origin-tag-mini">SUITE</span>
-                                </a>
-                                <a asp-controller="Room" asp-action="Details" asp-route-id="3" class="origin-dropdown-room">
-                                    <span>Cozy Garden Sanctuary</span>
-                                    <span class="origin-tag-mini">TWIN</span>
+                                <a asp-controller="Room" asp-action="Details" asp-route-id="1202" class="origin-dropdown-room">
+                                    <span>ห้อง #1202 (King Bed)</span>
+                                    <span class="origin-tag-mini">฿4,200 / คืน</span>
                                 </a>
                             </div>
 
-                            <!-- ภูเก็ต -->
-                            <div class="col-4">
-                                <div class="origin-dropdown-col-title" style="color: var(--color-orchid-bloom);">📍 PHUKET &middot; ภูเก็ต</div>
-                                <a asp-controller="Room" asp-action="Details" asp-route-id="2" class="origin-dropdown-room">
-                                    <span>Private Pool Villa</span>
-                                    <span class="origin-tag-mini">VILLA</span>
+                            <!-- ชั้น 13: Ocean View Balcony Suite -->
+                            <div class="col-6">
+                                <div class="origin-dropdown-col-title" style="color: var(--color-orchid-bloom);"><i class="bi bi-water me-1" aria-hidden="true"></i> OCEAN VIEW BALCONY (ชั้น 13)</div>
+                                <a asp-controller="Room" asp-action="Details" asp-route-id="1301" class="origin-dropdown-room">
+                                    <span>ห้อง #1301 (Balcony)</span>
+                                    <span class="origin-tag-mini">฿4,800 / คืน</span>
                                 </a>
-                                <a asp-controller="Room" asp-action="Details" asp-route-id="2" class="origin-dropdown-room">
-                                    <span>Beachfront Suite</span>
-                                    <span class="origin-tag-mini">KING</span>
-                                </a>
-                                <a asp-controller="Room" asp-action="Details" asp-route-id="2" class="origin-dropdown-room">
-                                    <span>Sea View Pavilion</span>
-                                    <span class="origin-tag-mini">DOUBLE</span>
+                                <a asp-controller="Room" asp-action="Details" asp-route-id="1302" class="origin-dropdown-room">
+                                    <span>ห้อง #1302 (Balcony)</span>
+                                    <span class="origin-tag-mini">฿4,800 / คืน</span>
                                 </a>
                             </div>
 
-                            <!-- พัทยา -->
-                            <div class="col-4">
-                                <div class="origin-dropdown-col-title" style="color: var(--color-periwinkle);">📍 PATTAYA &middot; พัทยา</div>
-                                <a asp-controller="Room" asp-action="Details" asp-route-id="4" class="origin-dropdown-room">
-                                    <span>Ocean Breeze Suite</span>
-                                    <span class="origin-tag-mini">KING</span>
+                            <!-- ชั้น 14: Grand Family Suite -->
+                            <div class="col-6">
+                                <div class="origin-dropdown-col-title" style="color: var(--color-periwinkle);"><i class="bi bi-people me-1" aria-hidden="true"></i> GRAND FAMILY SUITE (ชั้น 14)</div>
+                                <a asp-controller="Room" asp-action="Details" asp-route-id="1401" class="origin-dropdown-room">
+                                    <span>ห้อง #1401 (Family 4 ท่าน)</span>
+                                    <span class="origin-tag-mini">฿5,800 / คืน</span>
                                 </a>
-                                <a asp-controller="Room" asp-action="Details" asp-route-id="4" class="origin-dropdown-room">
-                                    <span>Pattaya Family Suite</span>
-                                    <span class="origin-tag-mini">SUITE</span>
-                                </a>
-                            </div>
-
-                            <!-- หัวหิน -->
-                            <div class="col-4">
-                                <div class="origin-dropdown-col-title" style="color: var(--color-pale-iris);">📍 HUA HIN &middot; หัวหิน</div>
-                                <a asp-controller="Room" asp-action="Details" asp-route-id="5" class="origin-dropdown-room">
-                                    <span>Seaside Deluxe Room</span>
-                                    <span class="origin-tag-mini">KING</span>
-                                </a>
-                                <a asp-controller="Room" asp-action="Details" asp-route-id="5" class="origin-dropdown-room">
-                                    <span>Beach Haven Cottage</span>
-                                    <span class="origin-tag-mini">DOUBLE</span>
+                                <a asp-controller="Room" asp-action="Details" asp-route-id="1402" class="origin-dropdown-room">
+                                    <span>ห้อง #1402 (Family 4 ท่าน)</span>
+                                    <span class="origin-tag-mini">฿5,800 / คืน</span>
                                 </a>
                             </div>
-
-                            <!-- เกาะสมุย -->
-                            <div class="col-4">
-                                <div class="origin-dropdown-col-title">📍 KOH SAMUI &middot; เกาะสมุย</div>
-                                <a asp-controller="Room" asp-action="Details" asp-route-id="6" class="origin-dropdown-room">
-                                    <span>Tropical Pool Villa</span>
-                                    <span class="origin-tag-mini">VILLA</span>
-                                </a>
-                                <a asp-controller="Room" asp-action="Details" asp-route-id="6" class="origin-dropdown-room">
-                                    <span>Island View Suite</span>
-                                    <span class="origin-tag-mini">SUITE</span>
-                                </a>
-                            </div>
+                        </div>
+                        <div class="border-top pt-3 mt-3 d-flex justify-content-between align-items-center" style="border-color: rgba(255,255,255,0.08) !important;">
+                            <span class="origin-mono" style="font-size: 11px; color: var(--color-ash);">เช็คอิน: 09:00 น. &middot; เช็คเอาท์: 12:00 น.</span>
+                            <a asp-controller="Home" asp-action="Index" class="origin-mono text-decoration-none" style="color: var(--color-cyan-signal); font-size: 11px;">
+                                ดูห้องพักทั้งหมด &rarr;
+                            </a>
                         </div>
                     </div>
                 </div>
 
                 <a asp-controller="Account" asp-action="BookingHistory" class="origin-nav-link">
                     ประวัติการจอง
+                </a>
+
+                <a asp-controller="Account" asp-action="Support" class="origin-nav-link">
+                    แจ้งปัญหา / Customer Service
                 </a>
 
                 <a href="#" class="origin-nav-link" onclick="alert('ติดต่อฝ่ายต้อนรับ: +66 (0) 2 123 4567'); return false;">
@@ -332,6 +359,7 @@
 
             <!-- Right Actions: Login & Logout buttons -->
             <div class="origin-nav-right">
+                @await Component.InvokeAsync("NotificationBell")
                 @if (!string.IsNullOrEmpty(Context.Session.GetString("UserName")))
                 {
                     <span class="origin-mono" style="font-size: 11px; color: var(--color-ash);">
@@ -340,25 +368,25 @@
                     @if (Context.Session.GetString("UserRole") == "Admin")
                     {
                         <a asp-controller="Admin" asp-action="Index" class="btn-origin-glass" style="font-size: 12px; padding: 6px 12px;">
-                            👑 ADMIN PANEL
+                            <i class="bi bi-shield-lock me-1" aria-hidden="true"></i> ADMIN PANEL
                         </a>
                     }
                     else if (Context.Session.GetString("UserRole") == "Staff" || Context.Session.GetString("UserRole") == "Reception")
                     {
                         <a asp-controller="Reception" asp-action="Index" class="btn-origin-glass" style="font-size: 12px; padding: 6px 12px; color: var(--color-cyan-signal); border-color: rgba(0,179,221,0.3);">
-                            🛎️ RECEPTION
+                            <i class="bi bi-bell me-1" aria-hidden="true"></i> RECEPTION
                         </a>
                     }
                     else if (Context.Session.GetString("UserRole") == "Accountant" || Context.Session.GetString("UserRole") == "Accounting")
                     {
                         <a asp-controller="Accounting" asp-action="Index" class="btn-origin-glass" style="font-size: 12px; padding: 6px 12px; color: var(--color-orchid-bloom); border-color: rgba(221,144,216,0.3);">
-                            💼 ACCOUNTING
+                            <i class="bi bi-wallet2 me-1" aria-hidden="true"></i> ACCOUNTING
                         </a>
                     }
                     else if (Context.Session.GetString("UserRole") == "CustomerService" || Context.Session.GetString("UserRole") == "Support")
                     {
                         <a asp-controller="CustomerService" asp-action="Index" class="btn-origin-glass" style="font-size: 12px; padding: 6px 12px; color: var(--color-periwinkle); border-color: rgba(144,184,240,0.3);">
-                            🎧 CUSTOMER SERVICE
+                            <i class="bi bi-headset me-1" aria-hidden="true"></i> CUSTOMER SERVICE
                         </a>
                     }
                     <a asp-controller="Account" asp-action="Logout" class="btn-origin-ghost" style="font-size: 13px; padding: 7px 16px;">

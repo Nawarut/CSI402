@@ -28,13 +28,24 @@ public class RoomController : Controller
     public IActionResult Details(uint id, string? checkIn, string? checkOut, int adults = 2, int children = 0)
     {
         // ดึงข้อมูลห้องพร้อม RoomType, Amenities, Images
+        string idStr = id.ToString();
         var room = (from r in _db.Rooms
                         .Include(r => r.RoomType)
                             .ThenInclude(rt => rt.Amenities)
                         .Include(r => r.RoomType)
                             .ThenInclude(rt => rt.RoomImages)
-                    where r.RoomId == id && r.IsActive == true
+                    where (r.RoomId == id || r.RoomNumber == idStr) && r.IsActive == true
                     select r).FirstOrDefault();
+
+        if (room == null)
+        {
+            room = _db.Rooms
+                .Include(r => r.RoomType)
+                    .ThenInclude(rt => rt.Amenities)
+                .Include(r => r.RoomType)
+                    .ThenInclude(rt => rt.RoomImages)
+                .FirstOrDefault(r => r.IsActive == true);
+        }
 
         if (room == null)
         {
@@ -122,6 +133,12 @@ public class RoomController : Controller
     [HttpPost]
     public IActionResult AddToCart(AddRoomToCartViewModel form)
     {
+        if (!TryGetStayDates(form.CheckIn, form.CheckOut, out var stayCheckIn, out var stayCheckOut))
+        {
+            TempData["Error"] = "กรุณาเลือกวันเช็กอินและเช็กเอาท์ให้ถูกต้อง";
+            return RedirectToAction("Details", new { id = form.RoomId });
+        }
+
         if (!ModelState.IsValid)
         {
             TempData["Error"] = "ข้อมูลไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง";
@@ -154,8 +171,7 @@ public class RoomController : Controller
         }
 
         int nights = 1;
-        if (DateTime.TryParse(form.CheckIn, out var ci) && DateTime.TryParse(form.CheckOut, out var co))
-            nights = Math.Max(1, (int)(co - ci).TotalDays);
+        nights = (int)(stayCheckOut - stayCheckIn).TotalDays;
 
         // โหลด Cart และเพิ่ม/อัปเดตห้อง
         var cart = GetCartFromSession();
@@ -255,13 +271,12 @@ public class RoomController : Controller
 
         var ciStr = checkIn ?? DateTime.Today.ToString("yyyy-MM-dd");
         var coStr = checkOut ?? DateTime.Today.AddDays(1).ToString("yyyy-MM-dd");
-        int nights = 1;
-        DateTime ciDate = DateTime.Today.AddDays(1);
-        if (DateTime.TryParse(ciStr, out var ci) && DateTime.TryParse(coStr, out var co))
+        if (!TryGetStayDates(ciStr, coStr, out var ciDate, out var coDate))
         {
-            nights = Math.Max(1, (int)(co - ci).TotalDays);
-            ciDate = ci;
+            TempData["Error"] = "วันเช็กเอาท์ต้องอยู่หลังวันเช็กอิน และวันเช็กอินต้องไม่อยู่ในอดีต";
+            return RedirectToAction("Details", new { id = cart.First().RoomId });
         }
+        int nights = (int)(coDate - ciDate).TotalDays;
 
         foreach (var item in cart) item.Nights = nights;
 
@@ -325,15 +340,12 @@ public class RoomController : Controller
 
         var ciStr = checkIn ?? DateTime.Today.ToString("yyyy-MM-dd");
         var coStr = checkOut ?? DateTime.Today.AddDays(1).ToString("yyyy-MM-dd");
-        int nights = 1;
-        DateTime ciDate = DateTime.Today.AddDays(1);
-        DateTime coDate = DateTime.Today.AddDays(2);
-        if (DateTime.TryParse(ciStr, out var ci) && DateTime.TryParse(coStr, out var co))
+        if (!TryGetStayDates(ciStr, coStr, out var ciDate, out var coDate))
         {
-            nights = Math.Max(1, (int)(co - ci).TotalDays);
-            ciDate = ci;
-            coDate = co;
+            TempData["Error"] = "วันเช็กเอาท์ต้องอยู่หลังวันเช็กอิน และวันเช็กอินต้องไม่อยู่ในอดีต";
+            return RedirectToAction("Checkout");
         }
+        int nights = (int)(coDate - ciDate).TotalDays;
 
         // ตรวจสอบสถานะสมาชิกใหม่
         bool isNewMember = true;
@@ -358,6 +370,7 @@ public class RoomController : Controller
         );
 
         string bookingCode = $"BK{DateTime.Now:yyyyMMddHHmmss}";
+        uint createdBookingId = 0;
 
         try
         {
@@ -369,7 +382,7 @@ public class RoomController : Controller
                 CheckOutDate = DateOnly.FromDateTime(coDate),
                 Nights = (ushort)nights,
                 TotalGuests = (ushort)pricing.TotalGuests,
-                Status = "confirmed",
+                Status = "pending",
                 SubtotalAmount = pricing.RoomSubtotal,
                 ExtraBedAmount = pricing.ExtraBedTotal,
                 DiscountAmount = pricing.TotalDiscountAmount,
@@ -381,6 +394,7 @@ public class RoomController : Controller
 
             _db.Bookings.Add(booking);
             _db.SaveChanges();
+            createdBookingId = booking.BookingId;
 
             // เพิ่มรายการห้องใน BookingRoom
             foreach (var item in cart)
@@ -407,34 +421,24 @@ public class RoomController : Controller
                 }
             }
 
-            // บันทึก Payment สำหรับค่ามัดจำ 5% ที่ชำระแล้ว
-            _db.Payments.Add(new Payment
-            {
-                BookingId = booking.BookingId,
-                PaymentType = "deposit",
-                Amount = pricing.DepositAmount,
-                Status = "success",
-                Method = "promptpay",
-                PaidAt = DateTime.Now
-            });
-
             _db.SaveChanges();
         }
         catch
         {
-            // ป้องกัน exception
+            TempData["ErrorMessage"] = "บันทึกรายการจองไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
+            return RedirectToAction("Checkout", new { checkIn = ciStr, checkOut = coStr, adults, children });
+        }
+
+        if (createdBookingId == 0)
+        {
+            TempData["ErrorMessage"] = "บันทึกรายการจองไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
+            return RedirectToAction("Checkout", new { checkIn = ciStr, checkOut = coStr, adults, children });
         }
 
         // ล้างตะกร้าห้องพัก
         HttpContext.Session.Remove(CartSessionKey);
 
-        TempData["SuccessMessage"] = $"การจองสำเร็จ! รหัสการจอง: {bookingCode} ยอดสุทธิ ฿{pricing.NetAmount:N0} (ชำระมัดจำล่วงหน้า 5%: ฿{pricing.DepositAmount:N2})";
-        TempData["BookingConfirmedCode"] = bookingCode;
-        TempData["DepositAmount"] = pricing.DepositAmount.ToString("N2");
-        TempData["NetAmount"] = pricing.NetAmount.ToString("N0");
-        TempData["RemainingAmount"] = pricing.RemainingAmount.ToString("N2");
-
-        return RedirectToAction("Index", "Home");
+        return RedirectToAction("Checkout", "Payments", new { bookingId = createdBookingId, type = "deposit" });
     }
 
     // ==========================================
@@ -565,5 +569,15 @@ public class RoomController : Controller
     {
         var json = JsonSerializer.Serialize(cart);
         HttpContext.Session.SetString(CartSessionKey, json);
+    }
+
+    private static bool TryGetStayDates(string? checkIn, string? checkOut, out DateTime ci, out DateTime co)
+    {
+        var hasCheckIn = DateTime.TryParse(checkIn, out var parsedCheckIn);
+        var hasCheckOut = DateTime.TryParse(checkOut, out var parsedCheckOut);
+        ci = hasCheckIn ? parsedCheckIn.Date : DateTime.MinValue;
+        co = hasCheckOut ? parsedCheckOut.Date : DateTime.MinValue;
+        var valid = hasCheckIn && hasCheckOut;
+        return valid && ci >= DateTime.Today && co > ci;
     }
 }

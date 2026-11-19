@@ -9,7 +9,7 @@
 {
     <div class="alert alert-success alert-dismissible fade show rounded-3 shadow-sm mb-4" role="alert">
         <div class="d-flex align-items-center">
-            <span class="fs-4 me-2">✅</span>
+            <span class="fs-4 me-2"><i class="bi bi-check-circle"></i></span>
             <div><strong>สำเร็จ!</strong> @TempData["SuccessMessage"]</div>
         </div>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -20,7 +20,7 @@
 {
     <div class="alert alert-danger alert-dismissible fade show rounded-3 shadow-sm mb-4" role="alert">
         <div class="d-flex align-items-center">
-            <span class="fs-4 me-2">⚠️</span>
+            <span class="fs-4 me-2"><i class="bi bi-exclamation-triangle"></i></span>
             <div>@TempData["ErrorMessage"]</div>
         </div>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -36,7 +36,7 @@
                     <div class="dashboard-card-title">ผู้ใช้งานทั้งหมด</div>
                     <div class="dashboard-card-number">@Model.Count</div>
                 </div>
-                <div class="dashboard-icon">👥</div>
+                <div class="dashboard-icon"><i class="bi bi-people"></i></div>
             </div>
         </div>
     </div>
@@ -47,7 +47,7 @@
                     <div class="dashboard-card-title">ผู้ดูแลระบบ (Admin)</div>
                     <div class="dashboard-card-number">@Model.Count(u => u.Role == "Admin")</div>
                 </div>
-                <div class="dashboard-icon">👑</div>
+                <div class="dashboard-icon"><i class="bi bi-shield-lock"></i></div>
             </div>
         </div>
     </div>
@@ -58,7 +58,7 @@
                     <div class="dashboard-card-title">ลูกค้าทั่วไป (Users)</div>
                     <div class="dashboard-card-number">@Model.Count(u => u.Role == "User")</div>
                 </div>
-                <div class="dashboard-icon">🏨</div>
+                <div class="dashboard-icon"><i class="bi bi-building"></i></div>
             </div>
         </div>
     </div>
@@ -69,7 +69,7 @@
                     <div class="dashboard-card-title">เปิดใช้งานอยู่ (Active)</div>
                     <div class="dashboard-card-number text-success">@Model.Count(u => u.Status == "Active")</div>
                 </div>
-                <div class="dashboard-icon">🟢</div>
+                <div class="dashboard-icon"><i class="bi bi-check-circle"></i></div>
             </div>
         </div>
     </div>
@@ -85,7 +85,7 @@
             </div>
             <div>
                 <a asp-action="AddUser" asp-controller="Admin" class="btn btn-yellow fw-semibold shadow-sm d-inline-flex align-items-center gap-2">
-                    <span>➕</span>
+                    <span><i class="bi bi-person-plus"></i></span>
                     <span>เพิ่มผู้ใช้งาน (Add User)</span>
                 </a>
             </div>
@@ -97,7 +97,7 @@
         <form method="get" asp-action="Users" asp-controller="Admin" class="row g-2 align-items-center">
             <div class="col-12 col-md-5 col-lg-6">
                 <div class="input-group">
-                    <span class="input-group-text bg-white border-end-0">🔍</span>
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
                     <input type="text" name="search" value="@ViewBag.Search" class="form-control border-start-0 ps-0" placeholder="ค้นหาด้วยชื่อ, อีเมล หรือเบอร์โทรศัพท์..." />
                 </div>
             </div>
@@ -164,19 +164,19 @@
                                 @if (user.Role == "Admin")
                                 {
                                     <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 rounded-pill">
-                                        👑 Admin
+                                        <i class="bi bi-shield-lock me-1"></i> Admin
                                     </span>
                                 }
                                 else if (user.Role == "Staff")
                                 {
                                     <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle px-2 py-1 rounded-pill">
-                                        💼 Staff
+                                        <i class="bi bi-briefcase me-1"></i> Staff
                                     </span>
                                 }
                                 else
                                 {
                                     <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 rounded-pill">
-                                        👤 User
+                                        <i class="bi bi-person me-1"></i> User
                                     </span>
                                 }
                             </td>
@@ -200,7 +200,7 @@
                             <td class="text-end pe-4">
                                 @if (user.Email.Equals("admin@jojo.com", StringComparison.OrdinalIgnoreCase))
                                 {
-                                    <span class="badge bg-light text-muted border" title="บัญชีผู้ดูแลหลัก ไม่สามารถลบได้">🔒 ล็อก</span>
+                                    <span class="badge bg-light text-muted border" title="บัญชีผู้ดูแลหลัก ไม่สามารถลบได้"><i class="bi bi-lock me-1"></i>ล็อก</span>
                                 }
                                 else
                                 {
@@ -208,7 +208,7 @@
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="id" value="@user.Id" />
                                         <button type="submit" class="btn btn-sm btn-outline-danger rounded-2 px-2 py-1" title="ลบผู้ใช้">
-                                            🗑️ ลบ
+                                            <i class="bi bi-trash me-1"></i>ลบ
                                         </button>
                                     </form>
                                 }
@@ -220,7 +220,7 @@
                 {
                     <tr>
                         <td colspan="8" class="text-center py-5 text-muted">
-                            <div class="fs-1 mb-2">🔍</div>
+                            <div class="fs-1 mb-2"><i class="bi bi-search"></i></div>
                             <h5>ไม่พบข้อมูลผู้ใช้งานที่ตรงกับเงื่อนไข</h5>
                             <p class="small mb-3">ลองเปลี่ยนคำค้นหาหรือตัวกรองสถานะ</p>
                             <a asp-action="Users" asp-controller="Admin" class="btn btn-sm btn-outline-secondary">ล้างการค้นหา</a>

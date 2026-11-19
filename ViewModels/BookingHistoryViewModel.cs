@@ -1,5 +1,14 @@
 namespace Nawarut_8250_L005.ViewModels;
 
+public class PaymentHistoryItemViewModel
+{
+    public uint PaymentId { get; set; }
+    public string PaymentType { get; set; } = "";
+    public decimal Amount { get; set; }
+    public string Method { get; set; } = "";
+    public DateTime? PaidAt { get; set; }
+}
+
 /// <summary>
 /// สรุปข้อมูลห้องพักในการจอง
 /// </summary>
@@ -32,6 +41,11 @@ public class BookingHistoryItemViewModel
     public decimal NetAmount { get; set; }
     public decimal DepositPercent { get; set; }
     public decimal DepositAmount { get; set; }
+    public decimal DepositPaid { get; set; }
+    public decimal DepositRemaining => Math.Max(0m, DepositAmount - DepositPaid);
+    public decimal BalancePaid { get; set; }
+    public decimal BalanceRemaining => Math.Max(0m, NetAmount - DepositAmount - BalancePaid);
+    public List<PaymentHistoryItemViewModel> SuccessfulPayments { get; set; } = new();
     public decimal RefundAmount { get; set; }
     public DateTime? ConfirmedAt { get; set; }
     public DateTime? CancelledAt { get; set; }

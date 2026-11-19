@@ -280,7 +280,10 @@ html, body {
   color: var(--color-cloud);
 }
 
-/* Force All Origin & Admin Tables to stay dark and legible */
+/* Force All Tables across the app to stay dark and legible (prevents Bootstrap white bg) */
+.table,
+.table-responsive .table,
+.table > :not(caption) > * > *,
 .origin-table,
 .origin-table > :not(caption) > * > *,
 .origin-table tr,

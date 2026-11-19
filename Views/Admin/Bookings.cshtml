@@ -39,7 +39,7 @@
         </div>
         <div class="d-flex align-items-center gap-2 mt-3 mt-sm-0">
             <span class="origin-pill-chip py-2 px-3" style="color: var(--color-cyan-signal); border-color: rgba(0,179,221,0.3); font-size: 12px;">
-                💳 ยอดมัดจำรับแล้ว: <strong>฿@Model.TotalDepositCollected.ToString("N0")</strong>
+                <i class="bi bi-credit-card me-1"></i> ยอดมัดจำรับแล้ว: <strong>฿@Model.TotalDepositCollected.ToString("N0")</strong>
             </span>
         </div>
     </div>
@@ -158,7 +158,7 @@
                                     <div class="origin-mono" style="color: var(--color-ash); font-size: 11px;">@b.GuestEmail</div>
                                     @if (!string.IsNullOrEmpty(b.GuestPhone) && b.GuestPhone != "-")
                                     {
-                                        <div class="origin-mono" style="color: var(--color-cloud); font-size: 10px;">📞 @b.GuestPhone</div>
+                                        <div class="origin-mono" style="color: var(--color-cloud); font-size: 10px;"><i class="bi bi-telephone me-1"></i> @b.GuestPhone</div>
                                     }
                                 </td>
                                 <td class="p-3 align-middle">

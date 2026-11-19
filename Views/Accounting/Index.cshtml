@@ -4,6 +4,7 @@
     var payments = ViewBag.Payments as List<Nawarut_8250_L005.Entities.Payment> ?? new();
     var bookings = ViewBag.Bookings as List<Nawarut_8250_L005.Entities.Booking> ?? new();
     var refundPayments = payments.Where(p => p.PaymentType == "refund").ToList();
+    var departmentTickets = ViewBag.DepartmentTickets as List<Nawarut_8250_L005.Entities.Ticket> ?? new();
 }
 
 <style>
@@ -33,7 +34,7 @@
         <div class="d-flex flex-wrap justify-content-between align-items-baseline mb-4">
             <div>
                 <span class="origin-mono" style="color: var(--color-orchid-bloom); font-size: 11px; letter-spacing: 0.12em;">
-                    💼 FINANCIAL &amp; REVENUE CONSOLE
+                    <i class="bi bi-wallet2 me-1"></i> FINANCIAL &amp; REVENUE CONSOLE
                 </span>
                 <h1 class="origin-heading-lg mt-1 mb-0" style="font-size: 32px; color: var(--color-pure);">
                     ฝ่ายบัญชีและการเงิน (Accounting &amp; Finance)
@@ -44,7 +45,7 @@
             </div>
             <div class="d-flex align-items-center gap-2 mt-3 mt-sm-0">
                 <span class="origin-pill-chip py-2 px-3" style="color: var(--color-orchid-bloom); border-color: rgba(221,144,216,0.3); font-size: 12px;">
-                    📊 ระบบการเงินและภาษี JoJo Hotel
+                    <i class="bi bi-bar-chart-line me-1"></i> ระบบการเงินและภาษี JoJo Hotel
                 </span>
             </div>
         </div>
@@ -93,6 +94,55 @@
                     </div>
                     <span class="origin-mono" style="color: #fcd34d; font-size: 10px;">PENDING REFUNDS</span>
                 </div>
+            </div>
+        </div>
+
+        <div id="department-tickets" class="origin-card-graphite p-0 overflow-hidden mb-5">
+            <div class="p-4 border-bottom d-flex justify-content-between align-items-center" style="border-color: rgba(255,255,255,0.08) !important;">
+                <div>
+                    <span class="origin-mono" style="color: var(--color-orchid-bloom); font-size: 11px;">CUSTOMER SERVICE ESCALATIONS</span>
+                    <h3 class="origin-heading-lg mb-0" style="font-size: 20px;">Ticket ที่ส่งมาฝ่ายบัญชี</h3>
+                </div>
+                <span class="origin-pill-chip">ค้างดำเนินการ @departmentTickets.Count เรื่อง</span>
+            </div>
+            <div class="p-3 p-md-4">
+                @if (departmentTickets.Any())
+                {
+                    <div class="d-grid gap-3">
+                        @foreach (var ticket in departmentTickets)
+                        {
+                            var firstMessage = ticket.TicketMessages.Where(m => !m.IsInternal).OrderBy(m => m.CreatedAt).FirstOrDefault();
+                            <div class="p-3 rounded-3" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+                                <div class="d-flex flex-wrap justify-content-between gap-2">
+                                    <div>
+                                        <div class="origin-mono" style="color: var(--color-cyan-signal);">#@ticket.TicketCode · @ticket.Status</div>
+                                        <div class="fw-bold text-white mt-1">@ticket.Subject</div>
+                                        <div class="small" style="color: var(--color-cloud);">ลูกค้า: @ticket.Customer.FirstName @ticket.Customer.LastName · จอง: @(ticket.Booking?.BookingCode ?? "ไม่ผูกกับรายการจอง")</div>
+                                        @if (firstMessage != null) { <div class="small mt-2" style="color: var(--color-ash);">@firstMessage.Message</div> }
+                                    </div>
+                                    @if (ticket.Status == "escalated")
+                                    {
+                                        <form asp-controller="DepartmentTickets" asp-action="Take" method="post" class="align-self-start">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="ticketId" value="@ticket.TicketId" />
+                                            <button type="submit" class="btn-origin-primary py-1 px-3" style="font-size: 11px;">รับเรื่อง</button>
+                                        </form>
+                                    }
+                                </div>
+                                <form asp-controller="DepartmentTickets" asp-action="Resolve" method="post" class="d-flex flex-wrap gap-2 mt-3">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="ticketId" value="@ticket.TicketId" />
+                                    <input type="text" name="response" required minlength="5" maxlength="2000" class="origin-input flex-grow-1" placeholder="ระบุผลการตรวจสอบที่จะแจ้งลูกค้า" />
+                                    <button type="submit" class="btn-action-edit py-2 px-3" style="font-size: 11px;">บันทึกผลและปิดเรื่อง</button>
+                                </form>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-3" style="color: var(--color-ash);">ยังไม่มี Ticket ส่งต่อมาฝ่ายบัญชี</div>
+                }
             </div>
         </div>
 
@@ -241,7 +291,7 @@
                                         @if (r.Status is "refunded" or "success")
                                         {
                                             <span class="badge border rounded-pill px-3 py-1" style="border-color: var(--color-cyan-signal); color: var(--color-cyan-signal); background: rgba(0,179,221,0.1); font-size: 11px;">
-                                                ✓ คืนเงินแล้ว (@r.PaidAt?.ToString("dd/MM/yyyy HH:mm") ?? "เรียบร้อย")
+                                                ✓ คืนเงินแล้ว (@(r.PaidAt?.ToString("dd/MM/yyyy HH:mm") ?? "เรียบร้อย"))
                                             </span>
                                         }
                                         else
@@ -258,7 +308,7 @@
                                                 @Html.AntiForgeryToken()
                                                 <input type="hidden" name="paymentId" value="@r.PaymentId" />
                                                 <button type="submit" class="btn-action-edit py-1 px-3" style="font-size: 11px;">
-                                                    💰 อนุมัติโอนคืนมัดจำ 5%
+                                                    <i class="bi bi-cash-coin me-1"></i> อนุมัติโอนคืนมัดจำ 5%
                                                 </button>
                                             </form>
                                         }
@@ -331,7 +381,7 @@
                                 </td>
                                 <td class="p-3 align-middle text-end">
                                     <a asp-action="Receipt" asp-route-id="@b.BookingId" target="_blank" class="btn-origin-primary py-1 px-3 text-decoration-none" style="font-size: 11px;">
-                                        📄 ดู/พิมพ์ใบเสร็จ &rarr;
+                                        <i class="bi bi-file-earmark-text me-1"></i> ดู/พิมพ์ใบเสร็จ &rarr;
                                     </a>
                                 </td>
                             </tr>

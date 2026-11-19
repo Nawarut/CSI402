@@ -33,9 +33,11 @@ namespace Nawarut_8250_L005.ViewModels
 
         [Required(ErrorMessage = "กรุณากรอกเบอร์โทรศัพท์")]
         [Phone(ErrorMessage = "รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง")]
+        [RegularExpression(@"^(?=(?:\D*\d){9,10}\D*$)[0-9()+\-\s]+$", ErrorMessage = "เบอร์โทรศัพท์ต้องมีตัวเลข 9–10 หลัก")]
         public string? Phone { get; set; }
 
         [Required(ErrorMessage = "กรุณากรอกรหัสผ่าน")]
+        [StringLength(100, MinimumLength = 8, ErrorMessage = "รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร")]
         [DataType(DataType.Password)]
         public string? Password { get; set; }
 
@@ -165,8 +167,10 @@ namespace Nawarut_8250_L005.ViewModels
         public string? Email { get; set; }
 
         [Phone(ErrorMessage = "รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง")]
+        [RegularExpression(@"^(?=(?:\D*\d){9,10}\D*$)[0-9()+\-\s]+$", ErrorMessage = "เบอร์โทรศัพท์ต้องมีตัวเลข 9–10 หลัก")]
         public string? Phone { get; set; }
 
+        [StringLength(100, MinimumLength = 8, ErrorMessage = "รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร")]
         [DataType(DataType.Password)]
         public string? Password { get; set; }
 

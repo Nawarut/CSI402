@@ -12,6 +12,12 @@
         min-height: 100vh;
         padding: 40px 0 80px 0;
     }
+    .knowledge-base-copy {
+        color: #d1d5db !important;
+    }
+    .knowledge-base-copy strong {
+        color: #fff !important;
+    }
 </style>
 
 <div class="cs-canvas">
@@ -33,7 +39,7 @@
         <div class="d-flex flex-wrap justify-content-between align-items-baseline mb-4">
             <div>
                 <span class="origin-mono" style="color: var(--color-periwinkle); font-size: 11px; letter-spacing: 0.12em;">
-                    🎧 CUSTOMER CARE &amp; ESCALATION CONSOLE
+                    <i class="bi bi-headset me-1"></i> CUSTOMER CARE &amp; ESCALATION CONSOLE
                 </span>
                 <h1 class="origin-heading-lg mt-1 mb-0" style="font-size: 32px; color: var(--color-pure);">
                     ฝ่ายบริการลูกค้า (Customer Service)
@@ -87,22 +93,22 @@
             <div class="row g-3 mt-1">
                 <div class="col-12 col-md-4">
                     <div class="p-3 rounded-3" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
-                        <div class="fw-bold text-white small mb-1">⏰ เวลาเข้าพักและคืนห้อง</div>
-                        <div class="small text-muted">เช็คอิน: <strong>09:00 น.</strong> | เช็คเอาท์: <strong>12:00 น.</strong></div>
+                        <div class="fw-bold text-white small mb-1"><i class="bi bi-clock me-1" aria-hidden="true"></i> เวลาเข้าพักและคืนห้อง</div>
+                        <div class="small knowledge-base-copy">เช็คอิน: <strong>09:00 น.</strong> | เช็คเอาท์: <strong>12:00 น.</strong></div>
                         <div class="origin-mono" style="font-size: 10px; color: var(--color-cyan-signal); margin-top: 4px;">ขอเช็คเอาท์สายประสานงานต้อนรับ</div>
                     </div>
                 </div>
                 <div class="col-12 col-md-4">
                     <div class="p-3 rounded-3" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
-                        <div class="fw-bold text-white small mb-1">💳 เงินมัดจำล่วงหน้า 5%</div>
-                        <div class="small text-muted">มัดจำ 5% ของยอดสุทธิหลังหักส่วนลด</div>
+                        <div class="fw-bold text-white small mb-1"><i class="bi bi-credit-card me-1"></i> เงินมัดจำล่วงหน้า 5%</div>
+                        <div class="small knowledge-base-copy">มัดจำ 5% ของยอดสุทธิหลังหักส่วนลด</div>
                         <div class="origin-mono" style="font-size: 10px; color: var(--color-orchid-bloom); margin-top: 4px;">หากยกเลิก คืนมัดจำภายใน 3-5 วัน</div>
                     </div>
                 </div>
                 <div class="col-12 col-md-4">
                     <div class="p-3 rounded-3" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
-                        <div class="fw-bold text-white small mb-1">🏷️ 5 เงื่อนไขโปรโมชั่น</div>
-                        <div class="small text-muted">ใหม่ 10%, 2 คืน 15%, เกิน 5 พันลด 500</div>
+                        <div class="fw-bold text-white small mb-1"><i class="bi bi-tag me-1"></i> 5 เงื่อนไขโปรโมชั่น</div>
+                        <div class="small knowledge-base-copy">ใหม่ 10%, 2 คืน 15%, เกิน 5 พันลด 500</div>
                         <div class="origin-mono" style="font-size: 10px; color: #86efac; margin-top: 4px;">กลุ่ม 4 คน 20%, ล่วงหน้า 30 วัน 25%</div>
                     </div>
                 </div>
@@ -168,7 +174,7 @@
                                     </td>
                                     <td class="p-3 align-middle">
                                         <div class="fw-bold text-white">@t.Customer?.FirstName @t.Customer?.LastName</div>
-                                        <div class="origin-mono" style="color: var(--color-ash); font-size: 11px;">📞 @(t.Customer?.Phone ?? "-")</div>
+                                        <div class="origin-mono" style="color: var(--color-ash); font-size: 11px;"><i class="bi bi-telephone me-1"></i>@(t.Customer?.Phone ?? "-")</div>
                                     </td>
                                     <td class="p-3 align-middle">
                                         <div class="fw-bold text-white">@t.Subject</div>
@@ -177,6 +183,10 @@
                                             <span class="origin-mono" style="color: var(--color-cyan-signal); font-size: 10px;">
                                                 การจองอ้างอิง: #@t.Booking.BookingCode
                                             </span>
+                                        }
+                                        @if (t.Department != null && t.Status != "resolved")
+                                        {
+                                            <span class="origin-mono d-block" style="color: var(--color-orchid-bloom); font-size: 10px;">ส่งต่อไปยัง: @t.Department.DepartmentName</span>
                                         }
                                     </td>
                                     <td class="p-3 align-middle text-center">
@@ -201,7 +211,7 @@
                                                     <input type="hidden" name="ticketId" value="@t.TicketId" />
                                                     <input type="hidden" name="targetDepartment" value="Accounting" />
                                                     <button type="submit" class="btn-action-edit py-1 px-2" style="font-size: 11px;" title="ส่งเรื่องต่อให้ฝ่ายบัญชีตรวจสอบการชำระเงิน/คืนเงิน">
-                                                        💼 ส่งต่อฝ่ายบัญชี
+                                                        <i class="bi bi-wallet2 me-1"></i> ส่งต่อฝ่ายบัญชี
                                                     </button>
                                                 </form>
 
@@ -211,7 +221,7 @@
                                                     <input type="hidden" name="ticketId" value="@t.TicketId" />
                                                     <input type="hidden" name="targetDepartment" value="Reception" />
                                                     <button type="submit" class="btn-action-edit py-1 px-2" style="font-size: 11px; color: var(--color-cyan-signal) !important; border-color: rgba(0,179,221,0.4) !important;" title="ส่งเรื่องต่อให้ฝ่ายต้อนรับประสานงานเรื่องห้องพัก">
-                                                        🛎️ ส่งต่อฝ่ายต้อนรับ
+                                                        <i class="bi bi-bell me-1"></i> ส่งต่อฝ่ายต้อนรับ
                                                     </button>
                                                 </form>
 
@@ -228,7 +238,7 @@
                                             else
                                             {
                                                 <span class="origin-mono" style="color: #86efac; font-size: 11px;">
-                                                    เสร็จสิ้น (@t.ResolvedAt?.ToString("dd/MM") ?? "-")
+                                                    เสร็จสิ้น (@(t.ResolvedAt?.ToString("dd/MM/yyyy HH:mm") ?? "-"))
                                                 </span>
                                             }
                                         </div>
@@ -287,10 +297,9 @@
                     <div class="mb-3">
                         <label class="origin-mono small text-muted d-block mb-1">ความเร่งด่วน</label>
                         <select name="priority" class="origin-input w-100">
-                            <option value="Medium">Medium (ปกติ)</option>
-                            <option value="High">High (ด่วน)</option>
-                            <option value="Urgent">Urgent (เร่งด่วนมาก)</option>
-                            <option value="Low">Low (ทั่วไป)</option>
+                            <option value="normal">Normal (ปกติ)</option>
+                            <option value="urgent">Urgent (เร่งด่วน)</option>
+                            <option value="low">Low (ทั่วไป)</option>
                         </select>
                     </div>
 

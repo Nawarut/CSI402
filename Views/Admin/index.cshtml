@@ -196,16 +196,16 @@
 
                     <div class="d-flex flex-column gap-2 mb-4">
                         <a asp-controller="Admin" asp-action="Rooms" class="btn-origin-primary w-100 justify-content-center py-2 text-decoration-none">
-                            🛏 จัดการห้องพัก (@Model.TotalRooms ห้อง) &rarr;
+                            <i class="bi bi-door-closed me-1"></i> จัดการห้องพัก (@Model.TotalRooms ห้อง) &rarr;
                         </a>
                         <a asp-controller="Admin" asp-action="Promotions" class="btn-origin-ghost w-100 justify-content-center py-2 text-decoration-none">
-                            🏷 จัดการโปรโมชั่น (5 รายการ)
+                            <i class="bi bi-tag me-1"></i> จัดการโปรโมชั่น (@Model.TotalPromotions รายการ)
                         </a>
                         <a asp-controller="Admin" asp-action="Bookings" class="btn-origin-ghost w-100 justify-content-center py-2 text-decoration-none">
-                            📅 รายการจอง (@Model.TotalBookings รายการ)
+                            <i class="bi bi-calendar3 me-1"></i> รายการจอง (@Model.TotalBookings รายการ)
                         </a>
                         <a asp-controller="Home" asp-action="Lab5_3" class="btn-origin-ghost w-100 justify-content-center py-2 text-decoration-none">
-                            👥 จัดการบัญชีผู้ใช้ (@Model.TotalUsers บัญชี)
+                            <i class="bi bi-people me-1"></i> จัดการบัญชีผู้ใช้ (@Model.TotalUsers บัญชี)
                         </a>
                     </div>
                 </div>

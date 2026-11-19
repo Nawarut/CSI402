@@ -34,7 +34,7 @@
 
             <label class="block sm:col-span-2">
                 <span class="mb-1.5 block text-sm font-medium text-slate-700">เบอร์โทรศัพท์</span>
-                <input asp-for="Phone" type="tel" placeholder="000-000-0000"
+                <input asp-for="Phone" type="tel" inputmode="tel" maxlength="15" placeholder="08x-xxx-xxxx (9–10 หลัก)"
                        class="h-11 w-full rounded-lg border border-slate-300 px-3 text-sm focus:border-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-700 transition" />
                 <span asp-validation-for="Phone" class="text-sm text-rose-600"></span>
             </label>
@@ -58,14 +58,14 @@
 
             <label class="block">
                 <span class="mb-1.5 block text-sm font-medium text-slate-700">รหัสผ่าน</span>
-                <input asp-for="Password" type="password"
+                <input asp-for="Password" type="password" minlength="8" maxlength="100" placeholder="อย่างน้อย 8 ตัวอักษร"
                        class="h-11 w-full rounded-lg border border-slate-300 px-3 text-sm focus:border-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-700 transition" />
                 <span asp-validation-for="Password" class="text-sm text-rose-600"></span>
             </label>
 
             <label class="block">
                 <span class="mb-1.5 block text-sm font-medium text-slate-700">ยืนยันรหัสผ่าน</span>
-                <input asp-for="ConfirmPassword" type="password"
+                <input asp-for="ConfirmPassword" type="password" minlength="8" maxlength="100" placeholder="อย่างน้อย 8 ตัวอักษร"
                        class="h-11 w-full rounded-lg border border-slate-300 px-3 text-sm focus:border-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-700 transition" />
                 <span asp-validation-for="ConfirmPassword" class="text-sm text-rose-600"></span>
             </label>

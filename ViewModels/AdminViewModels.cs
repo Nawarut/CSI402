@@ -26,6 +26,9 @@ public class AdminDashboardViewModel
     public int CancelledBookings { get; set; }
     public decimal TotalDepositAmount { get; set; }
 
+    // โปรโมชั่น (Promotions)
+    public int TotalPromotions { get; set; }
+
     // รายการจองล่าสุด
     public List<AdminBookingItemViewModel> RecentBookings { get; set; } = new();
 }

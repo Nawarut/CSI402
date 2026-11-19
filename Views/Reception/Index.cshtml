@@ -3,6 +3,7 @@
     ViewData["Title"] = "แผนกต้อนรับและห้องพัก (Reception)";
     Layout = "_navbarlayout";
     var rooms = ViewBag.Rooms as List<Nawarut_8250_L005.Entities.Room> ?? new();
+    var departmentTickets = ViewBag.DepartmentTickets as List<Nawarut_8250_L005.Entities.Ticket> ?? new();
 }
 
 <style>
@@ -43,7 +44,7 @@
         <div class="d-flex flex-wrap justify-content-between align-items-baseline mb-4">
             <div>
                 <span class="origin-mono" style="color: var(--color-cyan-signal); font-size: 11px; letter-spacing: 0.12em;">
-                    🛎️ FRONT DESK &amp; RECEPTION CONSOLE
+                    <i class="bi bi-bell me-1"></i> FRONT DESK &amp; RECEPTION CONSOLE
                 </span>
                 <h1 class="origin-heading-lg mt-1 mb-0" style="font-size: 32px; color: var(--color-pure);">
                     พนักงานต้อนรับและจัดการห้องพัก (Reception / Staff)
@@ -54,7 +55,7 @@
             </div>
             <div class="d-flex align-items-center gap-2 mt-3 mt-sm-0">
                 <span class="origin-pill-chip py-2 px-3" style="color: var(--color-cyan-signal); border-color: rgba(0,179,221,0.3); font-size: 12px;">
-                    ⏰ เช็คอิน: <strong>09:00 น.</strong> | เช็คเอาท์: <strong>12:00 น.</strong>
+                    <i class="bi bi-clock me-1" aria-hidden="true"></i> เช็คอิน: <strong>09:00 น.</strong> | เช็คเอาท์: <strong>12:00 น.</strong>
                 </span>
             </div>
         </div>
@@ -88,6 +89,55 @@
                     <div class="origin-heading-lg mb-0" style="font-size: 32px; color: #fcd34d;">@ViewBag.CleaningRooms</div>
                     <span class="origin-mono" style="color: #fcd34d; font-size: 10px;">CLEANING / HOUSEKEEPING</span>
                 </div>
+            </div>
+        </div>
+
+        <div id="department-tickets" class="origin-card-graphite p-0 overflow-hidden mb-5">
+            <div class="p-4 border-bottom d-flex justify-content-between align-items-center" style="border-color: rgba(255,255,255,0.08) !important;">
+                <div>
+                    <span class="origin-mono" style="color: var(--color-cyan-signal); font-size: 11px;">CUSTOMER SERVICE ESCALATIONS</span>
+                    <h3 class="origin-heading-lg mb-0" style="font-size: 20px;">Ticket ที่ส่งมาฝ่ายต้อนรับ</h3>
+                </div>
+                <span class="origin-pill-chip">ค้างดำเนินการ @departmentTickets.Count เรื่อง</span>
+            </div>
+            <div class="p-3 p-md-4">
+                @if (departmentTickets.Any())
+                {
+                    <div class="d-grid gap-3">
+                        @foreach (var ticket in departmentTickets)
+                        {
+                            var firstMessage = ticket.TicketMessages.Where(m => !m.IsInternal).OrderBy(m => m.CreatedAt).FirstOrDefault();
+                            <div class="p-3 rounded-3" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+                                <div class="d-flex flex-wrap justify-content-between gap-2">
+                                    <div>
+                                        <div class="origin-mono" style="color: var(--color-cyan-signal);">#@ticket.TicketCode · @ticket.Status</div>
+                                        <div class="fw-bold text-white mt-1">@ticket.Subject</div>
+                                        <div class="small" style="color: var(--color-cloud);">ลูกค้า: @ticket.Customer.FirstName @ticket.Customer.LastName · จอง: @(ticket.Booking?.BookingCode ?? "ไม่ผูกกับรายการจอง")</div>
+                                        @if (firstMessage != null) { <div class="small mt-2" style="color: var(--color-ash);">@firstMessage.Message</div> }
+                                    </div>
+                                    @if (ticket.Status == "escalated")
+                                    {
+                                        <form asp-controller="DepartmentTickets" asp-action="Take" method="post" class="align-self-start">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="ticketId" value="@ticket.TicketId" />
+                                            <button type="submit" class="btn-origin-primary py-1 px-3" style="font-size: 11px;">รับเรื่อง</button>
+                                        </form>
+                                    }
+                                </div>
+                                <form asp-controller="DepartmentTickets" asp-action="Resolve" method="post" class="d-flex flex-wrap gap-2 mt-3">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="ticketId" value="@ticket.TicketId" />
+                                    <input type="text" name="response" required minlength="5" maxlength="2000" class="origin-input flex-grow-1" placeholder="ระบุผลการดำเนินการที่จะแจ้งลูกค้า" />
+                                    <button type="submit" class="btn-action-edit py-2 px-3" style="font-size: 11px;">บันทึกผลและปิดเรื่อง</button>
+                                </form>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-3" style="color: var(--color-ash);">ยังไม่มี Ticket ส่งต่อมาฝ่ายต้อนรับ</div>
+                }
             </div>
         </div>
 
@@ -187,6 +237,11 @@
                             @foreach (var b in Model)
                             {
                                 string bStatus = (b.Status ?? "").ToLowerInvariant();
+                                decimal paidDeposit = b.Payments.Where(p => p.PaymentType == "deposit" && p.Status == "success").Sum(p => p.Amount);
+                                decimal paidBalance = b.Payments.Where(p => p.PaymentType == "balance" && p.Status == "success").Sum(p => p.Amount);
+                                decimal depositDue = Math.Max(0m, b.DepositAmount - paidDeposit);
+                                decimal balanceDue = Math.Max(0m, b.NetAmount - b.DepositAmount - paidBalance);
+                                decimal nextPaymentDue = depositDue > 0 ? depositDue : balanceDue;
                                 string stColor = bStatus switch
                                 {
                                     "confirmed" => "var(--color-cyan-signal)",
@@ -213,7 +268,7 @@
                                     </td>
                                     <td class="p-3 align-middle">
                                         <div class="fw-bold text-white">@b.User?.FirstName @b.User?.LastName</div>
-                                        <div class="origin-mono" style="color: var(--color-ash); font-size: 11px;">📞 @(b.User?.Phone ?? "-")</div>
+                                        <div class="origin-mono" style="color: var(--color-ash); font-size: 11px;"><i class="bi bi-telephone me-1"></i>@(b.User?.Phone ?? "-")</div>
                                     </td>
                                     <td class="p-3 align-middle">
                                         <div class="fw-bold text-white text-truncate" style="max-width: 220px;">@roomsText</div>
@@ -245,13 +300,23 @@
                                                     </button>
                                                 </form>
                                             }
-                                            @if (bStatus is "confirmed" or "pending")
+                                            @if ((bStatus is "confirmed" or "pending") && nextPaymentDue > 0)
+                                            {
+                                                <form method="post" asp-action="CollectPayment" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="bookingId" value="@b.BookingId" />
+                                                    <button type="submit" class="btn-action-edit py-1 px-2" style="font-size: 11px;" title="ยืนยันรับชำระเงินสด">
+                                                        <i class="bi bi-cash-coin me-1"></i> รับ@(depositDue > 0 ? "มัดจำ" : "ยอดคงเหลือ") ฿@nextPaymentDue.ToString("N0")
+                                                    </button>
+                                                </form>
+                                            }
+                                            @if (bStatus == "confirmed" && nextPaymentDue <= 0)
                                             {
                                                 <form method="post" asp-action="CheckIn" class="d-inline">
                                                     @Html.AntiForgeryToken()
                                                     <input type="hidden" name="bookingId" value="@b.BookingId" />
-                                                    <button type="submit" class="btn-action-edit py-1 px-2" style="font-size: 11px;" title="บันทึกเช็คอินเข้าพัก">
-                                                        🔑 เช็คอิน (09:00)
+                                                    <button type="submit" class="btn-action-edit py-1 px-2" style="font-size: 11px;" title="บันทึกเช็กอิน">
+                                                        <i class="bi bi-key me-1"></i> เช็กอิน
                                                     </button>
                                                 </form>
                                             }
@@ -261,7 +326,7 @@
                                                     @Html.AntiForgeryToken()
                                                     <input type="hidden" name="bookingId" value="@b.BookingId" />
                                                     <button type="submit" class="btn-action-delete py-1 px-2" style="font-size: 11px;" title="บันทึกคืนห้องและส่งทำความสะอาด">
-                                                        🚪 เช็คเอาท์ (12:00)
+                                                        <i class="bi bi-door-open me-1"></i> เช็คเอาท์ (12:00)
                                                     </button>
                                                 </form>
                                             }

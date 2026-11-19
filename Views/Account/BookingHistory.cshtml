@@ -419,21 +419,21 @@
         @if (TempData["SuccessMessage"] != null)
         {
             <div class="bh-alert bh-alert-success">
-                <span>✅</span>
+                <span><i class="bi bi-check-circle"></i></span>
                 <span>@TempData["SuccessMessage"]</span>
             </div>
         }
         @if (TempData["ErrorMessage"] != null)
         {
             <div class="bh-alert bh-alert-error">
-                <span>⚠️</span>
+                <span><i class="bi bi-exclamation-triangle"></i></span>
                 <span>@TempData["ErrorMessage"]</span>
             </div>
         }
         @if (TempData["WarningMessage"] != null)
         {
             <div class="bh-alert bh-alert-warning">
-                <span>🔔</span>
+                <span><i class="bi bi-bell"></i></span>
                 <span>@TempData["WarningMessage"]</span>
             </div>
         }
@@ -466,7 +466,7 @@
         @if (!Model.Bookings.Any())
         {
             <div class="bh-empty">
-                <div class="bh-empty-icon">📋</div>
+                <div class="bh-empty-icon"><i class="bi bi-clipboard"></i></div>
                 <div class="bh-empty-title">ยังไม่มีประวัติการจอง</div>
                 <div class="bh-empty-desc">คุณยังไม่เคยจองห้องพักกับ JoJo Hotel</div>
                 <a asp-controller="Home" asp-action="Index" class="btn-origin-primary" style="font-size:14px; padding:12px 28px;">
@@ -484,7 +484,7 @@
                     @* Card Header *@
                     <div class="bh-card-header">
                         <div>
-                            <div class="bh-booking-code">🏨 @booking.BookingCode</div>
+                            <div class="bh-booking-code"><i class="bi bi-building me-1"></i> @booking.BookingCode</div>
                             <div class="bh-booking-date">
                                 จองเมื่อ @booking.CreatedAt.ToString("dd MMM yyyy HH:mm")
                             </div>
@@ -541,7 +541,7 @@
                                     {
                                         <tr>
                                             <td>
-                                                <div class="bh-room-num">🛏 @room.RoomNumber</div>
+                                                <div class="bh-room-num"><i class="bi bi-door-closed me-1"></i> @room.RoomNumber</div>
                                             </td>
                                             <td>
                                                 <div class="bh-room-type">@room.TypeName</div>
@@ -599,13 +599,13 @@
                                 <span class="bh-price-amount">฿@booking.NetAmount.ToString("N0")</span>
                             </div>
                             <div class="bh-price-row" style="padding-top:10px;">
-                                <span class="deposit-label">💳 ค่ามัดจำที่ชำระแล้ว (@depositPct.ToString("0")%)</span>
-                                <span class="bh-price-amount" style="color:var(--color-cyan-signal);">฿@booking.DepositAmount.ToString("N2")</span>
+                                <span class="deposit-label"><i class="bi bi-credit-card me-1"></i> ค่ามัดจำที่ชำระแล้ว (@depositPct.ToString("0")%)</span>
+                                <span class="bh-price-amount" style="color:var(--color-cyan-signal);">฿@booking.DepositPaid.ToString("N2")</span>
                             </div>
                             <div class="bh-price-row">
                                 <span>ยอดคงเหลือที่ต้องชำระ ณ วันเช็คอิน</span>
                                 <span class="bh-price-amount" style="color:var(--color-periwinkle);">
-                                    ฿@((booking.NetAmount - booking.DepositAmount).ToString("N2"))
+                                    ฿@booking.BalanceRemaining.ToString("N2")
                                 </span>
                             </div>
                         </div>
@@ -614,7 +614,7 @@
                         @if (booking.IsCancelled && booking.DepositAmount > 0)
                         {
                             <div class="bh-refund-notice">
-                                <span class="bh-refund-icon">💰</span>
+                                <span class="bh-refund-icon"><i class="bi bi-cash-coin"></i></span>
                                 <div class="bh-refund-text">
                                     คืนเงินค่ามัดจำ 5% — ฿@booking.DepositAmount.ToString("N2")
                                     <div style="font-size:12px;opacity:0.8;margin-top:2px;">
@@ -628,6 +628,32 @@
                         }
 
                         @* Card Actions *@
+                        @if (booking.DepositRemaining > 0 && !booking.IsCancelled)
+                        {
+                            <a asp-controller="Payments" asp-action="Checkout" asp-route-bookingId="@booking.BookingId" asp-route-type="deposit"
+                               class="btn-origin-primary w-100 justify-content-center py-2 mb-3 text-decoration-none">
+                                ชำระค่ามัดจำ ฿@booking.DepositRemaining.ToString("N2")
+                            </a>
+                        }
+                        else if (booking.BalanceRemaining > 0 && !booking.IsCancelled)
+                        {
+                            <a asp-controller="Payments" asp-action="Checkout" asp-route-bookingId="@booking.BookingId" asp-route-type="balance"
+                               class="btn-origin-primary w-100 justify-content-center py-2 mb-3 text-decoration-none">
+                                ชำระยอดคงเหลือ ฿@booking.BalanceRemaining.ToString("N2")
+                            </a>
+                        }
+                        @if (booking.SuccessfulPayments.Any())
+                        {
+                            <div class="d-flex flex-wrap gap-2 mb-3">
+                                @foreach (var payment in booking.SuccessfulPayments)
+                                {
+                                    <a asp-controller="Payments" asp-action="PaymentSlip" asp-route-paymentId="@payment.PaymentId"
+                                       class="btn-origin-ghost px-3 py-2 text-decoration-none" style="font-size:11px;">
+                                        ดูสลิป @(payment.PaymentType == "deposit" ? "ค่ามัดจำ" : "ค่าห้อง") · ฿@payment.Amount.ToString("N2")
+                                    </a>
+                                }
+                            </div>
+                        }
                         @if (booking.IsCancellable)
                         {
                             <div class="bh-card-actions">

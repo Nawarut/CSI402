@@ -128,31 +128,31 @@
                                     @if (user.Role == "Admin" || user.Role == "ผู้ดูแลระบบ")
                                     {
                                         <span class="badge rounded-pill px-3 py-1" style="background: rgba(132,125,255,0.15); border: 1px solid rgba(132,125,255,0.4); color: var(--color-iris-gleam); font-size: 11px;">
-                                            👑 Admin
+                                            <i class="bi bi-shield-lock me-1" aria-hidden="true"></i> Admin
                                         </span>
                                     }
                                     else if (user.Role == "Renter" || user.Role == "ผู้เช่า")
                                     {
                                         <span class="badge rounded-pill px-3 py-1" style="background: rgba(0,179,221,0.15); border: 1px solid rgba(0,179,221,0.4); color: var(--color-cyan-signal); font-size: 11px;">
-                                            👤 Renter
+                                            <i class="bi bi-person me-1" aria-hidden="true"></i> Renter
                                         </span>
                                     }
                                     else if (user.Role == "Staff" || user.Role == "พนักงาน")
                                     {
                                         <span class="badge rounded-pill px-3 py-1" style="background: rgba(221,144,216,0.15); border: 1px solid rgba(221,144,216,0.4); color: var(--color-orchid-bloom); font-size: 11px;">
-                                            💼 Staff
+                                            <i class="bi bi-briefcase me-1" aria-hidden="true"></i> Staff
                                         </span>
                                     }
                                     else if (user.Role == "Accountant" || user.Role == "บัญชี")
                                     {
                                         <span class="badge rounded-pill px-3 py-1" style="background: rgba(144,184,240,0.15); border: 1px solid rgba(144,184,240,0.4); color: var(--color-periwinkle); font-size: 11px;">
-                                            📊 Accountant
+                                            <i class="bi bi-bar-chart-line me-1" aria-hidden="true"></i> Accountant
                                         </span>
                                     }
                                     else if (user.Role == "Customer Service" || user.Role == "CustomerService" || user.Role == "บริการลูกค้า")
                                     {
                                         <span class="badge rounded-pill px-3 py-1" style="background: rgba(0,179,221,0.15); border: 1px solid rgba(0,179,221,0.4); color: var(--color-cyan-signal); font-size: 11px;">
-                                            🎧 Service
+                                            <i class="bi bi-headset me-1" aria-hidden="true"></i> Service
                                         </span>
                                     }
                                     else
@@ -274,7 +274,7 @@
             <!-- เบอร์โทรศัพท์ -->
             <div class="mb-3">
                 <label class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">เบอร์โทรศัพท์</label>
-                <input type="tel" id="modalPhone" name="Phone" class="origin-input w-100" />
+                <input type="tel" id="modalPhone" name="Phone" inputmode="tel" maxlength="15" class="origin-input w-100" />
             </div>
 
             <!-- บทบาท & สถานะ -->
@@ -302,7 +302,7 @@
             <!-- รหัสผ่านใหม่ (ถ้าต้องการเปลี่ยน) -->
             <div class="mb-4">
                 <label class="origin-mono d-block mb-1" style="color: var(--color-ash); font-size: 11px;">รหัสผ่านใหม่ (เว้นว่างไว้หากไม่ต้องการเปลี่ยน)</label>
-                <input type="password" name="Password" placeholder="ระบุรหัสผ่านใหม่เมื่อต้องการเปลี่ยน" class="origin-input w-100" />
+                <input type="password" name="Password" minlength="8" maxlength="100" placeholder="รหัสผ่านใหม่อย่างน้อย 8 ตัวอักษร (เว้นว่างได้)" class="origin-input w-100" />
             </div>
 
             <!-- Buttons -->

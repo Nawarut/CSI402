@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Nawarut_8250_L005.Entities;
 using Nawarut_8250_L005.ViewModels;
+using Nawarut_8250_L005.Services;
 
 namespace Nawarut_8250_L005.Controllers;
 
@@ -14,6 +15,21 @@ public class ReceptionController : Controller
         _db = db;
     }
 
+    private IActionResult? ValidateReceptionAccess()
+    {
+        var role = HttpContext.Session.GetString("UserRole");
+        if (string.IsNullOrWhiteSpace(role))
+            return RedirectToAction("Login", "Account", new { returnUrl = "/Reception" });
+
+        if (role.Equals("Staff", StringComparison.OrdinalIgnoreCase) ||
+            role.Equals("Reception", StringComparison.OrdinalIgnoreCase) ||
+            role.Equals("Admin", StringComparison.OrdinalIgnoreCase))
+            return null;
+
+        TempData["ErrorMessage"] = "คุณไม่มีสิทธิ์ดำเนินการในหน้าพนักงานต้อนรับ";
+        return RedirectToAction("Index", "Home");
+    }
+
     // ==========================================
     // GET: /Reception/Index
     // แดชบอร์ดและแผงปฏิบัติงานพนักงานต้อนรับ / ดูแลห้องพัก
@@ -21,18 +37,10 @@ public class ReceptionController : Controller
     [HttpGet]
     public async Task<IActionResult> Index(string? search = null, string? roomFilter = null)
     {
-        var role = HttpContext.Session.GetString("UserRole");
-        if (string.IsNullOrEmpty(role))
-        {
-            return RedirectToAction("Login", "Account", new { returnUrl = "/Reception" });
-        }
-        if (!role.Equals("Staff", StringComparison.OrdinalIgnoreCase) &&
-            !role.Equals("Reception", StringComparison.OrdinalIgnoreCase) &&
-            !role.Equals("Admin", StringComparison.OrdinalIgnoreCase))
-        {
-            TempData["ErrorMessage"] = "คุณไม่มีสิทธิ์เข้าถึงหน้าพนักงานต้อนรับ (เฉพาะเจ้าหน้าที่เท่านั้น)";
-            return RedirectToAction("Index", "Home");
-        }
+        var accessCheck = ValidateReceptionAccess();
+        if (accessCheck != null) return accessCheck;
+
+        ViewBag.DepartmentTickets = await DepartmentTicketService.GetOpenTicketsAsync(_db, "Reception");
 
         var today = DateOnly.FromDateTime(DateTime.Today);
 
@@ -48,6 +56,7 @@ public class ReceptionController : Controller
         // 2. ดึงข้อมูลรายการจอง
         var bookingsQuery = _db.Bookings
             .Include(b => b.User)
+            .Include(b => b.Payments)
             .Include(b => b.BookingRooms)
                 .ThenInclude(br => br.Room)
                     .ThenInclude(r => r.RoomType)
@@ -89,6 +98,9 @@ public class ReceptionController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ConfirmBooking(uint bookingId)
     {
+        var accessCheck = ValidateReceptionAccess();
+        if (accessCheck != null) return accessCheck;
+
         var booking = await _db.Bookings.FindAsync(bookingId);
         if (booking != null)
         {
@@ -101,6 +113,61 @@ public class ReceptionController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CollectPayment(uint bookingId)
+    {
+        var accessCheck = ValidateReceptionAccess();
+        if (accessCheck != null) return accessCheck;
+
+        var booking = await _db.Bookings.Include(b => b.Payments)
+            .FirstOrDefaultAsync(b => b.BookingId == bookingId);
+        if (booking == null || booking.Status.Equals("cancelled", StringComparison.OrdinalIgnoreCase))
+        {
+            TempData["ErrorMessage"] = "ไม่พบรายการจองหรือรายการจองถูกยกเลิกแล้ว";
+            return RedirectToAction(nameof(Index));
+        }
+
+        var depositPaid = booking.Payments
+            .Where(p => p.PaymentType == "deposit" && p.Status == "success").Sum(p => p.Amount);
+        var balancePaid = booking.Payments
+            .Where(p => p.PaymentType == "balance" && p.Status == "success").Sum(p => p.Amount);
+        var depositDue = Math.Max(0m, booking.DepositAmount - depositPaid);
+        var amount = depositDue > 0 ? depositDue : Math.Max(0m, booking.NetAmount - booking.DepositAmount - balancePaid);
+        if (amount <= 0)
+        {
+            TempData["InfoMessage"] = "รายการจองนี้ชำระครบแล้ว";
+            return RedirectToAction(nameof(Index));
+        }
+
+        var payment = new Payment
+        {
+            BookingId = booking.BookingId,
+            PaymentType = depositDue > 0 ? "deposit" : "balance",
+            Amount = amount,
+            Status = "success",
+            Method = "cash",
+            TransactionRef = $"CASH-{DateTime.Now:yyyyMMddHHmmss}-{Guid.NewGuid():N}"[..30],
+            PaidAt = DateTime.Now
+        };
+        _db.Payments.Add(payment);
+        if (depositDue > 0)
+        {
+            booking.Status = "confirmed";
+            booking.ConfirmedAt ??= DateTime.Now;
+        }
+        booking.UpdatedAt = DateTime.Now;
+        await _db.SaveChangesAsync();
+
+        NotificationHelper.Add(_db, booking.UserId,
+            payment.PaymentType == "deposit" ? "รับชำระค่ามัดจำที่ Reception แล้ว" : "รับชำระยอดค่าห้องที่ Reception แล้ว",
+            $"การจอง {booking.BookingCode} · ฿{amount:N2} · เลขที่รายการ {payment.TransactionRef}",
+            "payment", payment.PaymentId);
+        await _db.SaveChangesAsync();
+        TempData["SuccessMessage"] = $"บันทึกรับชำระ{(payment.PaymentType == "deposit" ? "ค่ามัดจำ" : "ยอดคงเหลือ")} ฿{amount:N2} แล้ว";
+        return RedirectToAction(nameof(Index));
+    }
+
     // ==========================================
     // POST: /Reception/CheckIn
     // บันทึกการเข้าพัก (Check-in 09:00 น.)
@@ -109,12 +176,24 @@ public class ReceptionController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> CheckIn(uint bookingId)
     {
+        var accessCheck = ValidateReceptionAccess();
+        if (accessCheck != null) return accessCheck;
+
         var booking = await _db.Bookings
             .Include(b => b.BookingRooms)
+            .Include(b => b.Payments)
             .FirstOrDefaultAsync(b => b.BookingId == bookingId);
 
         if (booking != null)
         {
+            var depositPaid = booking.Payments.Where(p => p.PaymentType == "deposit" && p.Status == "success").Sum(p => p.Amount);
+            var balancePaid = booking.Payments.Where(p => p.PaymentType == "balance" && p.Status == "success").Sum(p => p.Amount);
+            if (depositPaid < booking.DepositAmount || depositPaid + balancePaid < booking.NetAmount)
+            {
+                TempData["ErrorMessage"] = "กรุณารับชำระเงินมัดจำและยอดคงเหลือให้ครบก่อนเช็กอิน";
+                return RedirectToAction(nameof(Index));
+            }
+
             booking.Status = "checked_in";
             booking.CheckedInAt = DateTime.Now;
             booking.UpdatedAt = DateTime.Now;
@@ -131,7 +210,7 @@ public class ReceptionController : Controller
             }
 
             await _db.SaveChangesAsync();
-            TempData["SuccessMessage"] = $"บันทึกเช็คอิน (Check-in) สำหรับการจอง #{booking.BookingCode} เรียบร้อยแล้ว (สถานะห้องปรับเป็น: มีผู้เข้าพัก)";
+            TempData["SuccessMessage"] = $"เช็กอิน #{booking.BookingCode} เรียบร้อยแล้ว (ชำระครบแล้ว)";
         }
         return RedirectToAction(nameof(Index));
     }
@@ -144,6 +223,9 @@ public class ReceptionController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> CheckOut(uint bookingId)
     {
+        var accessCheck = ValidateReceptionAccess();
+        if (accessCheck != null) return accessCheck;
+
         var booking = await _db.Bookings
             .Include(b => b.BookingRooms)
             .FirstOrDefaultAsync(b => b.BookingId == bookingId);
@@ -179,6 +261,9 @@ public class ReceptionController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> UpdateRoomStatus(uint roomId, string status)
     {
+        var accessCheck = ValidateReceptionAccess();
+        if (accessCheck != null) return accessCheck;
+
         var room = await _db.Rooms.FindAsync(roomId);
         if (room != null)
         {

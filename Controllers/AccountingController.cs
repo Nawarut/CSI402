@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Nawarut_8250_L005.Entities;
+using Nawarut_8250_L005.Services;
 
 namespace Nawarut_8250_L005.Controllers;
 
@@ -33,6 +34,8 @@ public class AccountingController : Controller
             return RedirectToAction("Index", "Home");
         }
 
+        ViewBag.DepartmentTickets = await DepartmentTicketService.GetOpenTicketsAsync(_db, "Accounting");
+
         // 1. ดึงข้อมูลการจองทั้งหมดสำหรับการคำนวณการเงิน
         var bookings = await _db.Bookings
             .Include(b => b.User)
@@ -55,7 +58,10 @@ public class AccountingController : Controller
         decimal totalDepositsCollected = payments.Where(p => p.PaymentType == "deposit" && p.Status == "success").Sum(p => p.Amount);
         decimal pendingRefundsAmount = payments.Where(p => p.PaymentType == "refund" && p.Status == "pending").Sum(p => p.Amount);
         decimal totalRefundedAmount = payments.Where(p => p.PaymentType == "refund" && (p.Status == "success" || p.Status == "refunded")).Sum(p => p.Amount);
-        decimal pendingBalanceAmount = bookings.Where(b => (b.Status ?? "").ToLower() is "confirmed" or "checked_in" or "checkedin").Sum(b => b.NetAmount - b.DepositAmount);
+        decimal pendingBalanceAmount = bookings
+            .Where(b => (b.Status ?? "").ToLower() is "confirmed" or "checked_in" or "checkedin")
+            .Sum(b => Math.Max(0m, b.NetAmount - b.DepositAmount - b.Payments
+                .Where(p => p.PaymentType == "balance" && p.Status == "success").Sum(p => p.Amount)));
 
         ViewBag.TotalNetRevenue = totalNetRevenue;
         ViewBag.TotalDepositsCollected = totalDepositsCollected;
