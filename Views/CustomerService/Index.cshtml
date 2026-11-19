@@ -1,7 +1,7 @@
 @model List<Nawarut_8250_L005.Entities.Ticket>
 @{
     ViewData["Title"] = "ฝ่ายบริการลูกค้า (Customer Service)";
-    Layout = "_navbarlayout";
+    Layout = string.Equals(Context.Session.GetString("UserRole"), "Admin", StringComparison.OrdinalIgnoreCase) ? "_AdminLayout" : "_navbarlayout";
     var customers = ViewBag.Customers as List<Nawarut_8250_L005.Entities.User> ?? new();
     var bookings = ViewBag.Bookings as List<Nawarut_8250_L005.Entities.Booking> ?? new();
 }
@@ -205,6 +205,17 @@
                                         <div class="d-inline-flex gap-1 justify-content-end">
                                             @if ((t.Status ?? "").ToLower() != "resolved")
                                             {
+                                                @if ((t.Status ?? "").ToLower() == "open")
+                                                {
+                                                    <form method="post" asp-action="TakeTicket" class="d-inline">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="ticketId" value="@t.TicketId" />
+                                                        <button type="submit" class="btn-origin-primary py-1 px-2" style="font-size: 11px;" title="รับเรื่องนี้เข้าดำเนินการ">
+                                                            <i class="bi bi-inbox me-1"></i> รับเรื่อง
+                                                        </button>
+                                                    </form>
+                                                }
+
                                                 <!-- ปุ่มส่งต่อฝ่ายบัญชี -->
                                                 <form method="post" asp-action="EscalateTicket" class="d-inline">
                                                     @Html.AntiForgeryToken()

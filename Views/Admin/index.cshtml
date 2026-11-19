@@ -104,6 +104,22 @@
 
     </div>
 
+    <div class="origin-card-graphite p-4 mb-5 d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center justify-content-center rounded-circle" style="width: 48px; height: 48px; background: rgba(144,184,240,0.12); color: var(--color-periwinkle); font-size: 20px;">
+                <i class="bi bi-headset"></i>
+            </div>
+            <div>
+                <span class="origin-mono d-block" style="color: var(--color-periwinkle); font-size: 10px;">CUSTOMER SERVICE CONTROL</span>
+                <h3 class="origin-heading-lg mb-0" style="font-size: 20px;">จัดการ Customer Service และรับเรื่อง</h3>
+                <span class="origin-mono" style="color: var(--color-ash); font-size: 11px;">ค้างดำเนินการ @ViewBag.OpenCustomerServiceTickets เรื่อง · ส่งต่อฝ่ายอื่น @ViewBag.EscalatedCustomerServiceTickets เรื่อง</span>
+            </div>
+        </div>
+        <a asp-controller="CustomerService" asp-action="Index" class="btn-origin-primary text-decoration-none py-2 px-3">
+            <i class="bi bi-inbox me-1"></i> เปิดศูนย์รับเรื่อง
+        </a>
+    </div>
+
     <!-- Quick Action / Management Cards -->
     <div class="row g-4 mb-5">
         <div class="col-12 col-lg-8">

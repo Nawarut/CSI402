@@ -121,6 +121,8 @@ public class AdminController : Controller
         }).ToList();
 
         var totalPromotions = await _db.Promotions.CountAsync();
+        ViewBag.OpenCustomerServiceTickets = await _db.Tickets.CountAsync(t => t.Status != "resolved" && t.Status != "closed");
+        ViewBag.EscalatedCustomerServiceTickets = await _db.Tickets.CountAsync(t => t.Status == "escalated");
 
         var model = new AdminDashboardViewModel
         {

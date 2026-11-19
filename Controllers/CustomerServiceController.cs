@@ -135,6 +135,47 @@ public class CustomerServiceController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> TakeTicket(uint ticketId)
+    {
+        var accessCheck = ValidateCustomerServiceAccess();
+        if (accessCheck != null) return accessCheck;
+
+        var ticket = await _db.Tickets.FirstOrDefaultAsync(t => t.TicketId == ticketId);
+        if (ticket == null)
+        {
+            TempData["ErrorMessage"] = "ไม่พบ Ticket ที่ต้องการรับเรื่อง";
+            return RedirectToAction(nameof(Index));
+        }
+        if (ticket.Status != "open")
+        {
+            TempData["WarningMessage"] = "Ticket นี้ถูกรับเรื่องหรือส่งต่อไปแล้ว";
+            return RedirectToAction(nameof(Index));
+        }
+
+        var userId = HttpContext.Session.GetInt32("UserId");
+        if (!userId.HasValue) return RedirectToAction("Login", "Account");
+
+        ticket.Status = "in_progress";
+        ticket.AssignedTo = (uint)userId.Value;
+        ticket.UpdatedAt = DateTime.Now;
+        _db.TicketMessages.Add(new TicketMessage
+        {
+            TicketId = ticket.TicketId,
+            SenderId = (uint)userId.Value,
+            Message = "Customer Service รับเรื่องและกำลังตรวจสอบปัญหา",
+            IsInternal = true,
+            CreatedAt = DateTime.Now
+        });
+        NotificationHelper.Add(_db, ticket.CustomerId, "Customer Service รับเรื่องแล้ว",
+            $"Ticket {ticket.TicketCode} กำลังอยู่ระหว่างดำเนินการ", "ticket", ticket.TicketId);
+        await _db.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = $"รับ Ticket {ticket.TicketCode} เข้าดำเนินการแล้ว";
+        return RedirectToAction(nameof(Index));
+    }
+
     // ==========================================
     // POST: /CustomerService/EscalateTicket
     // คัดกรองและส่งต่อเรื่อง (Escalation) ไปยังฝ่ายที่รับผิดชอบ

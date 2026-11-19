@@ -376,5 +376,4 @@ C:\Users\Game Of Cpu\Documents\GitHub\CSI402\bin\CodexVerify\ru\Microsoft.CodeAn
 C:\Users\Game Of Cpu\Documents\GitHub\CSI402\bin\CodexVerify\tr\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
 C:\Users\Game Of Cpu\Documents\GitHub\CSI402\bin\CodexVerify\zh-Hans\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
 C:\Users\Game Of Cpu\Documents\GitHub\CSI402\bin\CodexVerify\zh-Hant\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
-C:\Users\Game Of Cpu\Documents\GitHub\CSI402\obj\Debug\net10.0\Nawarut_8250_L005.sourcelink.json
 C:\Users\Game Of Cpu\Documents\GitHub\CSI402\obj\Debug\net10.0\Nawarut_8250_L005.pdb

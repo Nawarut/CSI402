@@ -358,6 +358,12 @@
                         <span>รายการจอง (Bookings)</span>
                     </a>
 
+                    <a asp-controller="CustomerService" asp-action="Index"
+                       class="origin-menu-item @(currentController == "CustomerService" ? "active" : "")">
+                        <span class="origin-menu-icon"><i class="bi bi-headset"></i></span>
+                        <span>บริการลูกค้า (Customer Service)</span>
+                    </a>
+
                     <div class="origin-menu-section-label">SITE ACCESS &middot; เว็บไซต์</div>
 
                     <a asp-controller="Home" asp-action="Index" class="origin-menu-item">
